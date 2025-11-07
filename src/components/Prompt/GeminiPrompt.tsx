@@ -31,7 +31,7 @@ export default function GeminiPrompt({
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY ?? "";
+  const apiKey = "";
 
   const handleSendPrompt = async () => {
     // ✅ Không chặn khi prompt trống — vì đã có default prompt

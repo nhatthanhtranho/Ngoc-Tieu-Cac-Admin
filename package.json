@@ -27,6 +27,7 @@
     "react-easy-crop": "^5.5.3",
     "react-router-dom": "^7.9.5",
     "react-select": "^5.10.2",
+    "react-switch": "^7.1.0",
     "react-toastify": "^11.0.5",
     "styled": "^1.0.0",
     "styled-components": "^6.1.19",

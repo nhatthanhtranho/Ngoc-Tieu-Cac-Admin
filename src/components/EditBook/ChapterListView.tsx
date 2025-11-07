@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
+import axios from "axios";
 import { vi } from "date-fns/locale";
 import { AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { Upload, SquarePen, Download, BrushCleaning } from "lucide-react";
+
 import UploadChaptersModal from "./UploadChaptersModal";
 import ReviewChapterModal from "./ReviewChapterModal";
 import { Chapter, fetchChapters } from "../../../apis/chapters";
-import axios from "axios";
 
 interface ChapterListViewProps {
   numberOfChapters: number;
@@ -28,6 +31,7 @@ export default function ChapterListView({
   const [error, setError] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedChapter, setSelectedChapter] = useState<number>(-1);
+  const navigate = useNavigate();
 
   const [progressData, setProgressData] = useState<{
     [chapterNumber: number]: { isFormatOk: boolean; isQualityOk: boolean };
@@ -92,12 +96,26 @@ export default function ChapterListView({
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
           📚 Danh sách chương ({numberOfChapters})
         </h2>
-        <button
-          onClick={() => setShowUploadModal(true)}
-          className="bg-green-600 rounded p-2 cursor-pointer hover:bg-green-800 transition-colors duration-200 shadow text-white"
-        >
-          Upload Chương
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="bg-red-600 rounded p-2 cursor-pointer hover:bg-red-800 transition-colors duration-200 shadow text-white"
+          >
+            <BrushCleaning className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="bg-green-600 rounded p-2 cursor-pointer hover:bg-green-800 transition-colors duration-200 shadow text-white"
+          >
+            <Download className="w-6 h-6" />
+          </button>
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="bg-blue-600 rounded p-2 cursor-pointer hover:bg-blue-800 transition-colors duration-200 shadow text-white"
+          >
+            <Upload className="w-6 h-6" />
+          </button>
+        </div>
       </div>
 
       {error && <p className="text-red-500">{error}</p>}
@@ -105,12 +123,12 @@ export default function ChapterListView({
       {chapters.length === 0 ? (
         <p>Không có chương nào.</p>
       ) : (
-        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+        <ul className="divide-y divide-gray-200 gap-2">
           {chapters.map((chapter) => (
             <li
               key={chapter.chapterNumber}
               onClick={() => setSelectedChapter(chapter.chapterNumber)}
-              className={`py-3 px-4 flex justify-between items-center cursor-pointer rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition shadow-sm mb-1 bg-gray-50 dark:bg-gray-700 ${
+              className={`py-3 px-4 flex justify-between items-center rounded-lg hover:bg-gray-200  transition mb-1 bg-gray-50 ${
                 progressData[chapter.chapterNumber]?.isFormatOk
                   ? "border border-emerald-400"
                   : ""
@@ -118,30 +136,25 @@ export default function ChapterListView({
             >
               {/* Thông tin chapter */}
               <div className="flex flex-col">
-                <p className="font-semibold dark:text-gray-100 flex items-center gap-2">
+                <p className="font-semibold  flex items-center gap-2">
                   Chương {chapter.chapterNumber}:{" "}
-                  <span className="font-normal text-gray-700 dark:text-gray-200">
+                  <span className="font-normal text-gray-700">
                     {chapter.title}
                   </span>
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                <p className="text-sm text-gray-500 italic">
                   Cập nhật: {renderDate(chapter.createdAt)}
                 </p>
               </div>
 
-              {/* Badge progress */}
-              <div className="flex gap-2">
-                {progressData[chapter.chapterNumber]?.isFormatOk && (
-                  <span className="flex items-center gap-1 bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-100 px-2 py-0.5 rounded-full text-xs font-medium">
-                    ✔ Format
-                  </span>
-                )}
-                {progressData[chapter.chapterNumber]?.isQualityOk && (
-                  <span className="flex items-center gap-1 bg-purple-100 dark:bg-purple-700 text-purple-700 dark:text-purple-100 px-2 py-0.5 rounded-full text-xs font-medium">
-                    ✔ Ngữ văn
-                  </span>
-                )}
-              </div>
+              <button
+                onClick={() =>
+                  navigate(`/book/${bookSlug}/chapter/${chapter.chapterNumber}`)
+                }
+                className=" text-white transition-all cursor-pointer"
+              >
+                <SquarePen className="w-6 h-6 text-zinc-700 hover:text-zinc-900" />
+              </button>
             </li>
           ))}
         </ul>

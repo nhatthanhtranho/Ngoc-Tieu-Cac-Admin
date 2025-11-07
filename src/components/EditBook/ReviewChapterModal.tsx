@@ -24,13 +24,8 @@ export default function ReviewChapterModal({
   onClose,
   onNavigate,
   initialProgress = { isFormatOk: false, isQualityOk: false },
-  onUpdateProgress,
 }: ReviewChapterModalProps) {
   const [chapterContent, setChapterContent] = useState<string>("");
-  const [chapterTitle, setChapterTitle] = useState<string>("");
-
-  const [isFormatOk, setIsFormatOk] = useState(initialProgress.isFormatOk);
-  const [isQualityOk, setIsQualityOk] = useState(initialProgress.isQualityOk);
 
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
@@ -38,31 +33,6 @@ export default function ReviewChapterModal({
   useEffect(() => {
     fetchChapterDetail(bookSlug, chapterNumber, setChapterContent);
   }, [bookSlug, chapterNumber]);
-
-  const handleCheckboxChange = async (
-    type: "format" | "quality",
-    checked: boolean
-  ) => {
-    try {
-      if (type === "format") setIsFormatOk(checked);
-      else setIsQualityOk(checked);
-
-      await axios.post("/api/review-progress", {
-        slug: bookSlug,
-        chapterNumber,
-        isFormatOk: type === "format" ? checked : isFormatOk,
-        isQualityOk: type === "quality" ? checked : isQualityOk,
-      });
-
-      onUpdateProgress?.(chapterNumber, {
-        isFormatOk: type === "format" ? checked : isFormatOk,
-        isQualityOk: type === "quality" ? checked : isQualityOk,
-      });
-    } catch (err) {
-      console.error(err);
-      alert("Lưu đánh giá thất bại!");
-    }
-  };
 
   const handleSaveContent = async () => {
     if (!chapterContent) return;
@@ -165,7 +135,7 @@ export default function ReviewChapterModal({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${chapterTitle || `chapter-${chapterNumber}`}.txt`;
+    a.download = `chapter-${chapterNumber}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -208,30 +178,6 @@ export default function ReviewChapterModal({
           </div>
 
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 text-gray-800 dark:text-gray-200 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isFormatOk}
-                onChange={(e) =>
-                  handleCheckboxChange("format", e.target.checked)
-                }
-                className="h-4 w-4 text-green-600"
-              />
-              <span>Đúng format</span>
-            </label>
-
-            <label className="flex items-center gap-2 text-gray-800 dark:text-gray-200 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isQualityOk}
-                onChange={(e) =>
-                  handleCheckboxChange("quality", e.target.checked)
-                }
-                className="h-4 w-4 text-purple-600"
-              />
-              <span>Đủ chất lượng</span>
-            </label>
-
             <button
               onClick={onClose}
               className="px-4 py-2 cursor-pointer rounded-xl border border-gray-300 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
@@ -243,10 +189,6 @@ export default function ReviewChapterModal({
 
         {/* Nội dung chapter */}
         <div className="flex-1 overflow-y-auto h-[400px] pt-4 flex flex-col">
-          <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
-            🧐 {chapterTitle}
-          </h2>
-
           <textarea
             rows={20}
             value={chapterContent}
@@ -255,13 +197,6 @@ export default function ReviewChapterModal({
           />
 
           <div className="mt-3 flex justify-end gap-2">
-            <button
-              onClick={handleFormatContent}
-              className="px-4 py-2 rounded-xl border bg-yellow-500 text-white hover:bg-yellow-600 transition-all"
-            >
-              Format
-            </button>
-
             <button
               onClick={handleSaveContent}
               disabled={isSaving}

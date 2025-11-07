@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+import { getEndpoint } from ".";
 
 export interface TopupItem {
   id: string;
@@ -31,7 +32,7 @@ export async function fetchTopups(params?: {
       ? "?" + new URLSearchParams(params as any).toString()
       : "";
 
-  const res = await fetch(`${API_URL}/payment-requests/all${query}`, {
+  const res = await fetch(getEndpoint(`payment-requests/all${query}`), {
     headers: { "Content-Type": "application/json" },
     cache: "no-store",
   });

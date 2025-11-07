@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { fetchTopups, TopupItem } from "../../apis/payment-requests";
+import { fetchTopups, TopupItem } from "../../../apis/payment-requests";
 import TopupFilter from "./TopupFilter";
 import TopupCard from "./TopUpCard";
 

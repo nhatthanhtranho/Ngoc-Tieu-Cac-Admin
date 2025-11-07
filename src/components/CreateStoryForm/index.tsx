@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+"use client";
 import { useState } from "react";
 import Step1Form from "./Step1";
 import StepIndicator from "./StepIndicator";
-import { useRouter } from "next/navigation";
 import pako from "pako";
+import { getEndpoint } from "../../../apis";
+import { useNavigate } from "react-router-dom";
 
 export interface StoryFormData {
   title: string;
@@ -18,7 +19,7 @@ export interface StoryFormData {
 }
 
 export default function CreateStoryForm() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<StoryFormData>({
@@ -32,7 +33,9 @@ export default function CreateStoryForm() {
     tacGia: "",
   });
 
-  const handleInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInfoChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -42,14 +45,17 @@ export default function CreateStoryForm() {
     setFormData((prev) => ({
       ...prev,
       tagInput: value,
-      tags: value.split(",").map((tag) => tag.trim()).filter((tag) => tag !== ""),
+      tags: value
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag !== ""),
     }));
   };
 
   const handleCheckSlug = async () => {
     if (!formData.slug) return alert("⚠️ Vui lòng nhập slug!");
     try {
-      const res = await fetch(`http://localhost:3002/books/check-slug/${formData.slug}`);
+      const res = await fetch(getEndpoint(`books/check-slug/${formData.slug}`));
       const data = await res.json();
       if (data.exists) {
         setSlugAvailable(false);
@@ -64,16 +70,23 @@ export default function CreateStoryForm() {
     }
   };
 
-  const handleChangeBannerImage = (result: { small: string; medium: string; default: string }) => {
+  const handleChangeBannerImage = (result: {
+    small: string;
+    medium: string;
+    default: string;
+  }) => {
     setFormData((prev) => ({ ...prev, bannerImage: result }));
   };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.title.trim()) newErrors.title = "Tiêu đề không được để trống.";
-    if (!formData.description.trim()) newErrors.description = "Mô tả không được để trống.";
+    if (!formData.title.trim())
+      newErrors.title = "Tiêu đề không được để trống.";
+    if (!formData.description.trim())
+      newErrors.description = "Mô tả không được để trống.";
     if (!formData.slug.trim()) newErrors.slug = "Slug không được để trống.";
-    if (slugAvailable !== true) newErrors.slugCheck = "Slug chưa được kiểm tra.";
+    if (slugAvailable !== true)
+      newErrors.slugCheck = "Slug chưa được kiểm tra.";
     if (!formData.tacGia.trim()) newErrors.tacGia = "Nhập tên tác giả.";
     if (!formData.dichGia.trim()) newErrors.dichGia = "Nhập tên dịch giả.";
 
@@ -91,13 +104,13 @@ export default function CreateStoryForm() {
       const formDataToSend = new FormData();
       formDataToSend.append("file", blob, "book-info.json.gz");
 
-      const res = await fetch("http://localhost:3002/books", {
+      const res = await fetch(getEndpoint("books"), {
         method: "POST",
         body: formDataToSend,
       });
 
       if (!res.ok) throw new Error();
-      router.push("/");
+      navigate("/");
     } catch (err) {
       console.error(err);
       alert("❌ Lỗi khi lưu truyện");
@@ -118,13 +131,17 @@ export default function CreateStoryForm() {
           tracking-wider drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]
           font-[Cinzel]"
           style={{
-            textShadow: "0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(173,216,255,0.3)",
+            textShadow:
+              "0 0 10px rgba(255,255,255,0.5), 0 0 20px rgba(173,216,255,0.3)",
           }}
         >
           ✨ Tạo Truyện Mới ✨
         </h2>
 
-        <StepIndicator steps={[{ id: 1, label: "Thông tin" }]} currentStep={1} />
+        <StepIndicator
+          steps={[{ id: 1, label: "Thông tin" }]}
+          currentStep={1}
+        />
 
         <Step1Form
           handleChangeBannerImage={handleChangeBannerImage}

@@ -1,4 +1,5 @@
-import { compressText, decompressText } from "@/utils/compress";
+import { getEndpoint } from ".";
+import { compressText, decompressText } from "../src/utils/compress";
 import axios from "axios";
 
 export interface Chapter {
@@ -15,7 +16,7 @@ export async function fetchChapters(
 ) {
   if (!bookSlug) return;
   const res = await axios.get<{ data: Chapter[] }>(
-    `http://localhost:3002/books/${bookSlug}/chapters?start=${start}&end=${end}`
+    getEndpoint(`books/${bookSlug}/chapters?start=${start}&end=${end}`)
   );
   setChapters(res.data.data);
 }
@@ -26,7 +27,7 @@ export async function fetchChapterDetail(
   setContent: (content: string) => void
 ) {
   const res = await axios.get(
-    `http://localhost:3002/books/${bookSlug}/chapters/${chapterNumber}`
+    getEndpoint(`books/${bookSlug}/chapters/${chapterNumber}`)
   );
   const content = decompressText(res.data.content);
   setContent(content);
@@ -66,11 +67,7 @@ export async function saveChaptercontent(
   // ---------------------------
   // 2. Upload
   // ---------------------------
-  await axios.post(
-    `http://localhost:3002/books/${bookSlug}/chapters/upload`,
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    }
-  );
+  await axios.post(getEndpoint(`books/${bookSlug}/chapters/upload`), formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 }

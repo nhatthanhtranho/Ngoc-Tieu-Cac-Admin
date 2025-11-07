@@ -1,18 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
 import { useState, useEffect } from "react";
-import Image from "next/image";
-import CropImage from "../CropImage/CropImage";
+// import CropImage from "../CropImage/CropImage";
 import ChapterListView from "./ChapterListView";
-import { useSearchParams } from "next/navigation";
 import Select from "react-select";
 import pako from "pako";
-import { Book, fetchBookBySlug } from "@/apis/books";
-import { fetchAllCategories } from "@/apis/categories";
+import { useParams } from "react-router-dom";
+import { Book, fetchBookBySlug } from "../../../apis/books";
+import { fetchAllCategories } from "../../../apis/categories";
+import { getEndpoint } from "../../../apis";
 
 export default function EditBookInfo() {
-  const searchParams = useSearchParams();
-  const slug = searchParams.get("slug") || "";
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug || "";
   const [book, setBook] = useState<Book | null>(null);
   const [originalBook, setOriginalBook] = useState<Book | null>(null);
   const [previewSet, setPreviewSet] = useState<{
@@ -21,7 +19,6 @@ export default function EditBookInfo() {
   }>({});
   const [preview, setPreview] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<
     Array<{ label: string; value: string }>
   >([]);
@@ -33,28 +30,7 @@ export default function EditBookInfo() {
   }, []);
 
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const book = await fetchBookBySlug(slug, setBook);
-        if (mounted) {
-          const withFallback = {
-            ...book,
-            bannerURL: book.bannerURL || fallbackBanner,
-          };
-          setBook(withFallback);
-          setOriginalBook(withFallback);
-          setPreview(withFallback.bannerURL || fallbackBanner);
-        }
-      } catch (err) {
-        console.error("Lỗi khi load thông tin truyện:", err);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
+    fetchBookBySlug(slug, setBook);
   }, [slug]);
 
   const onChange = (key: keyof Book, value: any) => {
@@ -100,7 +76,7 @@ export default function EditBookInfo() {
     formDataToSend.append("file", blob, "book-info.json.gz");
 
     try {
-      const response = await fetch(`http://localhost:3002/books/${book._id}`, {
+      const response = await fetch(getEndpoint(`books/${book._id}`), {
         method: "PATCH",
         body: formDataToSend,
       });
@@ -161,12 +137,6 @@ export default function EditBookInfo() {
     onChange("bannerImage", result);
   };
 
-  if (loading) {
-    return (
-      <div className="p-6 text-center text-gray-500">Đang tải dữ liệu...</div>
-    );
-  }
-
   if (!book) {
     return (
       <div className="p-6 text-center text-red-500">
@@ -202,9 +172,7 @@ export default function EditBookInfo() {
                       transition-all duration-300"
                     style={{ width: `${w}px`, height: `${h}px` }}
                   >
-                    <Image
-                      fill
-                      unoptimized
+                    <img
                       src={url || fallbackBanner}
                       alt={`Banner ${size}`}
                       className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
@@ -248,7 +216,7 @@ export default function EditBookInfo() {
         {showCrop && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-6 shadow-xl max-w-md w-full">
-              <CropImage onCropComplete={handleCropComplete} />
+              {/* <CropImage onCropComplete={handleCropComplete} /> */}
               <div className="text-center mt-3">
                 <button
                   onClick={() => setShowCrop(false)}

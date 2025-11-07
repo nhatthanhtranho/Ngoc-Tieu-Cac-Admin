@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
 import { Image as ImageIcon } from "iconsax-react";
 import { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";

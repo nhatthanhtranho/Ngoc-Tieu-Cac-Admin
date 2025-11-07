@@ -2,7 +2,6 @@
 'use client';
 import { useState } from 'react';
 import { StoryFormData } from './index';
-import CropImage from '../CropImage/CropImage';
 
 interface Step1FormProps {
   formData: StoryFormData;

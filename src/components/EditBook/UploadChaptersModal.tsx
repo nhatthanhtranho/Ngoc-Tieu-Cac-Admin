@@ -1,9 +1,8 @@
-"use client";
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
-import { compressText } from "@/utils/compress";
+import { compressText } from "../../utils/compress";
+import { getEndpoint } from "../../../apis";
 
 interface ParsedChapter {
   chapterNumber: number;
@@ -110,7 +109,7 @@ export default function UploadChaptersModal({
         setCurrentBatch(i + 1);
 
         await axios.post(
-          `http://localhost:3002/books/${bookSlug}/chapters/upload`,
+          getEndpoint(`books/${bookSlug}/chapters/upload`),
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },

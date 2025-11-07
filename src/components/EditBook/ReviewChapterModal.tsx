@@ -1,11 +1,10 @@
-"use client";
-
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { compressText } from "@/utils/compress";
-import { useRouter } from "next/navigation";
-import { fetchChapterDetail } from "@/apis/chapters";
+import { compressText } from "../../utils/compress";
+import { fetchChapterDetail } from "../../../apis/chapters";
+import { useNavigate } from "react-router-dom";
+import { getEndpoint } from "../../../apis";
 
 interface ReviewChapterModalProps {
   bookSlug: string;
@@ -34,7 +33,7 @@ export default function ReviewChapterModal({
   const [isQualityOk, setIsQualityOk] = useState(initialProgress.isQualityOk);
 
   const [isSaving, setIsSaving] = useState(false);
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchChapterDetail(bookSlug, chapterNumber, setChapterContent);
@@ -99,7 +98,7 @@ export default function ReviewChapterModal({
       // 2. Upload
       // ---------------------------
       await axios.post(
-        `http://localhost:3002/books/${bookSlug}/chapters/upload`,
+        getEndpoint(`books/${bookSlug}/chapters/upload`),
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -279,9 +278,7 @@ export default function ReviewChapterModal({
             </button>
             <button
               onClick={() =>
-                router.push(
-                  `/edit-chapter?slug=${bookSlug}&chapterNumber=${chapterNumber}`
-                )
+                navigate(`/book/${bookSlug}/chapter/${chapterNumber}`)
               }
               className="px-4 py-2 rounded-xl border bg-red-500 text-white transition-all cursor-pointer"
             >

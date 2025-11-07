@@ -1,12 +1,10 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { AnimatePresence } from "framer-motion";
 import UploadChaptersModal from "./UploadChaptersModal";
 import ReviewChapterModal from "./ReviewChapterModal";
-import { Chapter, fetchChapters } from "@/apis/chapters";
+import { Chapter, fetchChapters } from "../../../apis/chapters";
 import axios from "axios";
 
 interface ChapterListViewProps {

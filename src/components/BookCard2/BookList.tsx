@@ -65,12 +65,11 @@ export default function BookList({ initialBooks }: { initialBooks: Book[] }) {
           key={book.slug}
           layout="position"
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
-          style={{ willChange: "transform" }}
         >
           <BookCard2
             slug={book.slug}
             title={book.title}
-            handleClick={() => navigate(`/edit-book?slug=${book.slug}`)}
+            handleClick={() => navigate(`/book/${book.slug}`)}
             thumbnailUrl={book.bannerURL || ""}
             isBookmarked={bookmarks.includes(book.slug)}
             onToggleBookmark={() => toggleBookmark(book.slug)}

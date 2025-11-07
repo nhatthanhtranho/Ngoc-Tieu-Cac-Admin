@@ -1,8 +1,17 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { getLeaderboard, setLeaderboard } from "@/apis/leaderboard";
-import { Search, Trash2, ArrowRightLeft, Save, BookOpen } from "lucide-react";
+import { getLeaderboard, setLeaderboard } from "../../../apis/leaderboard";
+import {
+  Search,
+  X,
+  ArrowRightLeft,
+  Save,
+  BookOpen,
+  Plus,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Book = { slug: string; title: string };
@@ -20,8 +29,6 @@ export default function LeaderBoardEdit({
 }: LeaderBoardEditProps) {
   const [leaderboard, setLeaderboardState] = useState<string[]>([]);
   const [available, setAvailable] = useState<Book[]>([]);
-  const [draggedBook, setDraggedBook] = useState<Book | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -30,7 +37,7 @@ export default function LeaderBoardEdit({
   }, [type]);
 
   useEffect(() => {
-    setAvailable(books.filter((b) => !leaderboard?.includes(b.slug)));
+    setAvailable(books.filter((b) => !leaderboard.includes(b.slug)));
   }, [books, leaderboard]);
 
   const filteredAvailable = useMemo(() => {
@@ -42,30 +49,33 @@ export default function LeaderBoardEdit({
     );
   }, [search, available]);
 
-  const handleDragStart = (book: Book) => setDraggedBook(book);
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => e.preventDefault();
-
-  const handleDropToLeaderboard = () => {
-    if (!draggedBook) return;
-    if (!leaderboard.includes(draggedBook.slug)) {
-      setLeaderboardState([...leaderboard, draggedBook.slug]);
+  const handleAddToLeaderboard = (slug: string) => {
+    if (!leaderboard.includes(slug)) {
+      setLeaderboardState([...leaderboard, slug]);
     }
-    setDraggedBook(null);
   };
 
   const handleRemoveFromLeaderboard = (slug: string) =>
     setLeaderboardState(leaderboard.filter((b) => b !== slug));
 
-  const handleReorder = (hoverIndex: number) => {
-    if (draggedBook && leaderboard.includes(draggedBook.slug)) {
-      const newOrder = [...leaderboard];
-      const fromIndex = newOrder.indexOf(draggedBook.slug);
-      if (fromIndex !== hoverIndex) {
-        newOrder.splice(fromIndex, 1);
-        newOrder.splice(hoverIndex, 0, draggedBook.slug);
-        setLeaderboardState(newOrder);
-      }
-    }
+  const moveUp = (index: number) => {
+    if (index === 0) return;
+    const newLeaderboard = [...leaderboard];
+    [newLeaderboard[index - 1], newLeaderboard[index]] = [
+      newLeaderboard[index],
+      newLeaderboard[index - 1],
+    ];
+    setLeaderboardState(newLeaderboard);
+  };
+
+  const moveDown = (index: number) => {
+    if (index === leaderboard.length - 1) return;
+    const newLeaderboard = [...leaderboard];
+    [newLeaderboard[index], newLeaderboard[index + 1]] = [
+      newLeaderboard[index + 1],
+      newLeaderboard[index],
+    ];
+    setLeaderboardState(newLeaderboard);
   };
 
   const handleSave = async () => {
@@ -117,14 +127,25 @@ export default function LeaderBoardEdit({
                 <motion.li
                   key={book.slug}
                   layout
-                  draggable
-                  onDragStart={() => handleDragStart(book)}
-                  className="p-3 bg-gray-50 hover:bg-gray-100 transition rounded-xl cursor-grab border border-gray-100"
                   whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.97 }}
+                  className="flex justify-between items-center p-3 bg-gray-50 hover:bg-gray-100 transition rounded-xl border border-gray-100"
                 >
-                  <div className="font-medium text-gray-800">{book.title}</div>
-                  <div className="text-gray-400 text-xs mt-0.5">{book.slug}</div>
+                  <div>
+                    <div className="font-medium text-gray-800">
+                      {book.title}
+                    </div>
+                    <div className="text-gray-400 text-xs mt-0.5">
+                      {book.slug}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleAddToLeaderboard(book.slug)}
+                    className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white transition"
+                    title="Thêm vào leaderboard"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
                 </motion.li>
               ))}
               {filteredAvailable.length === 0 && (
@@ -137,52 +158,61 @@ export default function LeaderBoardEdit({
         </div>
 
         {/* Leaderboard */}
-        <div
-          className="flex-1 bg-white p-6 rounded-2xl shadow-md flex flex-col border border-gray-100"
-          onDragOver={handleDragOver}
-          onDrop={handleDropToLeaderboard}
-        >
+        <div className="flex-1 bg-white p-6 rounded-2xl shadow-md flex flex-col border border-gray-100">
           <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            🏆 Leaderboard ({leaderboard?.length})
+            🏆 Leaderboard ({leaderboard.length})
           </h3>
           <div className="flex-1 overflow-y-auto max-h-[480px] border-t border-gray-200 pt-3 custom-scrollbar">
             <ul className="space-y-2">
               <AnimatePresence>
-                {leaderboard?.map((slug, index) => (
+                {leaderboard.map((slug, index) => (
                   <motion.li
                     key={slug}
                     layout
-                    draggable
-                    onDragStart={() => setDraggedBook({ slug, title: findBookTitle(slug) })}
-                    onDragEnter={() => handleReorder(index)}
-                    onDragEnd={() => setDraggedBook(null)}
-                    whileHover={{ scale: 1.02 }}
-                    className={`flex justify-between items-center p-3 rounded-xl border transition cursor-grab ${
-                      dragOverIndex === index
-                        ? "bg-blue-50 border-blue-200"
-                        : "bg-gray-50 border-gray-100 hover:bg-gray-100"
-                    }`}
+                    transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                    className="relative flex p-3 rounded-xl border bg-gray-50 border-gray-100 hover:bg-gray-100 transition"
                   >
+                    <div className="flex items-center gap-2 mr-5">
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => moveUp(index)}
+                          className="p-1 rounded bg-gray-200 hover:bg-gray-300 cursor-pointer transition"
+                          title="Di chuyển lên"
+                          disabled={index === 0}
+                        >
+                          <ArrowUp className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => moveDown(index)}
+                          className="p-1 rounded bg-gray-200 hover:bg-gray-300 cursor-pointer transition"
+                          title="Di chuyển xuống"
+                          disabled={index === leaderboard.length - 1}
+                        >
+                          <ArrowDown className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
                     <div>
                       <div className="font-semibold text-gray-800">
                         #{index + 1} — {findBookTitle(slug)}
                       </div>
                       <div className="text-gray-400 text-xs mt-0.5">{slug}</div>
                     </div>
+
                     <button
                       onClick={() => handleRemoveFromLeaderboard(slug)}
-                      className="text-red-500 hover:text-red-600 p-1 rounded-full transition"
+                      className="absolute top-0 right-0 cursor-pointer hover:text-red-600 p-1 rounded-full transition"
                       title="Xóa khỏi leaderboard"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <X className="w-4 h-4" />
                     </button>
                   </motion.li>
                 ))}
               </AnimatePresence>
 
-              {leaderboard?.length === 0 && (
+              {leaderboard.length === 0 && (
                 <li className="text-gray-400 text-sm text-center py-6 italic">
-                  Kéo sách vào đây để thêm vào leaderboard
+                  Chưa có sách trong leaderboard
                 </li>
               )}
             </ul>
@@ -206,19 +236,6 @@ export default function LeaderBoardEdit({
           </button>
         </div>
       </div>
-
-      <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-      `}</style>
     </div>
   );
 }

@@ -4,11 +4,9 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./global.css";
 
-const repoName = "Ngoc-Tieu-Cac-Admin"; // 👈 đổi thành tên repo GitHub của bạn
-
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <BrowserRouter basename={`/${repoName}`}>
+    <BrowserRouter>
       <App />
     </BrowserRouter>
   </React.StrictMode>

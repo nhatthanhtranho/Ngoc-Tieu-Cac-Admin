@@ -1,5 +1,5 @@
 /* Tailwind v4 */
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Biến CSS custom */
 :root {

@@ -21,12 +21,14 @@ export interface Book {
 
 export async function fetchBookBySlug(
   slug: string,
-  setBooks: (book: Book) => void
+  setBook: (book: Book) => void,
+  setOriginalBook?: (book: Book) => void
 ): Promise<Book> {
   const res = await axios.get<{ data: Book }>(
     getEndpoint(`books/slug/${slug}`)
   );
-  setBooks(res.data.data);
+  setBook(res.data.data);
+  setOriginalBook?.(res.data.data)
   return res.data.data;
 }
 

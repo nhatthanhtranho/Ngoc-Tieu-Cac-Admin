@@ -1,29 +1,33 @@
-import api from "@/configs/axios";
-import { User } from "@/types/user";
+import axios from "axios";
+import { getEndpoint } from ".";
 
-export const AuthAPI = {
-  async login(data: { email: string; password: string, rememberMe: boolean }): Promise<{ user: User, accessToken: string }> {
-    const res = await api.post("/auth/login", data);
-    console.log("Login Response Data:", res.data); // 👈 dòng này để debug
+export interface LoginResponse {
+  accessToken: string;
+  email: string;
+  // ... các thông tin khác nếu có
+}
+
+export async function login(
+  email: string,
+  password: string
+): Promise<LoginResponse> {
+  try {
+    const res = await axios.post(getEndpoint("auth/login"), {
+      email,
+      password,
+    });
     return res.data;
-  },
-
-  async logout(): Promise<void> {
-    await api.post("/auth/logout");
-  },
-
-  async getProfile(): Promise<User> {
-    const res = await api.get("/auth/profile");
-    console.log("📦 [AuthAPI] /auth/profile response:", res.data);
-    if (!res.data?.avatar) {
-      console.warn("⚠️ [AuthAPI] Avatar missing in profile response:", res.data);
+  } catch (err: any) {
+    if (axios.isAxiosError(err)) {
+      if (err.response?.status === 401) {
+        throw new Error("Email hoặc mật khẩu không đúng");
+      } else if (err.response) {
+        throw new Error(`Tài khoản không tồn tại`);
+      } else {
+        throw new Error("Không thể kết nối đến server");
+      }
+    } else {
+      throw new Error("Đã xảy ra lỗi không xác định");
     }
-    return res.data;
-  },
-
-  async loginWithGoogle(idToken: string): Promise<{ user: User; accessToken: string }> {
-    // Gửi Google ID Token lên backend để xác thực
-    const res = await api.post("/auth/firebase", { idToken });
-    return res.data;
-  },
-};
+  }
+}

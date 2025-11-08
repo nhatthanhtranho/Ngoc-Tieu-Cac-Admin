@@ -4,7 +4,6 @@ import { saveAs } from "file-saver";
 
 import { getEndpoint } from ".";
 import { decompressText, JsonBuffer } from "../src/utils/compress";
-import Epub from "epub-gen"; // hoặc import theo cách Node.js nếu dùng CommonJS
 
 export interface Book {
   _id?: string;
@@ -76,45 +75,3 @@ export async function downloadBooks(bookSlug: string) {
   saveAs(zipBlob, `${bookSlug}.zip`);
 }
 
-export async function downloadBooksAsEpub(bookSlug: string, bookTitle: string) {
-  // 1. Lấy danh sách chương
-  const res = await axios.get<Array<{ name: string; url: string }>>(
-    getEndpoint(`books/${bookSlug}/chapters/download`)
-  );
-  const downloadLinks = res.data;
-
-  // 2. Chuyển chương thành object cho EPUB
-  const epubChapters: { title: string; data: string }[] = [];
-
-  for (const file of downloadLinks) {
-    const res = await fetch(file.url);
-    const arrayBuffer = await res.arrayBuffer();
-
-    const jsonBuffer: JsonBuffer = {
-      type: "Buffer",
-      data: Array.from(new Uint8Array(arrayBuffer)),
-    };
-
-    const text = decompressText(jsonBuffer);
-
-    epubChapters.push({
-      title: file.name, // tên chương làm tiêu đề
-      data: text.replace(/\n/g, "<br/>"), // EPUB cần HTML, chuyển newline → <br/>
-    });
-  }
-
-  // 3. Tạo EPUB
-  const option = {
-    title: bookTitle,
-    author: "Unknown", // bạn có thể lấy từ metadata
-    content: epubChapters,
-  };
-
-  // epub-gen trong Node.js trả về Promise<string> là path file trên server
-  // Ở frontend bạn cần tạo Blob EPUB
-  const epub = await new Epub(option).promise; // nếu frontend: phải dùng NodeJS / server side
-
-  // Nếu muốn download trên frontend, bạn cần có Blob
-  const epubBlob = new Blob([epub], { type: "application/epub+zip" });
-  saveAs(epubBlob, `${bookSlug}.epub`);
-}

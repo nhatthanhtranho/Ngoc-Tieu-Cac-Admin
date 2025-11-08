@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import { Book, fetchBookBySlug } from "../../../apis/books";
 import { fetchAllCategories } from "../../../apis/categories";
 import { getEndpoint } from "../../../apis";
+import CropImage from "../CropImage";
 
 export default function EditBookInfo() {
   const params = useParams<{ slug: string }>();
@@ -84,8 +85,7 @@ export default function EditBookInfo() {
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
-          `Lỗi server (${response.status}): ${
-            errorText || "Không rõ nguyên nhân"
+          `Lỗi server (${response.status}): ${errorText || "Không rõ nguyên nhân"
           }`
         );
       }
@@ -95,8 +95,7 @@ export default function EditBookInfo() {
     } catch (err) {
       console.error("❌ Lỗi khi lưu:", err);
       alert(
-        `Đã xảy ra lỗi khi lưu thay đổi: ${
-          err instanceof Error ? err.message : err
+        `Đã xảy ra lỗi khi lưu thay đổi: ${err instanceof Error ? err.message : err
         }`
       );
     }
@@ -216,7 +215,7 @@ export default function EditBookInfo() {
         {showCrop && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-6 shadow-xl max-w-md w-full">
-              {/* <CropImage onCropComplete={handleCropComplete} /> */}
+              <CropImage onCropComplete={handleCropComplete} />
               <div className="text-center mt-3">
                 <button
                   onClick={() => setShowCrop(false)}

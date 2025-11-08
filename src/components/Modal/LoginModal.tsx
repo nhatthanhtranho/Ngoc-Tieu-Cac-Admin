@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-
 import { login } from "../../../apis/auth";
 import { toast } from "react-toastify";
+import { useAuthState } from "../../stores/auth.store"; // 👉 thêm dòng này
 
 interface LoginModalProps {
   onLoginSuccess: () => void;
@@ -12,29 +12,28 @@ export default function LoginModal({ onLoginSuccess }: LoginModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const { setUser, setAccessToken } = useAuthState(); // 👉 lấy hàm setUser từ global state
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) {
-      try {
-        const res = await login(email, password);
-        localStorage.setItem("accessToken", res.accessToken);
-        toast.success("Đăng nhập thành công!");
-        onLoginSuccess();
-      } catch (err) {
-        toast.error(err.message || "Đã xảy ra lỗi khi đăng nhập");
-      }
-    } else {
-      alert("Vui lòng nhập đầy đủ email và mật khẩu!");
+    if (!email || !password) {
+      toast.warn("Vui lòng nhập đầy đủ email và mật khẩu!");
+      return;
+    }
+
+    try {
+      const res = await login(email, password); // giả sử trả về { id, name, email, token }
+      setUser(res.user);
+      setAccessToken(res.accessToken);
+      toast.success("Đăng nhập thành công!");
+      onLoginSuccess();
+    } catch (err: any) {
+      toast.error(err.message || "Đã xảy ra lỗi khi đăng nhập");
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      {/* <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"></div> */}
-
-      {/* Modal */}
       <div className="relative bg-gray-900 p-8 rounded-2xl w-full max-w-md text-white shadow-xl z-10">
         <h2 className="text-2xl font-bold mb-6 text-center">Đăng nhập</h2>
 

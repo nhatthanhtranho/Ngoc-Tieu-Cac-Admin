@@ -6,7 +6,7 @@ import "./global.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/Ngoc-Tieu-Cac-Admin">
       <App />
     </BrowserRouter>
   </React.StrictMode>

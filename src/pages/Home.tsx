@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom"; // for React Router
-import { PlaySquare } from 'lucide-react'
+import { useNavigate } from "react-router-dom";
+import { PlaySquare } from 'lucide-react';
 
 import { Book, fetchAllBookSlugs, fetchBookBySlugs } from '../../apis/books';
 import BookList from "../components/BookCard2/BookList";
-
 
 function CreateButton() {
   const navigate = useNavigate();
@@ -30,7 +29,7 @@ function CreateButton() {
           active:scale-95
         "
       >
-        <PlaySquare size="20" color="white" />
+        <PlaySquare size={20} color="white" />
         Tạo truyện mới
       </button>
     </div>
@@ -41,12 +40,10 @@ function App() {
   const [books, setBooks] = useState<Book[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
-  const pageSize = 35; // số truyện mỗi trang
-  const [bookSlugs, setBookSlugs] = useState<
-    Array<{ slug: string; title: string }>
-  >([]);
+  const [bookSlugs, setBookSlugs] = useState<Array<{ slug: string; title: string }>>([]);
+  const pageSize = 35;
 
-  // Load bookmark từ localStorage
+  // Load slugs & bookmarks from localStorage
   useEffect(() => {
     const savedSlugs = localStorage.getItem("bookSlugs");
     const savedBookmarks = localStorage.getItem("bookmarks");
@@ -54,7 +51,6 @@ function App() {
     if (savedSlugs) {
       try {
         const parsedSlugs = JSON.parse(savedSlugs);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (Array.isArray(parsedSlugs)) setBookSlugs(parsedSlugs);
       } catch {
         console.error("Lỗi khi parse bookSlugs từ localStorage");
@@ -72,43 +68,70 @@ function App() {
     }
   }, []);
 
-  // Fetch books và sắp bookmark lên đầu toàn bộ danh sách
+  // Compute ordered slugs (bookmark first)
+  const orderedSlugs = React.useMemo(() => {
+    const bookmarked = bookSlugs.filter(b => bookmarks.includes(b.slug));
+    const normal = bookSlugs.filter(b => !bookmarks.includes(b.slug));
+    return [...bookmarked, ...normal];
+  }, [bookSlugs, bookmarks]);
+
+  const totalPages = Math.ceil(orderedSlugs.length / pageSize);
+
+  // Fetch books for current page
   useEffect(() => {
-    // Tách bookmark và non-bookmark
-    const bookmarkedSlugs = bookSlugs
-      .filter((b) => bookmarks.includes(b.slug))
-      .map((b) => b.slug);
-
-    const normalSlugs = bookSlugs
-      .filter((b) => !bookmarks.includes(b.slug))
-      .map((b) => b.slug);
-
-    const allSlugsOrdered = [...bookmarkedSlugs, ...normalSlugs];
-
     const start = (currentPage - 1) * pageSize;
     const end = currentPage * pageSize;
-    const slugsPage = allSlugsOrdered.slice(start, end);
+    const pageSlugs = orderedSlugs.slice(start, end).map(b => b.slug);
 
-    fetchBookBySlugs(slugsPage, (data) => {
-      setBooks(data);
-    });
-  }, [currentPage, bookmarks, bookSlugs]);
+    if (pageSlugs.length === 0) {
+      setBooks([]);
+      return;
+    }
+    fetchBookBySlugs(pageSlugs, setBooks);
+  }, [currentPage, orderedSlugs]);
 
   // Toggle bookmark
   const toggleBookmark = (slug: string) => {
     let updated: string[];
     if (bookmarks.includes(slug)) {
-      updated = bookmarks.filter((s) => s !== slug);
+      updated = bookmarks.filter(s => s !== slug);
     } else {
       updated = [...bookmarks, slug];
     }
     setBookmarks(updated);
     localStorage.setItem("bookmarks", JSON.stringify(updated));
-    // Khi bookmark thay đổi, tự động load lại trang 1 để ưu tiên bookmark
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to page 1
   };
 
-  const totalPages = Math.ceil(bookSlugs.length / pageSize);
+  // Pagination rendering helper
+  const renderPagination = () => {
+    const pages: (number | string)[] = [];
+    const maxButtons = 5;
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+    if (endPage - startPage < maxButtons - 1) {
+      startPage = Math.max(1, endPage - maxButtons + 1);
+    }
+
+    if (startPage > 1) pages.push(1, '...');
+    for (let p = startPage; p <= endPage; p++) pages.push(p);
+    if (endPage < totalPages) pages.push('...', totalPages);
+
+    return pages.map((p, idx) =>
+      typeof p === 'number' ? (
+        <button
+          key={idx}
+          onClick={() => setCurrentPage(p)}
+          className={`px-3 py-1 rounded ${currentPage === p ? "bg-yellow-400 text-white" : "bg-gray-200"}`}
+        >
+          {p}
+        </button>
+      ) : (
+        <span key={idx} className="px-2 py-1 text-gray-500">{p}</span>
+      )
+    );
+  };
 
   return (
     <div className="overflow-hidden">
@@ -128,32 +151,23 @@ function App() {
           </p>
         ) : (
           <>
-            <BookList initialBooks={books} />
+            <BookList books={books} />
 
-            {/* Pagination controls */}
-            <div className="flex justify-center gap-3 mt-6">
+            {/* Pagination */}
+            <div className="flex justify-center gap-2 mt-6">
               <button
                 disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
+                onClick={() => setCurrentPage(p => p - 1)}
                 className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
               >
                 Trước
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setCurrentPage(p)}
-                  className={`px-3 py-1 rounded ${currentPage === p
-                    ? "bg-yellow-400 text-white"
-                    : "bg-gray-200"
-                    }`}
-                >
-                  {p}
-                </button>
-              ))}
+
+              {renderPagination()}
+
               <button
                 disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
+                onClick={() => setCurrentPage(p => p + 1)}
                 className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
               >
                 Sau
@@ -162,7 +176,8 @@ function App() {
           </>
         )}
       </div>
-    </div>)
+    </div>
+  );
 }
 
-export default App
+export default App;

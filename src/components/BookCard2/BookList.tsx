@@ -5,36 +5,9 @@ import BookCard2 from "./BookCard2";
 import { useNavigate } from "react-router-dom";
 import { Book } from "../../../apis/books";
 
-export default function BookList({ initialBooks }: { initialBooks: Book[] }) {
-  const navigate = useNavigate();
-  const [books, setBooks] = useState<Book[]>(initialBooks);
+export default function BookList({ books }: { books: Book[] }) {
   const [bookmarks, setBookmarks] = useState<string[]>([]);
-
-  // 🟡 Load bookmarks từ localStorage (chỉ 1 lần, defer setState)
-  useEffect(() => {
-    const saved = localStorage.getItem("bookmarks");
-    if (!saved) return;
-
-    try {
-      const parsed = JSON.parse(saved) as string[];
-
-      // 🕓 Đẩy việc setState sang microtask → tránh cascading renders
-      queueMicrotask(() => {
-        setBookmarks(parsed);
-
-        // 🧩 Sort luôn tại đây
-        const sortedBooks = [...initialBooks].sort((a, b) => {
-          const aBookmarked = parsed.includes(a.slug);
-          const bBookmarked = parsed.includes(b.slug);
-          if (aBookmarked === bBookmarked) return 0;
-          return aBookmarked ? -1 : 1;
-        });
-        setBooks(sortedBooks);
-      });
-    } catch (err) {
-      console.error("Failed to parse bookmarks:", err);
-    }
-  }, [initialBooks]);
+  const navigate = useNavigate()
 
   const toggleBookmark = (slug: string) => {
     setBookmarks((prev) => {
@@ -44,16 +17,6 @@ export default function BookList({ initialBooks }: { initialBooks: Book[] }) {
         : [slug, ...prev];
 
       localStorage.setItem("bookmarks", JSON.stringify(newBookmarks));
-
-      setBooks((prevBooks) =>
-        [...prevBooks].sort((a, b) => {
-          const aBookmarked = newBookmarks.includes(a.slug);
-          const bBookmarked = newBookmarks.includes(b.slug);
-          if (aBookmarked === bBookmarked) return 0;
-          return aBookmarked ? -1 : 1;
-        })
-      );
-
       return newBookmarks;
     });
   };

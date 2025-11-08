@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-// import CropImage from "../CropImage/CropImage";
+import CropImage from "../CropImage/CropImage";
 import ChapterListView from "./ChapterListView";
 import Select from "react-select";
 import pako from "pako";
@@ -185,7 +185,6 @@ export default function EditBookInfo() {
               );
             })}
           </div>
-
           {/* Nút thao tác */}
           <div className="flex gap-3 pt-3">
             <button

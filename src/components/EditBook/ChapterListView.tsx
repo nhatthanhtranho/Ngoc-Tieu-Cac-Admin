@@ -9,6 +9,7 @@ import { Upload, SquarePen, Download, BrushCleaning } from "lucide-react";
 import UploadChaptersModal from "./UploadChaptersModal";
 import ReviewChapterModal from "./ReviewChapterModal";
 import { Chapter, fetchChapters } from "../../../apis/chapters";
+import { downloadBooks } from "../../../apis/books";
 
 interface ChapterListViewProps {
   numberOfChapters: number;
@@ -104,7 +105,7 @@ export default function ChapterListView({
             <BrushCleaning className="w-6 h-6" />
           </button>
           <button
-            onClick={() => setShowUploadModal(true)}
+            onClick={() => downloadBooks(bookSlug)}
             className="bg-green-600 rounded p-2 cursor-pointer hover:bg-green-800 transition-colors duration-200 shadow text-white"
           >
             <Download className="w-6 h-6" />

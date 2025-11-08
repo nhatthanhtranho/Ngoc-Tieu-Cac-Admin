@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", // phiên bản JS xuất ra
+    "lib": ["DOM", "DOM.Iterable", "ESNext"], // thư viện hỗ trợ browser + ESNext
+    "allowJs": true, // cho phép file .js
+    "skipLibCheck": true, // bỏ check type thư viện
+    "esModuleInterop": true, // quan trọng: import default từ CommonJS
+    "allowSyntheticDefaultImports": true, // cho phép import mặc định
+    "strict": true, // bật strict mode
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext", // module dùng trong project (Vite/CRA)
+    "moduleResolution": "Node",
+    "resolveJsonModule": true, // import file JSON
+    "isolatedModules": true,
+    "noEmit": true, // không tạo file js khi build React
+    "jsx": "react-jsx" // dùng JSX mới (React 17+)
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

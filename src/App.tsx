@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import BookDetail from "./pages/BookDetail";
@@ -9,6 +9,7 @@ import NapTienNgoc from "./pages/NapTienNgoc";
 import TopUp from "./pages/TopUp";
 import LoginModal from "./components/Modal/LoginModal";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -17,6 +18,8 @@ export default function App() {
     const token = localStorage.getItem("accessToken");
     setIsLoggedIn(!!token);
   }, []);
+
+  const handleLoginSuccess = useCallback(() => setIsLoggedIn(true), []);
 
   return (
     <>
@@ -30,7 +33,8 @@ export default function App() {
         draggable
         theme="dark"
       />
-      {/* Background + App content */}
+
+      {/* App content, blur nếu chưa login */}
       <div className={isLoggedIn ? "" : "filter blur-sm"}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -46,8 +50,8 @@ export default function App() {
         </Routes>
       </div>
 
-      {/* Modal login luôn fixed top-level, không bị blur */}
-      {!isLoggedIn && <LoginModal onLoginSuccess={() => setIsLoggedIn(true)} />}
+      {/* Modal login luôn top-level, không bị blur */}
+      {!isLoggedIn && <LoginModal onLoginSuccess={handleLoginSuccess} />}
     </>
   );
 }

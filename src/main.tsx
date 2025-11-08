@@ -1,14 +1,14 @@
-import React from 'react';
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom'; // ✅ import BrowserRouter
-import App from './app';
-import './global.css';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BrowserRouter> {/* ✅ Wrap your app in BrowserRouter */}
+const repoName = "Ngoc-Tieu-Cac-Admin"; // 👈 đổi thành tên repo GitHub của bạn
+
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  <React.StrictMode>
+    <BrowserRouter basename={`/${repoName}`}>
       <App />
     </BrowserRouter>
-  </StrictMode>
+  </React.StrictMode>
 );

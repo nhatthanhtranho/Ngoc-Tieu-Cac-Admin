@@ -1,22 +1,20 @@
 import axios from "axios";
+
 import { getEndpoint } from ".";
 
-export interface LoginResponse {
-  accessToken: string;
-  email: string;
-  // ... các thông tin khác nếu có
-}
-
-export async function login(
-  email: string,
-  password: string
-): Promise<LoginResponse> {
+export async function login(email: string, password: string) {
   try {
-    const res = await axios.post(getEndpoint("auth/login"), {
+    const res = await axios.post<{
+      accessToken: string,
+      user: {
+        email: string,
+        displayName: string,
+      }
+    }>(getEndpoint("auth/login"), {
       email,
       password,
     });
-    return res.data;
+    return res.data
   } catch (err: any) {
     if (axios.isAxiosError(err)) {
       if (err.response?.status === 401) {

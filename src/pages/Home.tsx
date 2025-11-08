@@ -111,8 +111,8 @@ function App() {
   const totalPages = Math.ceil(bookSlugs.length / pageSize);
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <div className="relative max-w-7xl mx-auto px-4 py-10 font-genshin text-genshin-dark">
+    <div className="overflow-hidden">
+      <div className="container mx-auto px-4 py-10 font-genshin text-genshin-dark">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-genshin drop-shadow-glow tracking-wide">

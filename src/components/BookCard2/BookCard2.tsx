@@ -28,7 +28,7 @@ export default function BookCard2({
         <img
           src={thumbnailUrl}
           alt={title}
-          className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full aspect-2/3 object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
         />
       </div>

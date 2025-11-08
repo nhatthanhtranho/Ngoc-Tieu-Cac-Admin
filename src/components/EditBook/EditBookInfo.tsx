@@ -7,6 +7,7 @@ import { Book, fetchBookBySlug } from "../../../apis/books";
 import { fetchAllCategories } from "../../../apis/categories";
 import { getEndpoint } from "../../../apis";
 import CropImage from "../CropImage";
+import { getBannerURL, getSmallBannerURL } from "../../utils/getBannerURL";
 
 export default function EditBookInfo() {
   const params = useParams<{ slug: string }>();
@@ -80,16 +81,14 @@ export default function EditBookInfo() {
     }
   };
 
-  const getBannerUrl = (url: string | null, size: "small" | "default") => {
+  const getBannerUrl = (url: string | null) => {
     if (!url) return fallbackBanner;
 
     // ⚡ Nếu là base64, trả trực tiếp
     if (url.startsWith("data:image")) return url;
 
-    // URL file bình thường
-    const baseWithoutExt = url.replace(/(\.webp|\.jpg|\.jpeg|\.png)$/i, "");
-    const ext = url.match(/(\.webp|\.jpg|\.jpeg|\.png)$/i)?.[0] || ".webp";
-    return size === "small" ? `${baseWithoutExt}-small${ext}` : `${baseWithoutExt}${ext}`;
+    return url
+   
   };
 
   const handleCropComplete = (result: { small: string; default: string }) => {
@@ -146,7 +145,7 @@ export default function EditBookInfo() {
               { size: "small", label: "Small (200x300)", w: 200, h: 300 },
               { size: "default", label: "Default (450x675)", w: 450, h: 675 },
             ].map(({ size, label, w, h }) => {
-              const url = getBannerUrl(preview || book.bannerURL as any, size as any);
+              const url = getBannerUrl(preview || size === 'small' ? getSmallBannerURL(book.slug) : getBannerURL(book.slug));
               return (
                 <div key={size} className="flex flex-col items-center">
                   <div className="relative rounded-xl overflow-hidden border-2 border-amber-300/70 dark:border-sky-600/60 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,150,0.6)] transition-all duration-300" style={{ width: `${w}px`, height: `${h}px` }}>

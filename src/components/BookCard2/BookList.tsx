@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import BookCard2 from "./BookCard2";
 import { useNavigate } from "react-router-dom";
 import { Book } from "../../../apis/books";
+import { getBannerURL } from '../../utils/getBannerURL';
 
 export default function BookList({ initialBooks }: { initialBooks: Book[] }) {
   const navigate = useNavigate();
@@ -70,7 +71,7 @@ export default function BookList({ initialBooks }: { initialBooks: Book[] }) {
             slug={book.slug}
             title={book.title}
             handleClick={() => navigate(`/book/${book.slug}`)}
-            thumbnailUrl={book.bannerURL || ""}
+            thumbnailUrl={getBannerURL(book.slug) || ""}
             isBookmarked={bookmarks.includes(book.slug)}
             onToggleBookmark={() => toggleBookmark(book.slug)}
           />

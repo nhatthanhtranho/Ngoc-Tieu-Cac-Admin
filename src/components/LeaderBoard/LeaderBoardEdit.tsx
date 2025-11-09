@@ -5,7 +5,6 @@ import { getLeaderboard, setLeaderboard } from "../../../apis/leaderboard";
 import {
   Search,
   X,
-  ArrowRightLeft,
   Save,
   BookOpen,
   Plus,
@@ -13,6 +12,7 @@ import {
   ArrowDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import TopTruyen from "../TopList/TopTruyen";
 
 type Book = { slug: string; title: string };
 
@@ -99,17 +99,11 @@ export default function LeaderBoardEdit({
       <h2 className="text-3xl font-bold mb-8 text-gray-800 flex items-center gap-2">
         <BookOpen className="w-7 h-7 text-blue-600" /> {title}
       </h2>
+      <TopTruyen bookSlugs={leaderboard}/>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-8 mt-5">
         {/* Available Books */}
         <div className="flex-1 bg-white p-6 rounded-2xl shadow-md flex flex-col border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-              <ArrowRightLeft className="w-5 h-5 text-blue-500" />
-              Danh sách sách ({available.length})
-            </h3>
-          </div>
-
           <div className="relative mb-3">
             <Search className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
             <input
@@ -121,7 +115,7 @@ export default function LeaderBoardEdit({
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto max-h-[480px] border-t border-gray-200 pt-3 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto max-h-[530px] border-t border-gray-200 pt-3 custom-scrollbar">
             <ul className="space-y-2">
               {filteredAvailable.map((book) => (
                 <motion.li
@@ -160,7 +154,7 @@ export default function LeaderBoardEdit({
         {/* Leaderboard */}
         <div className="flex-1 bg-white p-6 rounded-2xl shadow-md flex flex-col border border-gray-100">
           <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            🏆 Leaderboard ({leaderboard.length})
+            Bảng xếp hạng ({leaderboard.length})
           </h3>
           <div className="flex-1 overflow-y-auto max-h-[480px] border-t border-gray-200 pt-3 custom-scrollbar">
             <ul className="space-y-2">

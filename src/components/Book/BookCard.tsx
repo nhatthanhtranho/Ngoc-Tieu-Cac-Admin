@@ -1,7 +1,7 @@
 "use client";
 import { Bookmark } from "lucide-react";
 
-interface BookCard2Props {
+interface BookCardProps {
   slug: string;
   title: string;
   thumbnailUrl: string;
@@ -10,14 +10,14 @@ interface BookCard2Props {
   onToggleBookmark?: () => void;
 }
 
-export default function BookCard2({
+export default function BookCard({
   slug,
   title,
   thumbnailUrl,
   handleClick,
   isBookmarked = false,
   onToggleBookmark,
-}: BookCard2Props) {
+}: BookCardProps) {
   return (
     <div
       className="relative cursor-pointer w-full group"

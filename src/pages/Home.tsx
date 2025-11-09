@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"; // for React Router
 import { PlaySquare } from 'lucide-react'
 
 import { Book, fetchAllBookSlugs, fetchBookBySlugs } from '../../apis/books';
-import BookList from "../components/BookCard2/BookList";
+import BookList from "../components/Book/BookList";
 
 
 function CreateButton() {

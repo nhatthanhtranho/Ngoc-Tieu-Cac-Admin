@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { motion } from "framer-motion";
-import BookCard2 from "./BookCard2";
+import BookCard2 from "./BookCard";
 import { useNavigate } from "react-router-dom";
 import { Book } from "../../../apis/books";
 import { getBannerURL } from '../../utils/getBannerURL';

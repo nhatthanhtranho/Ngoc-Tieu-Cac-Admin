@@ -9,7 +9,7 @@ import { Upload, SquarePen, Download, BrushCleaning } from "lucide-react";
 import UploadChaptersModal from "./UploadChaptersModal";
 import ReviewChapterModal from "./ReviewChapterModal";
 import { Chapter, fetchChapters } from "../../../apis/chapters";
-import { downloadBooks } from "../../../apis/books";
+import DownloadBookModal from "./DownloadBookModal";
 
 interface ChapterListViewProps {
   numberOfChapters: number;
@@ -32,6 +32,7 @@ export default function ChapterListView({
   const [error, setError] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedChapter, setSelectedChapter] = useState<number>(-1);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
   const navigate = useNavigate();
 
   const [progressData, setProgressData] = useState<{
@@ -105,7 +106,7 @@ export default function ChapterListView({
             <BrushCleaning className="w-6 h-6" />
           </button>
           <button
-            onClick={() => downloadBooks(bookSlug)}
+            onClick={() => setShowDownloadModal(true)}
             className="bg-green-600 rounded p-2 cursor-pointer hover:bg-green-800 transition-colors duration-200 shadow text-white"
           >
             <Download className="w-6 h-6" />
@@ -226,6 +227,14 @@ export default function ChapterListView({
             }}
           />
         )}
+        {showDownloadModal ? (
+          <DownloadBookModal
+            totalChapters={numberOfChapters}
+            key="download-modal"
+            bookSlug={bookSlug}
+            onClose={() => setShowDownloadModal(false)}
+          />
+        ) : null}
       </AnimatePresence>
     </div>
   );

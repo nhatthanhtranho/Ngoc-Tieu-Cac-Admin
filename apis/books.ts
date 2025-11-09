@@ -28,7 +28,7 @@ export async function fetchBookBySlug(
     getEndpoint(`books/slug/${slug}`)
   );
   setBook(res.data.data);
-  setOriginalBook?.(res.data.data)
+  setOriginalBook?.(res.data.data);
   return res.data.data;
 }
 
@@ -52,7 +52,11 @@ export async function fetchBookBySlugs(
   setBooks(res.data);
 }
 
-export async function downloadBooks(bookSlug: string) {
+export async function downloadBooks(
+  bookSlug: string,
+  start: number,
+  end: number
+) {
   const res = await axios.get<Array<{ name: string; url: string }>>(
     getEndpoint(`books/${bookSlug}/chapters/download`)
   );
@@ -76,4 +80,3 @@ export async function downloadBooks(bookSlug: string) {
   const zipBlob = await zip.generateAsync({ type: "blob" });
   saveAs(zipBlob, `${bookSlug}.zip`);
 }
-

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import {
   fetchChapterDetail,
-  saveChaptercontent,
+  saveChapterContent,
   setChapterQuality,
 } from "../../apis/chapters";
 import { ToastContainer, toast } from "react-toastify";
@@ -83,7 +83,7 @@ export default function ChapterDetailPage() {
   const handleSave = async (newContent: string) => {
     contentRef.current = newContent;
     try {
-      await saveChaptercontent(slug, chapterNumber, newContent);
+      await saveChapterContent(slug, chapterNumber, newContent);
       toast.success("💾 Đã lưu chương thành công!", {
         position: "bottom-right",
         autoClose: 2000,

@@ -31,7 +31,7 @@ export async function fetchChapters(
 }
 
 export async function createChapters(bookSlug: string, chapters: Chapter[]) {
-  return axios.post(getEndpoint(`chapters/${bookSlug}`), chapters)
+  return axios.post(getEndpoint(`chapters/${bookSlug}`), chapters);
 }
 
 export async function fetchChapterDetail(
@@ -49,7 +49,7 @@ export async function fetchChapterDetail(
   return res.data;
 }
 
-export async function saveChaptercontent(
+export async function saveChapterContent(
   bookSlug: string,
   chapterNumber: number,
   chapterContent: string
@@ -64,33 +64,42 @@ export async function saveChaptercontent(
     ? metadataLine.split(":")[1].trim()
     : metadataLine.trim();
 
-  const metadata = {
+  const chapter = {
     title: parsedTitle || `Chương ${chapterNumber}`,
-    rawMeta: metadataLine,
     chapterNumber,
   };
+
+  // Tạo chapter trên server
+  await createChapters(bookSlug, [chapter]);
+
+  // Lấy presigned URL upload
+  const { url, fields } = await getChapterUploadLink(bookSlug);
+
   const formData = new FormData();
   const fileName = `chuong-${chapterNumber}.txt`;
   const compressed = compressText(chapterContent);
-  const blob = new Blob([Uint8Array.from(compressed)], {
+
+  // Blob từ Uint8Array
+  const blob = new Blob([compressed as BlobPart], {
     type: "application/octet-stream",
   });
 
-  // append vào array "files"
-  formData.append("files", blob, fileName);
-  formData.append("chapters", JSON.stringify([metadata]));
+  // Nếu S3 presigned yêu cầu các fields, append tất cả
+  Object.entries(fields || {}).forEach(([key, value]) => {
+    formData.append(key, value as string);
+  });
 
-  // ---------------------------
-  // 2. Upload
-  // ---------------------------
-  await axios.post(getEndpoint(`books/${bookSlug}/chapters/upload`), formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+  // Thêm file cuối cùng
+  formData.append("file", blob, fileName);
+
+  await fetch(url, {
+    method: "POST",
+    body: formData,
   });
 }
 
-
 export async function getChapterUploadLink(
-  bookSlug: string,
+  bookSlug: string
 ): Promise<{ url: string; fields: Record<string, string> }> {
   const res = await axios.get(getEndpoint(`chapters/${bookSlug}/upload`));
   return res.data;

@@ -5,7 +5,6 @@ export function getBannerURL(storySlug: string): string {
   return `${BASE_URL}/${storySlug}/banner.webp`;
 }
 
-type BannerSize = "default" | "small";
 
 export function getSmallBannerURL(storySlug: string): string {
   const BASE_URL =

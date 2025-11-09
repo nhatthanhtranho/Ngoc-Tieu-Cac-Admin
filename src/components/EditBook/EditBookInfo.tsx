@@ -88,7 +88,7 @@ export default function EditBookInfo() {
     if (url.startsWith("data:image")) return url;
 
     return url
-   
+
   };
 
   const handleCropComplete = (result: { small: string; default: string }) => {
@@ -145,16 +145,31 @@ export default function EditBookInfo() {
               { size: "small", label: "Small (200x300)", w: 200, h: 300 },
               { size: "default", label: "Default (450x675)", w: 450, h: 675 },
             ].map(({ size, label, w, h }) => {
-              const url = getBannerUrl(preview || size === 'small' ? getSmallBannerURL(book.slug) : getBannerURL(book.slug));
+              const url = preview
+                ? preview // Ưu tiên ảnh preview
+                : size === "small"
+                  ? getSmallBannerURL(book.slug)
+                  : getBannerURL(book.slug);
+
               return (
                 <div key={size} className="flex flex-col items-center">
-                  <div className="relative rounded-xl overflow-hidden border-2 border-amber-300/70 dark:border-sky-600/60 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,150,0.6)] transition-all duration-300" style={{ width: `${w}px`, height: `${h}px` }}>
-                    <img src={url || fallbackBanner} alt={`Banner ${size}`} className="object-cover object-center transition-transform duration-500 group-hover:scale-105" />
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">{label}</div>
+                  <div
+                    className="relative rounded-xl overflow-hidden border-2 border-amber-300/70 dark:border-sky-600/60 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,150,0.6)] transition-all duration-300"
+                    style={{ width: `${w}px`, height: `${h}px` }}
+                  >
+                    <img
+                      src={url || fallbackBanner}
+                      alt={`Banner ${size}`}
+                      className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">
+                      {label}
+                    </div>
                   </div>
                 </div>
               );
             })}
+
           </div>
 
           <div className="flex gap-3 pt-3">

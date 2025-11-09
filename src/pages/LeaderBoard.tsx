@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import BackToHomeButton from "../components/BackToHomeButton";
 import { fetchAllBookSlugs } from "../../apis/books";
 import LeaderBoardEdit from "../components/LeaderBoard/LeaderBoardEdit";
 

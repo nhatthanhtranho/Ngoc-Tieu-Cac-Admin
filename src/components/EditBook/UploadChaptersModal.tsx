@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
-import { compressText } from "../../utils/compress";
-import { getEndpoint } from "../../../apis";
 
-interface ParsedChapter {
+import { createChapters, getChapterUploadLink } from "../../../apis/chapters";
+
+export interface ParsedChapter {
   chapterNumber: number;
   title: string;
   fileName: string;
@@ -72,79 +71,41 @@ export default function UploadChaptersModal({
       return;
     }
 
-    const BATCH_SIZE = 100;
-    const DELAY_MS = 1500;
-    const totalBatches = Math.ceil(rawFiles.length / BATCH_SIZE);
-
-    setUploading(true);
-    setProgress(0);
-    setCurrentBatch(0);
-
     try {
-      let uploadedCount = 0;
+      setUploading(true);
+      setProgress(0);
 
-      for (let i = 0; i < totalBatches; i++) {
-        const start = i * BATCH_SIZE;
-        const end = start + BATCH_SIZE;
-        const batchFiles = rawFiles.slice(start, end);
-        const batchChapters = parsedChapters.slice(start, end);
+      // Tạo chapters trên server trước
+      await createChapters(bookSlug, parsedChapters);
+      const { url, fields } = await getChapterUploadLink(bookSlug);
 
+      for (const file of rawFiles) {
         const formData = new FormData();
 
-        for (const file of batchFiles) {
-          const text = await file.text();
-          const compressed = await compressText(text);
-          const blob = new Blob([Uint8Array.from(compressed)], {
-            type: "application/br",
-          });
-          const compressedFile = new File(
-            [blob],
-            file.name.replace(".txt", ".br"),
-            { type: "application/br" }
-          );
-          formData.append("files", compressedFile);
-        }
-
-        formData.append("chapters", JSON.stringify(batchChapters));
-        setCurrentBatch(i + 1);
-
-        await axios.post(
-          getEndpoint(`books/${bookSlug}/chapters/upload`),
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-            onUploadProgress: (progressEvent) => {
-              if (progressEvent.total) {
-                const percent =
-                  ((uploadedCount +
-                    (progressEvent.loaded / progressEvent.total) *
-                      batchFiles.length) /
-                    rawFiles.length) *
-                  100;
-                setProgress(percent);
-              }
-            },
-          }
+        // copy tất cả field
+        Object.entries(fields).forEach(([k, v]) =>
+          formData.append(k, v as string)
         );
 
-        uploadedCount += batchFiles.length;
-        setProgress((uploadedCount / rawFiles.length) * 100);
+        // override key bằng tên file thực tế
+        formData.set(
+          "key",
+          `toan-cau-kinh-di-ta-tai-quy-bi-the-gioi-choi-qua-phe/${file.name}`
+        );
+        if (!fields.acl) formData.append("acl", "private");
 
-        if (i < totalBatches - 1) {
-          await sleep(DELAY_MS);
-        }
+        formData.append("file", file);
+
+        await fetch(url, { method: "POST", body: formData });
       }
 
-      alert("✅ Upload tất cả chương (đã nén Brotli) thành công!");
+      setUploading(false);
       onUploaded();
-      onClose();
+      handleReset();
     } catch (err) {
       console.error(err);
-      alert("❌ Lỗi khi upload");
-    } finally {
+      alert("Upload thất bại, thử lại!");
       setUploading(false);
-      setProgress(0);
-      setCurrentBatch(0);
     }
   };
 

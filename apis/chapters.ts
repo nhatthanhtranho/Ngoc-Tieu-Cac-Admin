@@ -5,7 +5,7 @@ import axios from "axios";
 export interface Chapter {
   chapterNumber: number;
   title: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export async function setChapterQuality(
@@ -28,6 +28,10 @@ export async function fetchChapters(
     getEndpoint(`books/${bookSlug}/chapters?start=${start}&end=${end}`)
   );
   setChapters(res.data.data);
+}
+
+export async function createChapters(bookSlug: string, chapters: Chapter[]) {
+  return axios.post(getEndpoint(`books/${bookSlug}/chapters`), chapters)
 }
 
 export async function fetchChapterDetail(
@@ -82,4 +86,12 @@ export async function saveChaptercontent(
   await axios.post(getEndpoint(`books/${bookSlug}/chapters/upload`), formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+}
+
+
+export async function getChapterUploadLink(
+  bookSlug: string,
+): Promise<{ url: string; fields: Record<string, string> }> {
+  const res = await axios.get(getEndpoint(`books/${bookSlug}/chapters/upload`));
+  return res.data;
 }

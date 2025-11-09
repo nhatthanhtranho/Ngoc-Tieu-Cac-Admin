@@ -38,7 +38,6 @@ export default function ChapterDetailPage() {
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const handeSetQuality = () => {
-    console.log(isOn, "hahah");
     if (isOn === false) {
       setChapterQuality(slug, chapterNumber);
       toast.success("💾Chapter đã đủ quality!", {
@@ -213,10 +212,7 @@ export default function ChapterDetailPage() {
         </div>
 
         <div className="relative mt-4">
-          <ContentEditableSection
-            defaultContent={chapterContent}
-            onSave={handleSave}
-          />
+          <ContentEditableSection defaultContent={chapterContent} onChange={setChapterContent}/>
         </div>
       </div>
 

@@ -2,17 +2,18 @@
 import { useEffect, useRef } from "react";
 import styled from "styled-components";
 
-const Content = styled.div`
+const Content = styled.div<{ fontSize?: number; fontFamily?: string; width?: number }>`
   margin: 0 auto;
   outline: none;
   white-space: pre-wrap;
-  transition: color 0.3s ease;
   min-height: 100vh;
   color: #f1f1f1;
   line-height: 1.8;
   padding: 1.5rem;
   border-radius: 0.5rem;
-  font-size: 1.125rem;
+  font-size: ${(props) => props.fontSize ?? 18}px;
+  font-family: ${(props) => props.fontFamily ?? "inherit"};
+  width: ${(props) => (props.width ? `${props.width}px` : "100%")};
 `;
 
 interface Props {
@@ -21,37 +22,41 @@ interface Props {
   fontFamily?: string;
   defaultContent: string;
   isEditMode?: boolean;
-  onSave?: (content: string) => void;
+  onChange: (content: string) => void;
 }
 
 export default function ContentEditableSection({
   defaultContent,
   isEditMode = true,
+  onChange,
+  fontSize,
+  width,
+  fontFamily
 }: Props) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const contentHTML = useRef<string>(defaultContent);
 
+  // Khi parent thay đổi defaultContent, update div
   useEffect(() => {
-    if (contentRef.current) {
+    if (contentRef.current && contentRef.current.innerHTML !== defaultContent) {
       contentRef.current.innerHTML = defaultContent;
-      contentHTML.current = defaultContent;
     }
   }, [defaultContent]);
 
   const handleInput = () => {
     if (!contentRef.current) return;
-    contentHTML.current = contentRef.current.innerHTML;
+    onChange(contentRef.current.innerHTML); // báo content mới cho parent
   };
 
   return (
-    <>
-      <Content
-        ref={contentRef}
-        contentEditable={isEditMode}
-        suppressContentEditableWarning
-        spellCheck={false} // ✅ tắt kiểm tra chính tả (bỏ gạch đỏ)
-        onInput={isEditMode ? handleInput : undefined}
-      />
-    </>
+    <Content
+      ref={contentRef}
+      contentEditable={isEditMode}
+      suppressContentEditableWarning
+      spellCheck={false}
+      onInput={isEditMode ? handleInput : undefined}
+      fontSize={fontSize}
+      width={width}
+      fontFamily={fontFamily}
+    />
   );
 }

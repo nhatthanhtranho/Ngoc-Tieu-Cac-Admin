@@ -1,41 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom"; // for React Router
-import { PlaySquare } from 'lucide-react'
-
 import { Book, fetchAllBookSlugs, fetchBookBySlugs } from '../../apis/books';
 import BookList from "../components/Book/BookList";
 
-
-function CreateButton() {
-  const navigate = useNavigate();
-  return (
-    <div className="flex justify-end mb-6 gap-2">
-      <button
-        className="px-2 py-3 bg-gray-800 text-white rounded-lg cursor-pointer shadow"
-        onClick={() => navigate("/leaderboard")}
-      >
-        Sắp xếp leaderboard
-      </button>
-
-      <button
-        onClick={() => navigate("/create-book")}
-        className="
-          flex items-center gap-2 font-genshin
-          bg-gradient-to-r from-[#fcd34d] via-[#fbbf24] to-[#f59e0b]
-          text-white px-6 py-2.5 rounded-xl
-          shadow-[0_0_12px_rgba(251,191,36,0.6)]
-          border border-yellow-400/40
-          transition-all duration-300
-          hover:scale-105 hover:shadow-[0_0_20px_rgba(251,191,36,0.8)]
-          active:scale-95
-        "
-      >
-        <PlaySquare size="20" color="white" />
-        Tạo truyện mới
-      </button>
-    </div>
-  );
-}
 
 function App() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -115,10 +81,9 @@ function App() {
       <div className="container mx-auto px-4 py-10 font-genshin text-genshin-dark">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-genshin drop-shadow-glow tracking-wide">
+          <h1 className="text-4xl font-bold drop-shadow-glow tracking-wide">
             ✦ Danh Sách Truyện ✦
           </h1>
-          <CreateButton />
         </div>
 
         {/* Book list */}

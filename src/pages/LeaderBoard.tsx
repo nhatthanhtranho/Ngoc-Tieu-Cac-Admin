@@ -9,7 +9,7 @@ type Book = { slug: string; title: string };
 
 export default function LeaderBoard() {
   const [books, setBooks] = useState<Book[]>([]);
-  const [activeTab, setActiveTab] = useState<"top_love" | "trending_now" | "recommended">("top_love");
+  const [activeTab, setActiveTab] = useState<string>("top_love");
 
   useEffect(() => {
     fetchAllBookSlugs((data: Book[]) => setBooks(data));
@@ -19,12 +19,11 @@ export default function LeaderBoard() {
     { key: "top_love", label: "Truyện Yêu Thích" },
     { key: "trending_now", label: "Truyện Xu Hướng" },
     { key: "recommended", label: "Truyện Đề Cử" },
+    { key: "limited_free", label: "Truyện Miễn Phí" },
   ] as const;
 
   return (
     <div className="container mx-auto pt-8">
-      <BackToHomeButton />
-
       {/* Tabs Header */}
       <div className="flex justify-center gap-4 border-b border-gray-300 mb-6">
         {tabs.map((tab) => (
@@ -45,13 +44,33 @@ export default function LeaderBoard() {
       {/* Tabs Content */}
       <div className="mt-4">
         {activeTab === "top_love" && (
-          <LeaderBoardEdit books={books} type="top_love" title="Truyện Yêu Thích" />
+          <LeaderBoardEdit
+            books={books}
+            type="top_love"
+            title="Truyện Yêu Thích"
+          />
         )}
         {activeTab === "trending_now" && (
-          <LeaderBoardEdit books={books} type="trending_now" title="Truyện Xu Hướng" />
+          <LeaderBoardEdit
+            books={books}
+            type="trending_now"
+            title="Truyện Xu Hướng"
+          />
         )}
         {activeTab === "recommended" && (
-          <LeaderBoardEdit books={books} type="recommended" title="Truyện Đề Cử" />
+          <LeaderBoardEdit
+            books={books}
+            type="recommended"
+            title="Truyện Đề Cử"
+          />
+        )}
+
+        {activeTab === "limited_free" && (
+          <LeaderBoardEdit
+            books={books}
+            type="limited_free"
+            title="Truyện Miễn Phí"
+          />
         )}
       </div>
     </div>

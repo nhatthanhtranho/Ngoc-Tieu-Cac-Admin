@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 
 import { createChapters, getChapterUploadLink } from "../../../apis/chapters";
+import { compressText } from "../../utils/compress";
 
 export interface ParsedChapter {
   chapterNumber: number;
@@ -79,7 +80,21 @@ export default function UploadChaptersModal({
       await createChapters(bookSlug, parsedChapters);
       const { url, fields } = await getChapterUploadLink(bookSlug);
 
-      for (const file of rawFiles) {
+      const compressedFiles = await Promise.all(
+        rawFiles.map(async (file) => {
+          const text = await file.text();
+          const compressed = compressText(text);
+          const blob = new Blob([compressed] as unknown as BlobPart[], {
+            type: "application/octet-stream",
+          });
+
+          return new File([blob], file.name, {
+            type: "application/octet-stream",
+          });
+        })
+      );
+
+      for (const file of compressedFiles) {
         const formData = new FormData();
 
         // copy tất cả field

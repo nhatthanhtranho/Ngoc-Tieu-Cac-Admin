@@ -13,7 +13,7 @@ export async function setChapterQuality(
   chapterNumber: number
 ) {
   return axios.post(
-    getEndpoint(`books/${bookSlug}/chapters/${chapterNumber}/quality`)
+    getEndpoint(`chapters/${bookSlug}/${chapterNumber}/quality`)
   );
 }
 
@@ -25,13 +25,13 @@ export async function fetchChapters(
 ) {
   if (!bookSlug) return;
   const res = await axios.get<{ data: Chapter[] }>(
-    getEndpoint(`books/${bookSlug}/chapters?start=${start}&end=${end}`)
+    getEndpoint(`chapters/${bookSlug}/titles?start=${start}&end=${end}`)
   );
   setChapters(res.data.data);
 }
 
 export async function createChapters(bookSlug: string, chapters: Chapter[]) {
-  return axios.post(getEndpoint(`books/${bookSlug}/chapters`), chapters)
+  return axios.post(getEndpoint(`chapters/${bookSlug}`), chapters)
 }
 
 export async function fetchChapterDetail(
@@ -41,7 +41,7 @@ export async function fetchChapterDetail(
   setQuality?: (isQualified: boolean) => void
 ) {
   const res = await axios.get(
-    getEndpoint(`books/${bookSlug}/chapters/${chapterNumber}`)
+    getEndpoint(`chapters/${bookSlug}/${chapterNumber}`)
   );
   const content = decompressText(res.data.content);
   setContent(content);
@@ -92,6 +92,6 @@ export async function saveChaptercontent(
 export async function getChapterUploadLink(
   bookSlug: string,
 ): Promise<{ url: string; fields: Record<string, string> }> {
-  const res = await axios.get(getEndpoint(`books/${bookSlug}/chapters/upload`));
+  const res = await axios.get(getEndpoint(`chapters/${bookSlug}/upload`));
   return res.data;
 }

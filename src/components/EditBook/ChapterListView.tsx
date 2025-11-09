@@ -145,7 +145,7 @@ export default function ChapterListView({
                   </span>
                 </p>
                 <p className="text-sm text-gray-500 italic">
-                  Cập nhật: {renderDate(chapter.createdAt)}
+                  Cập nhật: {renderDate(chapter.createdAt || new Date().toDateString())}
                 </p>
               </div>
 

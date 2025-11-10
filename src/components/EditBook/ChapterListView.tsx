@@ -10,7 +10,7 @@ import UploadChaptersModal from "./UploadChaptersModal";
 import ReviewChapterModal from "./ReviewChapterModal";
 import { Chapter, fetchChapters } from "../../../apis/chapters";
 import DownloadBookModal from "./DownloadBookModal";
-
+import InlinePageInput from "./InlinePageInput";
 interface ChapterListViewProps {
   numberOfChapters: number;
   bookSlug: string;
@@ -28,6 +28,7 @@ export default function ChapterListView({
   bookSlug,
 }: ChapterListViewProps) {
   const [page, setPage] = useState(1);
+  const [inputPage, setInputPage] = useState(""); // ✅ trang nhập thủ công
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -65,7 +66,7 @@ export default function ChapterListView({
           };
         }
 
-        setProgressData(combined); // ✅ gọi setState từ async function
+        setProgressData(combined);
       } catch (err) {
         console.error("⚠️ Không load được progress:", err);
       }
@@ -89,6 +90,14 @@ export default function ChapterListView({
     const end = start + pageSize - 1;
     await fetchChapters(bookSlug, start, end, setChapters);
     setError(null);
+  };
+
+  const handleJumpPage = () => {
+    const newPage = parseInt(inputPage, 10);
+    if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+      setInputPage("");
+    }
   };
 
   return (
@@ -130,30 +139,33 @@ export default function ChapterListView({
             <li
               key={chapter.chapterNumber}
               onClick={() => setSelectedChapter(chapter.chapterNumber)}
-              className={`py-3 px-4 flex justify-between items-center rounded-lg hover:bg-gray-200  transition mb-1 bg-gray-50 ${
+              className={`py-3 px-4 flex justify-between items-center rounded-lg hover:bg-gray-200 transition mb-1 bg-gray-50 ${
                 progressData[chapter.chapterNumber]?.isFormatOk
                   ? "border border-emerald-400"
                   : ""
               }`}
             >
-              {/* Thông tin chapter */}
               <div className="flex flex-col">
-                <p className="font-semibold  flex items-center gap-2">
+                <p className="font-semibold flex items-center gap-2">
                   Chương {chapter.chapterNumber}:{" "}
                   <span className="font-normal text-gray-700">
                     {chapter.title}
                   </span>
                 </p>
                 <p className="text-sm text-gray-500 italic">
-                  Cập nhật: {renderDate(chapter.createdAt || new Date().toDateString())}
+                  Cập nhật:{" "}
+                  {renderDate(chapter.createdAt || new Date().toDateString())}
                 </p>
               </div>
 
               <button
-                onClick={() =>
-                  navigate(`/book/${bookSlug}/chapter/${chapter.chapterNumber}`)
-                }
-                className=" text-white transition-all cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(
+                    `/book/${bookSlug}/chapter/${chapter.chapterNumber}`
+                  );
+                }}
+                className="text-white transition-all cursor-pointer"
               >
                 <SquarePen className="w-6 h-6 text-zinc-700 hover:text-zinc-900" />
               </button>
@@ -177,9 +189,12 @@ export default function ChapterListView({
             ← Trước
           </button>
 
-          <span className="px-4 py-2 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium shadow-sm">
-            Trang {page} / {totalPages}
-          </span>
+          {/* ✅ Trang hiện tại — click để chỉnh sửa */}
+          <InlinePageInput
+            currentPage={page}
+            totalPages={totalPages}
+            onChange={(newPage: any) => setPage(newPage)}
+          />
 
           <button
             disabled={page === totalPages}
@@ -205,7 +220,6 @@ export default function ChapterListView({
           />
         )}
 
-        {/* Popup Review Chapter */}
         {selectedChapter > 0 && (
           <ReviewChapterModal
             key={`${bookSlug}-${selectedChapter}`}
@@ -227,14 +241,14 @@ export default function ChapterListView({
             }}
           />
         )}
-        {showDownloadModal ? (
+        {showDownloadModal && (
           <DownloadBookModal
             totalChapters={numberOfChapters}
             key="download-modal"
             bookSlug={bookSlug}
             onClose={() => setShowDownloadModal(false)}
           />
-        ) : null}
+        )}
       </AnimatePresence>
     </div>
   );

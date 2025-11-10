@@ -20,9 +20,10 @@ export interface StoryFormData {
 interface CreateStoryFormModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onCreate?: (book: any) => void
 }
 
-export default function CreateStoryFormModal({ isOpen, onClose }: CreateStoryFormModalProps) {
+export default function CreateStoryFormModal({ isOpen, onClose, onCreate }: CreateStoryFormModalProps) {
   const navigate = useNavigate();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<StoryFormData>({
@@ -37,7 +38,7 @@ export default function CreateStoryFormModal({ isOpen, onClose }: CreateStoryFor
   const [slugEdited, setSlugEdited] = useState(false);
   const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -89,7 +90,12 @@ export default function CreateStoryFormModal({ isOpen, onClose }: CreateStoryFor
       formDataToSend.append("file", blob, "book-info.json.gz");
 
       const res = await fetch(getEndpoint("books"), { method: "POST", body: formDataToSend });
+      
+
       if (!res.ok) throw new Error();
+
+      // Lưu truyện vào state chính
+      onCreate && onCreate(await res.json());
       onClose();
       navigate("/");
     } catch (err) {

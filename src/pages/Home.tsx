@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Book, fetchAllBookSlugs, fetchBookBySlugs } from '../../apis/books';
 import BookList from "../components/Book/BookList";
 import CreateStoryFormModal from '../components/CreateStoryModal';
@@ -9,6 +9,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
+  const [refresh, setRefresh] = useState(false);
   const pageSize = 35; // số truyện mỗi trang
   const [bookSlugs, setBookSlugs] = useState<
     Array<{ slug: string; title: string }>
@@ -61,6 +62,11 @@ function App() {
       setBooks(data);
     });
   }, [currentPage, bookmarks, bookSlugs]);
+
+
+  const addNewBook = useCallback((book: any) => {
+    setBooks((prevBooks) => [book, ...prevBooks]);
+  }, [setBooks])
 
   // Toggle bookmark
   const toggleBookmark = (slug: string) => {
@@ -140,7 +146,7 @@ function App() {
         )}
       </div>
 
-      <CreateStoryFormModal isOpen={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false) }} />
+      <CreateStoryFormModal isOpen={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false) }} onCreate={addNewBook} />
     </div>)
 }
 

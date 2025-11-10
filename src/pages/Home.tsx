@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Book, fetchAllBookSlugs, fetchBookBySlugs } from '../../apis/books';
 import BookList from "../components/Book/BookList";
+import CreateStoryFormModal from '../components/CreateStoryModal';
 
 
 function App() {
   const [books, setBooks] = useState<Book[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
   const pageSize = 35; // số truyện mỗi trang
   const [bookSlugs, setBookSlugs] = useState<
@@ -84,7 +86,17 @@ function App() {
           <h1 className="text-4xl font-bold drop-shadow-glow tracking-wide">
             ✦ Danh Sách Truyện ✦
           </h1>
+
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="px-4 py-2 bg-yellow-400 text-white rounded-lg font-semibold hover:bg-yellow-500 transition-colors"
+          >
+            + Tạo truyện
+          </button>
+
         </div>
+
+
 
         {/* Book list */}
         {books.length === 0 ? (
@@ -127,6 +139,8 @@ function App() {
           </>
         )}
       </div>
+
+      <CreateStoryFormModal isOpen={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false) }} />
     </div>)
 }
 

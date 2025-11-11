@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { createChapters, getChapterUploadLink } from "../../../apis/chapters";
 import { compressText } from "../../utils/compress";
+import { useNavigate } from "react-router-dom";
 
 export interface ParsedChapter {
   chapterNumber: number;
@@ -24,6 +25,7 @@ export default function UploadChaptersModal({
   onClose,
   onUploaded,
 }: UploadChaptersModalProps) {
+  const navigate = useNavigate()
   const [parsedChapters, setParsedChapters] = useState<ParsedChapter[]>([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -205,6 +207,8 @@ export default function UploadChaptersModal({
     setCurrentBatch(0);
     setError(null);
     abortRef.current = null;
+    // do here
+    navigate(0);
   };
 
   return (

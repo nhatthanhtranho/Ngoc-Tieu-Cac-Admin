@@ -20,7 +20,7 @@ export interface Book {
 }
 
 export async function createBook(newBook: Book): Promise<Book> {
-  const res = await api.post<Book>('/books', { ...newBook });
+  const res = await api.post<Book>("/books", { ...newBook });
   console.log(res.data, "new books");
   return res.data;
 }
@@ -89,4 +89,9 @@ export async function checkBookSlugValid(bookSlug: string): Promise<boolean> {
   const res = await axios.get(getEndpoint(`books/check-slug/${bookSlug}`));
   console.log(res);
   return true;
+}
+
+export async function getUploadBookBannerUrl(bookSlug: string) {
+  const response = await api.get(`books/banner/upload/${bookSlug}`);
+  return response.data;
 }

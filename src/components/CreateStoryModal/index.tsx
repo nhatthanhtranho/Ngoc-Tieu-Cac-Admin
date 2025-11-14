@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { X, CheckCircle, AlertTriangle } from "lucide-react";
 import slugify from "slugify";
 import { checkBookSlugValid, createBook } from "../../../apis/books";
-import { useAuthState } from "../../stores/auth.store";
 
 export interface StoryFormData {
   title: string;
@@ -54,8 +53,6 @@ export default function CreateStoryFormModal({
   const [slugStatus, setSlugStatus] = useState<
     "idle" | "checking" | "available" | "taken"
   >("idle");
-
-  const { accessToken } = useAuthState();
 
   useEffect(() => {}, []);
 

@@ -3,7 +3,7 @@ import ChapterListView from "./ChapterListView";
 import Select from "react-select";
 import pako from "pako";
 import { useParams } from "react-router-dom";
-import { Book, fetchBookBySlug } from "../../../apis/books";
+import { Book, fetchBookBySlug, getUploadBookBannerUrl } from "../../../apis/books";
 import { fetchAllCategories } from "../../../apis/categories";
 import { getEndpoint } from "../../../apis";
 import CropImage from "../CropImage";
@@ -111,8 +111,7 @@ export default function EditBookInfo() {
     if (!book || !bannerSet.default || !bannerSet.small) return;
 
     try {
-      const res = await fetch(getEndpoint(`books/banner/upload/${book.slug}`));
-      const data = await res.json();
+      const data = await getUploadBookBannerUrl(book.slug)
       const { defaultUrl, smallUrl } = data;
 
       await Promise.all([

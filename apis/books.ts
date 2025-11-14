@@ -24,12 +24,10 @@ export async function fetchBookBySlug(
   setBook: (book: Book) => void,
   setOriginalBook?: (book: Book) => void
 ): Promise<Book> {
-  const res = await axios.get<{ data: Book }>(
-    getEndpoint(`books/slug/${slug}`)
-  );
-  setBook(res.data.data);
-  setOriginalBook?.(res.data.data);
-  return res.data.data;
+  const res = await axios.get<Book>(getEndpoint(`books/${slug}`));
+  setBook(res.data);
+  setOriginalBook?.(res.data);
+  return res.data;
 }
 
 export async function fetchAllBookSlugs(

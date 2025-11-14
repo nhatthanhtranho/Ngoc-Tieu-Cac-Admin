@@ -9,7 +9,6 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
-  const [refresh, setRefresh] = useState(false);
   const pageSize = 35; // số truyện mỗi trang
   const [bookSlugs, setBookSlugs] = useState<
     Array<{ slug: string; title: string }>
@@ -57,6 +56,8 @@ function App() {
     const start = (currentPage - 1) * pageSize;
     const end = currentPage * pageSize;
     const slugsPage = allSlugsOrdered.slice(start, end);
+
+    console.log(slugsPage, 'hahha')
 
     fetchBookBySlugs(slugsPage, (data) => {
       setBooks(data);

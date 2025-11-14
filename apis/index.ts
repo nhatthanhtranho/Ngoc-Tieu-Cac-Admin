@@ -1,7 +1,4 @@
-const endpoint =
-  import.meta.env.VITE_DEBUG === "true"
-    ? "http://localhost:3002"
-    : "https://d1spvvcw7w1abe.cloudfront.net";
+const endpoint = "https://dhstn97hlf.execute-api.ap-southeast-1.amazonaws.com";
 
 export function getEndpoint(path: string): string {
   return `${endpoint}/${path}`;

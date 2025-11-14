@@ -2,7 +2,7 @@ import axios from "axios";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
-import { getEndpoint } from ".";
+import { getEndpoint, api } from ".";
 import { decompressText, JsonBuffer } from "../src/utils/compress";
 
 export interface Book {
@@ -17,6 +17,12 @@ export interface Book {
   tags?: string[];
   categories?: string[];
   tacGia: string;
+}
+
+export async function createBook(newBook: Book): Promise<Book> {
+  const res = await api.post<Book>('/books', { ...newBook });
+  console.log(res.data, "new books");
+  return res.data;
 }
 
 export async function fetchBookBySlug(
@@ -77,4 +83,10 @@ export async function downloadBooks(
   // 5. Tạo Blob ZIP và trigger download
   const zipBlob = await zip.generateAsync({ type: "blob" });
   saveAs(zipBlob, `${bookSlug}.zip`);
+}
+
+export async function checkBookSlugValid(bookSlug: string): Promise<boolean> {
+  const res = await axios.get(getEndpoint(`books/check-slug/${bookSlug}`));
+  console.log(res);
+  return true;
 }

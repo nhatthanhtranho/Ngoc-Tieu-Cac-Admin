@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
-import pako from "pako";
 import { getEndpoint } from "../../../apis";
 import { useNavigate } from "react-router-dom";
 import { X, CheckCircle, AlertTriangle } from "lucide-react";
 import slugify from "slugify";
+import { checkBookSlugValid, createBook } from "../../../apis/books";
+import { useAuthState } from "../../stores/auth.store";
 
 export interface StoryFormData {
   title: string;
@@ -55,7 +56,9 @@ export default function CreateStoryFormModal({
     "idle" | "checking" | "available" | "taken"
   >("idle");
 
-  useEffect(() => { }, []);
+  const { accessToken } = useAuthState();
+
+  useEffect(() => {}, []);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -92,9 +95,8 @@ export default function CreateStoryFormModal({
 
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.title.trim()) newErrors.title = "Tiêu đề không được để trống.";
-    if (!formData.description.trim())
-      newErrors.description = "Mô tả không được để trống.";
+    if (!formData.title.trim())
+      newErrors.title = "Tiêu đề không được để trống.";
     if (!formData.slug.trim()) newErrors.slug = "Slug không được để trống.";
     if (!formData.tacGia.trim()) newErrors.tacGia = "Nhập tên tác giả.";
     if (!formData.dichGia.trim()) newErrors.dichGia = "Nhập tên dịch giả.";
@@ -107,21 +109,10 @@ export default function CreateStoryFormModal({
   const handleSubmit = async () => {
     if (!handleValidate()) return alert("⚠️ Kiểm tra lại thông tin!");
     try {
-      const payload = { ...formData, status: "Published" };
-      const compressed = pako.gzip(JSON.stringify(payload));
-      const blob = new Blob([compressed], { type: "application/gzip" });
-      const formDataToSend = new FormData();
-      formDataToSend.append("file", blob, "book-info.json.gz");
+      const newBook = { ...formData, status: "Published", currentChapter: 0 };
 
-      const res = await fetch(getEndpoint("books"), {
-        method: "POST",
-        body: formDataToSend,
-      });
-
-      if (!res.ok) throw new Error();
-
-      // Lưu truyện vào state chính
-      onCreate && onCreate(await res.json());
+      const res = await createBook(newBook);
+      onCreate && onCreate(res);
       onClose();
       navigate("/");
     } catch (err) {
@@ -134,11 +125,8 @@ export default function CreateStoryFormModal({
     if (!formData.slug.trim()) return alert("Nhập slug trước khi kiểm tra!");
     try {
       setSlugStatus("checking");
-      const res = await fetch(
-        getEndpoint(`books/check-slug?slug=${formData.slug}`)
-      );
-      const data = await res.json();
-      if (data.exists) {
+      const isVald = await checkBookSlugValid(formData.slug);
+      if (!isVald) {
         setSlugStatus("taken");
       } else {
         setSlugStatus("available");
@@ -200,7 +188,6 @@ export default function CreateStoryFormModal({
               />
             </div>
           ))}
-
 
           {/* Slug */}
           <div>

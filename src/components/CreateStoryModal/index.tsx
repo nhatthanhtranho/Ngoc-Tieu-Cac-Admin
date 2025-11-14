@@ -55,7 +55,7 @@ export default function CreateStoryFormModal({
     "idle" | "checking" | "available" | "taken"
   >("idle");
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -201,20 +201,6 @@ export default function CreateStoryFormModal({
             </div>
           ))}
 
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-teal-500 mb-1">
-              Mô tả
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInfoChange}
-              rows={4}
-              placeholder="Giới thiệu nội dung truyện..."
-              className="w-full p-3 rounded-xl border border-teal-300 bg-white text-teal-700 placeholder-teal-400 focus:ring-2 focus:ring-teal-400 shadow-sm hover:shadow-md transition-all resize-none"
-            />
-          </div>
 
           {/* Slug */}
           <div>
@@ -246,20 +232,6 @@ export default function CreateStoryFormModal({
             {slugStatus === "taken" && (
               <p className="text-sm text-red-600 mt-1">❌ Slug đã tồn tại</p>
             )}
-          </div>
-
-          {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-teal-500 mb-1">
-              Tags (phân cách bằng dấu ,)
-            </label>
-            <input
-              type="text"
-              value={formData.tagInput}
-              onChange={handleTagInputChange}
-              placeholder="vd: tình cảm, học đường, slice-of-life"
-              className="w-full p-3 rounded-xl border border-teal-300 bg-white text-teal-700 placeholder-teal-400 focus:ring-2 focus:ring-teal-400 shadow-sm hover:shadow-md transition-all"
-            />
           </div>
         </div>
 

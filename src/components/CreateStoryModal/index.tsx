@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useEffect, useState } from "react";
-import { getEndpoint } from "../../../apis";
 import { useNavigate } from "react-router-dom";
 import { X, CheckCircle, AlertTriangle } from "lucide-react";
 import slugify from "slugify";

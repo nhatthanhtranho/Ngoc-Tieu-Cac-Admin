@@ -15,3 +15,7 @@ export async function setLeaderboard(type: string, bookSlugs: string[]) {
     type,
   });
 }
+
+export async function generateHomePageData() {
+  return api.get("/trendings");
+}

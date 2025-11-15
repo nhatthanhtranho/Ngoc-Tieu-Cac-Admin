@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+
 import { fetchAllBookSlugs } from "../../apis/books";
 import LeaderBoardEdit from "../components/LeaderBoard/LeaderBoardEdit";
+import { generateHomePageData } from "../../apis/leaderboard";
 
 type Book = { slug: string; title: string };
 
@@ -14,6 +17,11 @@ export default function LeaderBoard() {
     fetchAllBookSlugs((data: Book[]) => setBooks(data));
   }, []);
 
+  const handleGenerateHomeData = async () => {
+    await generateHomePageData();
+    toast.success("Genrate Home Data thành công!");
+  };
+
   const tabs = [
     { key: "top_love", label: "Truyện Yêu Thích" },
     { key: "trending_now", label: "Truyện Xu Hướng" },
@@ -23,8 +31,18 @@ export default function LeaderBoard() {
 
   return (
     <div className="container mx-auto pt-8">
+      {/* Nút tạo Home Data */}
+      <div className="flex justify-end mb-5">
+        <button
+          onClick={() => handleGenerateHomeData()}
+          className="px-4 py-2 bg-emerald-500 text-white hover:bg-emerald-600 rounded shadow cursor-pointer"
+        >
+          Tạo Home Data
+        </button>
+      </div>
+
       {/* Tabs Header */}
-      <div className="flex justify-center gap-4 border-b border-gray-300 mb-6">
+      <div className="flex justify-start gap-4 border-b border-gray-300 mb-6">
         {tabs.map((tab) => (
           <button
             key={tab.key}

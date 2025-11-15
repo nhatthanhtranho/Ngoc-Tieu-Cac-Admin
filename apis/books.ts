@@ -60,8 +60,8 @@ export async function downloadBooks(
   start: number,
   end: number
 ) {
-  const res = await axios.get<Array<{ name: string; url: string }>>(
-    getEndpoint(`books/${bookSlug}/chapters/download`)
+  const res = await api.get<Array<{ name: string; url: string }>>(
+    `/chapters/${bookSlug}/download`
   );
   const downloadLinks = res.data;
   const zip = new JSZip();

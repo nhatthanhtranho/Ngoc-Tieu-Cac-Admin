@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchTopups, TopupItem } from "../../../apis/payment-requests";
 import TopupFilter from "./TopupFilter";
 import TopupCard from "./TopUpCard";
@@ -7,45 +7,45 @@ import TopupCard from "./TopUpCard";
 export default function TopupManager() {
   const [topups, setTopups] = useState<TopupItem[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<
-    "ALL" | "BANKING" | "SUCCESS" | "FAILED"
+    "ALL" | "pending" | "approved" | "rejected"
   >("ALL");
+
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
     start: "",
     end: "",
   });
 
+  const [page, setPage] = useState(1);
+
+  // -----------------------------
+  // 🔥 Fetch data từ API (đã tối ưu)
+  // -----------------------------
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
       try {
-        const data = await fetchTopups();
-        setTopups(data);
+        const data = await fetchTopups({
+          search,
+          status: statusFilter === "ALL" ? "" : statusFilter.toLowerCase(),
+          startDate: dateRange.start,
+          endDate: dateRange.end,
+          page,
+        });
+
+        setTopups(data.requests);
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
+
     load();
-  }, []);
-
-  const filteredTopups = useMemo(() => {
-    return topups.filter((item) => {
-      const matchSearch =
-        item.email.toLowerCase().includes(search.toLowerCase()) ||
-        item.transferContent.toLowerCase().includes(search.toLowerCase());
-
-      const matchStatus = statusFilter === "ALL" || item.status === statusFilter;
-
-      const matchDate =
-        (!dateRange.start ||
-          new Date(item.createdAt) >= new Date(dateRange.start)) &&
-        (!dateRange.end || new Date(item.createdAt) <= new Date(dateRange.end));
-
-      return matchSearch && matchStatus && matchDate;
-    });
-  }, [search, statusFilter, dateRange, topups]);
+  }, [search, statusFilter, dateRange, page]);
+  // ❤️ mỗi khi filter đổi → gọi API lại
 
   return (
     <div className="min-h-screen w-full py-10 bg-[#05060a] text-slate-200">
@@ -72,13 +72,13 @@ export default function TopupManager() {
           <div className="text-center text-slate-500 py-12 animate-pulse">
             Đang tải dữ liệu...
           </div>
-        ) : filteredTopups.length === 0 ? (
+        ) : topups.length === 0 ? (
           <div className="text-center text-slate-500 italic py-12">
             Không tìm thấy giao dịch nào.
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredTopups.map((item) => (
+            {topups.map((item) => (
               <div
                 key={item.id}
                 className="

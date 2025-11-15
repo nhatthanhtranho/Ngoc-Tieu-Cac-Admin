@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
-import axios from "axios";
 import { vi } from "date-fns/locale";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -39,41 +38,6 @@ export default function ChapterListView({
   const [progressData, setProgressData] = useState<{
     [chapterNumber: number]: { isFormatOk: boolean; isQualityOk: boolean };
   }>({});
-
-  useEffect(() => {
-    const loadProgress = async () => {
-      try {
-        const res = await axios.get("/api/review-progress");
-        const formatFile =
-          res.data?.[`${bookSlug}-format-review-progress.txt`] || {};
-        const qualityFile =
-          res.data?.[`${bookSlug}-quality-review-progress.txt`] || {};
-
-        const combined: {
-          [chapterNumber: number]: {
-            isFormatOk: boolean;
-            isQualityOk: boolean;
-          };
-        } = {};
-        for (const chapterNumStr of Object.keys({
-          ...formatFile,
-          ...qualityFile,
-        })) {
-          const chapterNumber = Number(chapterNumStr);
-          combined[chapterNumber] = {
-            isFormatOk: !!formatFile[chapterNumber],
-            isQualityOk: !!qualityFile[chapterNumber],
-          };
-        }
-
-        setProgressData(combined);
-      } catch (err) {
-        console.error("⚠️ Không load được progress:", err);
-      }
-    };
-
-    loadProgress();
-  }, [bookSlug]);
 
   const pageSize = 10;
   const totalPages = Math.ceil(numberOfChapters / pageSize);

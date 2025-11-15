@@ -4,8 +4,8 @@ import { Calendar, RotateCcw, Search } from "lucide-react";
 interface Props {
   search: string;
   setSearch: (v: string) => void;
-  statusFilter: string;
-  setStatusFilter: (v: "ALL" | "BANKING" | "SUCCESS" | "FAILED") => void;
+  statusFilter: "ALL" | "pending" | "approved" | "rejected";
+  setStatusFilter: (v: "ALL" | "pending" | "approved" | "rejected") => void;
   dateRange: { start: string; end: string };
   setDateRange: (v: { start: string; end: string }) => void;
 }
@@ -64,23 +64,23 @@ export default function TopupFilter({
 
       {/* ⚙️ Status Filter */}
       <div className="flex flex-wrap items-center gap-2">
-        {["ALL", "BANKING", "SUCCESS", "FAILED"].map((s) => {
+        {["ALL", "pending", "approved", "rejected"].map((s) => {
           const active = statusFilter === s;
           const label =
             s === "ALL"
               ? "Tất cả"
-              : s === "BANKING"
+              : s === "pending"
               ? "Chờ kiểm tra"
-              : s === "SUCCESS"
+              : s === "approved"
               ? "Thành công"
               : "Thất bại";
 
           const color =
-            s === "SUCCESS"
+            s === "approved"
               ? "emerald"
-              : s === "FAILED"
+              : s === "rejected"
               ? "rose"
-              : s === "BANKING"
+              : s === "pending"
               ? "amber"
               : "slate";
 

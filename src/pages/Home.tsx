@@ -57,11 +57,11 @@ function App() {
     const end = currentPage * pageSize;
     const slugsPage = allSlugsOrdered.slice(start, end);
 
-    console.log(slugsPage, 'hahha')
+    if (slugsPage.length > 0)
 
-    fetchBookBySlugs(slugsPage, (data) => {
-      setBooks(data);
-    });
+      fetchBookBySlugs(slugsPage, (data) => {
+        setBooks(data);
+      });
   }, [currentPage, bookmarks, bookSlugs]);
 
 

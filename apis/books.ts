@@ -61,7 +61,7 @@ export async function downloadBooks(
   end: number
 ) {
   const res = await api.get<Array<{ name: string; url: string }>>(
-    `/chapters/${bookSlug}/download`
+    `/chapters/${bookSlug}/download?start=${start}&end=${end}`
   );
   const downloadLinks = res.data;
   const zip = new JSZip();

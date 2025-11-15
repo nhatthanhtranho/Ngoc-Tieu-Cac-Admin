@@ -104,3 +104,10 @@ export async function getChapterUploadLink(
   const res = await api.get(`/chapters/${bookSlug}/upload`);
   return res.data;
 }
+
+export async function deleteAllChapters(
+  bookSlug: string
+): Promise<{ url: string; fields: Record<string, string> }> {
+  const res = await api.delete(`/chapters/${bookSlug}`);
+  return res.data;
+}

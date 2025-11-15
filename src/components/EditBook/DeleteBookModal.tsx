@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { deleteAllChapters } from "../../../apis/chapters";
+import { toast } from "react-toastify";
 
 interface DeleteBookModal {
   bookSlug: string;
@@ -17,6 +19,9 @@ export default function DeleteBookModal({
     setLoading(true);
     setError(null);
     try {
+      await deleteAllChapters(bookSlug);
+      onClose();
+      toast.success("Đã xóa tất cả chương!");
     } catch (err: any) {
       setError(err.message || "Delete thất bại");
     } finally {
@@ -31,10 +36,10 @@ export default function DeleteBookModal({
 
         {/* Close button góc phải */}
         <div className="px-6 pb-4">
-          <h3 className="text-xl font-semibold mb-2">
-            Xóa tất cả chapters
-          </h3>
-          <p className="text-gray-700 mb-2">Sau khi xóa tất cả chapters không thể khôi phục lại!</p>
+          <h3 className="text-xl font-semibold mb-2">Xóa tất cả chương</h3>
+          <p className="text-gray-700 mb-2">
+            Sau khi xóa tất cả chương không thể khôi phục lại!
+          </p>
 
           {error && <p className="text-red-500 mb-2">{error}</p>}
 

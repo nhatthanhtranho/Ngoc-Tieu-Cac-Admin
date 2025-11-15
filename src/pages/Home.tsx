@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Book, fetchAllBookSlugs, fetchBookBySlugs } from '../../apis/books';
+import React, { useState, useEffect, useCallback } from "react";
+import { Book, fetchAllBookSlugs, fetchBookBySlugs } from "../../apis/books";
 import BookList from "../components/Book/BookList";
-import CreateStoryFormModal from '../components/CreateStoryModal';
-
+import CreateStoryFormModal from "../components/CreateStoryModal";
 
 function App() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -13,6 +12,7 @@ function App() {
   const [bookSlugs, setBookSlugs] = useState<
     Array<{ slug: string; title: string }>
   >([]);
+  const [loading, setLoading] = useState(true);
 
   // Load bookmark từ localStorage
   useEffect(() => {
@@ -58,16 +58,19 @@ function App() {
     const slugsPage = allSlugsOrdered.slice(start, end);
 
     if (slugsPage.length > 0)
-
       fetchBookBySlugs(slugsPage, (data) => {
         setBooks(data);
+      }).finally(() => {
+        setLoading(false);
       });
   }, [currentPage, bookmarks, bookSlugs]);
 
-
-  const addNewBook = useCallback((book: any) => {
-    setBooks((prevBooks) => [book, ...prevBooks]);
-  }, [setBooks])
+  const addNewBook = useCallback(
+    (book: any) => {
+      setBooks((prevBooks) => [book, ...prevBooks]);
+    },
+    [setBooks]
+  );
 
   // Toggle bookmark
   const toggleBookmark = (slug: string) => {
@@ -100,55 +103,51 @@ function App() {
           >
             + Tạo truyện
           </button>
-
         </div>
 
+        <>
+          <BookList initialBooks={books} loading={loading} />
 
-
-        {/* Book list */}
-        {books.length === 0 ? (
-          <p className="text-center text-slate-500 font-noto">
-            Không tìm thấy truyện nào.
-          </p>
-        ) : (
-          <>
-            <BookList initialBooks={books} />
-
-            {/* Pagination controls */}
-            <div className="flex justify-center gap-3 mt-6">
+          {/* Pagination controls */}
+          <div className="flex justify-center gap-3 mt-6">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+            >
+              Trước
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
-                className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+                key={p}
+                onClick={() => setCurrentPage(p)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === p ? "bg-yellow-400 text-white" : "bg-gray-200"
+                }`}
               >
-                Trước
+                {p}
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setCurrentPage(p)}
-                  className={`px-3 py-1 rounded ${currentPage === p
-                    ? "bg-yellow-400 text-white"
-                    : "bg-gray-200"
-                    }`}
-                >
-                  {p}
-                </button>
-              ))}
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
-                className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
-              >
-                Sau
-              </button>
-            </div>
-          </>
-        )}
+            ))}
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+            >
+              Sau
+            </button>
+          </div>
+        </>
       </div>
 
-      <CreateStoryFormModal isOpen={isCreateModalOpen} onClose={() => { setIsCreateModalOpen(false) }} onCreate={addNewBook} />
-    </div>)
+      <CreateStoryFormModal
+        isOpen={isCreateModalOpen}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+        }}
+        onCreate={addNewBook}
+      />
+    </div>
+  );
 }
 
-export default App
+export default App;

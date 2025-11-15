@@ -5,8 +5,15 @@ import BookCard2 from "./BookCard";
 import { useNavigate } from "react-router-dom";
 import { Book } from "../../../apis/books";
 import { getBannerURL } from "../../utils/getBannerURL";
+import Skeleton from "react-loading-skeleton";
 
-export default function BookList({ initialBooks }: { initialBooks: Book[] }) {
+export default function BookList({
+  initialBooks,
+  loading,
+}: {
+  initialBooks: Book[];
+  loading: boolean;
+}) {
   const navigate = useNavigate();
 
   const [books, setBooks] = useState<Book[]>(initialBooks);
@@ -53,22 +60,30 @@ export default function BookList({ initialBooks }: { initialBooks: Book[] }) {
   // 🧱 Render UI
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-6">
-      {books.map((book) => (
-        <motion.div
-          key={book.slug}
-          layout="position"
-          transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        >
-          <BookCard2
-            slug={book.slug}
-            title={book.title}
-            handleClick={() => navigate(`/book/${book.slug}`)}
-            thumbnailUrl={getBannerURL(book.slug) || ""}
-            isBookmarked={bookmarks.includes(book.slug)}
-            onToggleBookmark={() => toggleBookmark(book.slug)}
-          />
-        </motion.div>
-      ))}
+      {loading
+        ? // ⭐ Skeleton Loading UI
+          Array.from({ length: 21 }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-2 animate-pulse">
+              <Skeleton className="rounded-lg aspect-2/3" />
+              <Skeleton height={20} />
+            </div>
+          ))
+        : books.map((book) => (
+            <motion.div
+              key={book.slug}
+              layout="position"
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            >
+              <BookCard2
+                slug={book.slug}
+                title={book.title}
+                handleClick={() => navigate(`/book/${book.slug}`)}
+                thumbnailUrl={getBannerURL(book.slug) || ""}
+                isBookmarked={bookmarks.includes(book.slug)}
+                onToggleBookmark={() => toggleBookmark(book.slug)}
+              />
+            </motion.div>
+          ))}
     </div>
   );
 }

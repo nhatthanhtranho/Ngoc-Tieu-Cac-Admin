@@ -10,6 +10,7 @@ import ReviewChapterModal from "./ReviewChapterModal";
 import { Chapter, fetchChapters } from "../../../apis/chapters";
 import DownloadBookModal from "./DownloadBookModal";
 import InlinePageInput from "./InlinePageInput";
+import DeleteBookModal from "./DeleteBookModal";
 interface ChapterListViewProps {
   numberOfChapters: number;
   bookSlug: string;
@@ -33,6 +34,7 @@ export default function ChapterListView({
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedChapter, setSelectedChapter] = useState<number>(-1);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const navigate = useNavigate();
 
   const [progressData, setProgressData] = useState<{
@@ -73,7 +75,7 @@ export default function ChapterListView({
         </h2>
         <div className="flex gap-2">
           <button
-            onClick={() => setShowUploadModal(true)}
+            onClick={() => setShowDeleteModal(true)}
             className="bg-red-600 rounded p-2 cursor-pointer hover:bg-red-800 transition-colors duration-200 shadow text-white"
           >
             <BrushCleaning className="w-6 h-6" />
@@ -211,6 +213,12 @@ export default function ChapterListView({
             key="download-modal"
             bookSlug={bookSlug}
             onClose={() => setShowDownloadModal(false)}
+          />
+        )}
+        {showDeleteModal && (
+          <DeleteBookModal
+            bookSlug={bookSlug}
+            onClose={() => setShowDeleteModal(false)}
           />
         )}
       </AnimatePresence>

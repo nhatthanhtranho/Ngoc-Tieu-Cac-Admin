@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import ChapterListView from "./ChapterListView";
 import Select from "react-select";
-import pako from "pako";
 import { useParams } from "react-router-dom";
-import { Book, fetchBookBySlug, getUploadBookBannerUrl } from "../../../apis/books";
+
+import { Book, fetchBookBySlug, getUploadBookBannerUrl, updateBook } from "../../../apis/books";
 import { fetchAllCategories } from "../../../apis/categories";
 import { getEndpoint } from "../../../apis";
 import CropImage from "../CropImage";
@@ -55,24 +55,8 @@ export default function EditBookInfo() {
       alert("⚠️ Không có thay đổi nào để lưu.");
       return;
     }
-
-    const jsonString = JSON.stringify(changedData);
-    const compressed = pako.gzip(jsonString);
-    const blob = new Blob([compressed], { type: "application/gzip" });
-    const formDataToSend = new FormData();
-    formDataToSend.append("file", blob, "book-info.json.gz");
-
     try {
-      const response = await fetch(getEndpoint(`books/${book._id}`), {
-        method: "PATCH",
-        body: formDataToSend,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Lỗi server (${response.status}): ${errorText || "Không rõ nguyên nhân"}`);
-      }
-
+      await updateBook(book.slug, changedData);
       alert("✅ Lưu thay đổi thành công!");
       setOriginalBook(book);
     } catch (err) {

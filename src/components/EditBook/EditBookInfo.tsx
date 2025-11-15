@@ -171,7 +171,6 @@ export default function EditBookInfo() {
           <div className="w-auto">
             <div className="flex flex-col flex-wrap gap-6">
               {[
-                { size: "small", label: "Small (200x300)", w: 200, h: 300 },
                 { size: "default", label: "Default (450x675)", w: 450, h: 675 },
               ].map(({ size, label, w, h }) => {
                 const url = preview
@@ -199,7 +198,7 @@ export default function EditBookInfo() {
                 );
               })}
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 mt-3">
               <button
                 type="button"
                 onClick={() => setShowCrop(true)}
@@ -301,17 +300,19 @@ export default function EditBookInfo() {
                 className="mt-1"
               />
             </div>
-            <button
-              onClick={onSave}
-              className="mt-4 px-4 py-2 bg-amber-500 hover:bg-amber-600 cursor-pointer text-white rounded-lg"
-            >
-              Lưu thay đổi
-            </button>
+            <div className="flex">
+              <button
+                onClick={onSave}
+                className="mt-4 w-32 py-2 bg-emerald-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
+              >
+                Lưu thay đổi
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8 grid grid-cols-2">
         <ChapterListView
           numberOfChapters={book.currentChapter}
           bookSlug={book.slug}

@@ -67,11 +67,11 @@ export default function ChapterListView({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md">
+    <div className="p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          📚 Danh sách chương ({numberOfChapters})
+          Danh sách chương ({numberOfChapters})
         </h2>
         <div className="flex gap-2">
           <button

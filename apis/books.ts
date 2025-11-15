@@ -92,6 +92,6 @@ export async function checkBookSlugValid(bookSlug: string): Promise<boolean> {
 }
 
 export async function getUploadBookBannerUrl(bookSlug: string) {
-  const response = await api.get(`books/banner/upload/${bookSlug}`);
+  const response = await api.get(`/books/banner/upload/${bookSlug}`);
   return response.data;
 }

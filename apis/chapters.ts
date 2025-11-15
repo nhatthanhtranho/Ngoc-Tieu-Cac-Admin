@@ -1,4 +1,4 @@
-import { getEndpoint } from ".";
+import { getEndpoint, api } from ".";
 import { compressText, decompressText } from "../src/utils/compress";
 import axios from "axios";
 
@@ -31,7 +31,7 @@ export async function fetchChapters(
 }
 
 export async function createChapters(bookSlug: string, chapters: Chapter[]) {
-  return axios.post(getEndpoint(`chapters/${bookSlug}`), chapters);
+  return api.post(`/chapters/${bookSlug}`, chapters);
 }
 
 export async function fetchChapterDetail(
@@ -101,6 +101,6 @@ export async function saveChapterContent(
 export async function getChapterUploadLink(
   bookSlug: string
 ): Promise<{ url: string; fields: Record<string, string> }> {
-  const res = await axios.get(getEndpoint(`chapters/${bookSlug}/upload`));
+  const res = await api.get(`/chapters/${bookSlug}/upload`);
   return res.data;
 }

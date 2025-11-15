@@ -14,9 +14,11 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import TopupNotes from "./TopupNote";
 import { TopupItem } from "../../../apis/payment-requests";
-import { api } from '../../../apis'
+import { api } from "../../../apis";
+
 interface Props {
   item: TopupItem;
+  onStatusChange: (id: string, status: "approved" | "rejected") => void;
 }
 
 function formatDate(dateStr?: string) {
@@ -28,20 +30,18 @@ function formatDate(dateStr?: string) {
     month: "2-digit",
     year: "numeric",
     hour: "2-digit",
-    minute: "2-digit",
+    minute: "numeric",
   });
 }
 
-export default function TopupCard({ item }: Props) {
-
-  useEffect(() => { console.log(item) }, [item])
+export default function TopupCard({ item, onStatusChange }: Props) {
   const [open, setOpen] = useState(false);
+
   const [notes, setNotes] = useState({
     userNote: item.userNote ?? "",
     adminNote: item.adminNote ?? "",
   });
 
-  // Đồng bộ notes nếu item thay đổi
   useEffect(() => {
     setNotes({
       userNote: item.userNote ?? "",
@@ -49,7 +49,6 @@ export default function TopupCard({ item }: Props) {
     });
   }, [item.userNote, item.adminNote]);
 
-  // Status config an toàn với default
   const defaultStatus = {
     label: "Chờ kiểm tra",
     badge: "bg-amber-900/30 text-amber-300 border-amber-700/40",
@@ -75,22 +74,31 @@ export default function TopupCard({ item }: Props) {
       },
     }[item.status || "pending"] || defaultStatus;
 
+  // ----------------------------
+  // 🔥 HANDLE APPROVE
+  // ----------------------------
   const handleProcess = useCallback(async () => {
     try {
       const res = await api.post("/payment-requests/approve", {
         paymentRequestId: item.id,
       });
-      console.log("Xử lý thành công:", res.data);
-      // Có thể trigger refresh danh sách hoặc update UI
+
+      console.log("Approve success:", res.data);
+
+      // ⬅️ báo lên để update UI
+      onStatusChange(item.id, "approved");
     } catch (err: any) {
-      console.error("Lỗi khi xử lý giao dịch:", err.response?.data || err.message);
-      alert("Xử lý thất bại! Vui lòng thử lại.");
+      console.error("Approve error:", err.response?.data || err.message);
+      alert("Xử lý thất bại!");
     }
-  }, [item.id]);
+  }, [item.id, onStatusChange]);
 
-
-  const handleMarkFailed = () =>
-    alert(`❌ Đã chuyển giao dịch ${item.id} sang thất bại`);
+  // ----------------------------
+  // 🔥 HANDLE REJECT
+  // ----------------------------
+  const handleMarkFailed = () => {
+    onStatusChange(item.id, "rejected");
+  };
 
   return (
     <div
@@ -104,7 +112,6 @@ export default function TopupCard({ item }: Props) {
         hover:border-emerald-600/40
       `}
     >
-      {/* HEADER */}
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between"
@@ -136,24 +143,20 @@ export default function TopupCard({ item }: Props) {
         </div>
       </button>
 
-      {/* DETAIL */}
       {open && (
         <div className="mt-4 pt-3 border-t border-emerald-800/30 text-sm text-emerald-100 space-y-4">
           <div className="space-y-3">
-            {/* Thời gian tạo */}
             <div className="flex items-center gap-2 text-emerald-200/90">
               <Clock className="w-4 h-4 text-emerald-400/70" />
               <span className="font-medium">Thời gian tạo:</span>{" "}
               {formatDate(item.createdAt)}
             </div>
 
-            {/* Email */}
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-emerald-400/70" />
               <span className="font-medium">Email:</span> {item.email}
             </div>
 
-            {/* Nội dung chuyển khoản */}
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Quote className="w-4 h-4 text-emerald-400/70" />
@@ -164,23 +167,15 @@ export default function TopupCard({ item }: Props) {
               </blockquote>
             </div>
 
-            {/* Phương thức */}
             <div className="flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-emerald-400/70" />
               <span className="font-medium">Phương thức:</span>{" "}
               {item.method ?? "-"}
             </div>
 
-            {/* Hình thức nạp */}
             <div className="flex items-center gap-2">
               <Coins className="w-4 h-4 text-emerald-400/70" />
               <span className="font-medium">Hình thức nạp:</span> {item.type ?? "-"}
-            </div>
-
-            {/* Thông tin gói */}
-            <div className="flex items-center gap-2">
-              <Wallet className="w-4 h-4 text-emerald-400/70" />
-              <span className="font-medium">Thông tin gói:</span> {item.planInfo ?? "-"}
             </div>
 
             {/* Payment Proof */}
@@ -196,7 +191,6 @@ export default function TopupCard({ item }: Props) {
             )}
           </div>
 
-          {/* Notes */}
           <TopupNotes
             userNote={notes.userNote}
             adminNote={notes.adminNote}
@@ -205,7 +199,6 @@ export default function TopupCard({ item }: Props) {
             }
           />
 
-          {/* ACTIONS */}
           <div className="flex items-center gap-3 mt-4">
             {item.status === "pending" && (
               <button
@@ -216,6 +209,7 @@ export default function TopupCard({ item }: Props) {
                 Xử lý giao dịch
               </button>
             )}
+
             {item.status !== "approved" && (
               <button
                 onClick={handleMarkFailed}

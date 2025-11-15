@@ -20,6 +20,14 @@ export default function TopupManager() {
 
   const [page, setPage] = useState(1);
 
+  const handleUpdateStatus = (id: string, newStatus: "pending" | "approved" | "rejected") => {
+    setTopups((prev) =>
+      prev.map((t) =>
+        t.id === id ? { ...t, status: newStatus } : t
+      )
+    );
+  };
+
   // -----------------------------
   // 🔥 Fetch data từ API (đã tối ưu)
   // -----------------------------
@@ -87,7 +95,7 @@ export default function TopupManager() {
                   hover:shadow-[0_0_12px_rgba(16,185,129,0.15)]
                 "
               >
-                <TopupCard item={item} />
+                <TopupCard item={item} onStatusChange={handleUpdateStatus}/>
               </div>
             ))}
           </div>

@@ -167,8 +167,69 @@ export default function EditBookInfo() {
         )}
 
         {/* Ảnh bìa */}
-        <div className="grid grid-cols-5 gap-4">
-          <div className="col-span-3">
+        <div className="flex gap-6">
+          <div className="w-auto">
+            <div className="flex flex-col flex-wrap gap-6">
+              {[
+                { size: "small", label: "Small (200x300)", w: 200, h: 300 },
+                { size: "default", label: "Default (450x675)", w: 450, h: 675 },
+              ].map(({ size, label, w, h }) => {
+                const url = preview
+                  ? preview // Ưu tiên ảnh preview
+                  : size === "small"
+                  ? getSmallBannerURL(book.slug)
+                  : getBannerURL(book.slug);
+
+                return (
+                  <div key={size} className="flex flex-col">
+                    <div
+                      className="relative rounded-xl overflow-hidden border-2 border-amber-300/70 dark:border-sky-600/60 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,150,0.6)] transition-all duration-300"
+                      style={{ width: `${w}px`, height: `${h}px` }}
+                    >
+                      <img
+                        src={url || fallbackBanner}
+                        alt={`Banner ${size}`}
+                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">
+                        {label}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowCrop(true)}
+                className="px-5 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,200,0.6)] transition-all"
+              >
+                Chọn ảnh
+              </button>
+              {bannerSet.default && bannerSet.small && (
+                <button
+                  type="button"
+                  onClick={uploadBanner}
+                  className="px-5 py-2 rounded-lg bg-green-500 text-white font-medium hover:bg-green-600 transition-all"
+                >
+                  ☁️ Upload lên S3
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setPreview(null);
+                  setBannerSet({});
+                  onChange("bannerURL", fallbackBanner);
+                }}
+                className="px-5 py-2 rounded-lg bg-red-500/90 text-white font-medium hover:bg-red-600 transition-all"
+              >
+                🗑️ Xóa tất cả
+              </button>
+            </div>
+          </div>
+          <div className="w-full">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium">Tên truyện</label>
@@ -246,71 +307,6 @@ export default function EditBookInfo() {
             >
               Lưu thay đổi
             </button>
-          </div>
-
-          <div className="space-y-3 col-span-2">
-            <label className="block text-sm font-semibold">
-              Ảnh bìa (3 kích thước tự động)
-            </label>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setShowCrop(true)}
-                className="px-5 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,200,0.6)] transition-all"
-              >
-                Chọn ảnh
-              </button>
-              {bannerSet.default && bannerSet.small && (
-                <button
-                  type="button"
-                  onClick={uploadBanner}
-                  className="px-5 py-2 rounded-lg bg-green-500 text-white font-medium hover:bg-green-600 transition-all"
-                >
-                  ☁️ Upload lên S3
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  setPreview(null);
-                  setBannerSet({});
-                  onChange("bannerURL", fallbackBanner);
-                }}
-                className="px-5 py-2 rounded-lg bg-red-500/90 text-white font-medium hover:bg-red-600 transition-all"
-              >
-                🗑️ Xóa tất cả
-              </button>
-            </div>
-            <div className="flex flex-col flex-wrap gap-6">
-              {[
-                { size: "small", label: "Small (200x300)", w: 200, h: 300 },
-                { size: "default", label: "Default (450x675)", w: 450, h: 675 },
-              ].map(({ size, label, w, h }) => {
-                const url = preview
-                  ? preview // Ưu tiên ảnh preview
-                  : size === "small"
-                  ? getSmallBannerURL(book.slug)
-                  : getBannerURL(book.slug);
-
-                return (
-                  <div key={size} className="flex flex-col">
-                    <div
-                      className="relative rounded-xl overflow-hidden border-2 border-amber-300/70 dark:border-sky-600/60 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,150,0.6)] transition-all duration-300"
-                      style={{ width: `${w}px`, height: `${h}px` }}
-                    >
-                      <img
-                        src={url || fallbackBanner}
-                        alt={`Banner ${size}`}
-                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">
-                        {label}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </div>
       </div>

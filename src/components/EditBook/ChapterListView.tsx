@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { Upload, SquarePen, Download, BrushCleaning } from "lucide-react";
 
 import UploadChaptersModal from "./UploadChaptersModal";
-import ReviewChapterModal from "./ReviewChapterModal";
 import { Chapter, fetchChapters } from "../../../apis/chapters";
 import DownloadBookModal from "./DownloadBookModal";
 import InlinePageInput from "./InlinePageInput";
@@ -32,14 +31,9 @@ export default function ChapterListView({
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [selectedChapter, setSelectedChapter] = useState<number>(-1);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const navigate = useNavigate();
-
-  const [progressData, setProgressData] = useState<{
-    [chapterNumber: number]: { isFormatOk: boolean; isQualityOk: boolean };
-  }>({});
 
   const pageSize = 10;
   const totalPages = Math.ceil(numberOfChapters / pageSize);
@@ -103,38 +97,27 @@ export default function ChapterListView({
         <ul className="divide-y divide-gray-200 gap-2">
           {chapters.map((chapter) => (
             <li
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/book/${bookSlug}/chapter/${chapter.chapterNumber}`);
+              }}
               key={chapter.chapterNumber}
-              onClick={() => setSelectedChapter(chapter.chapterNumber)}
-              className={`py-3 px-4 flex justify-between items-center rounded-lg hover:bg-gray-200 transition mb-1 bg-gray-50 ${
-                progressData[chapter.chapterNumber]?.isFormatOk
-                  ? "border border-emerald-400"
-                  : ""
+              className={`py-3 cursor-pointer px-4 flex justify-between items-center rounded-lg 0 mb-1  ${
+                chapter.isQualified
+                  ? " bg-emerald-500 text-white hover:bg-emerald-600"
+                  : "bg-gray-50 hover:bg-gray-200"
               }`}
             >
               <div className="flex flex-col">
                 <p className="font-semibold flex items-center gap-2">
                   Chương {chapter.chapterNumber}:{" "}
-                  <span className="font-normal text-gray-700">
-                    {chapter.title}
-                  </span>
+                  <span className="font-normal">{chapter.title}</span>
                 </p>
-                <p className="text-sm text-gray-500 italic">
+                <p className="text-sm italic">
                   Cập nhật:{" "}
                   {renderDate(chapter.createdAt || new Date().toDateString())}
                 </p>
               </div>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(
-                    `/book/${bookSlug}/chapter/${chapter.chapterNumber}`
-                  );
-                }}
-                className="text-white transition-all cursor-pointer"
-              >
-                <SquarePen className="w-6 h-6 text-zinc-700 hover:text-zinc-900" />
-              </button>
             </li>
           ))}
         </ul>
@@ -186,27 +169,6 @@ export default function ChapterListView({
           />
         )}
 
-        {selectedChapter > 0 && (
-          <ReviewChapterModal
-            key={`${bookSlug}-${selectedChapter}`}
-            bookSlug={bookSlug}
-            chapterNumber={selectedChapter}
-            initialProgress={
-              progressData[selectedChapter] || {
-                isFormatOk: false,
-                isQualityOk: false,
-              }
-            }
-            onClose={() => setSelectedChapter(-1)}
-            onNavigate={(newNumber) => setSelectedChapter(newNumber)}
-            onUpdateProgress={(chapterNum, progress) => {
-              setProgressData((prev) => ({
-                ...prev,
-                [chapterNum]: progress,
-              }));
-            }}
-          />
-        )}
         {showDownloadModal && (
           <DownloadBookModal
             totalChapters={numberOfChapters}

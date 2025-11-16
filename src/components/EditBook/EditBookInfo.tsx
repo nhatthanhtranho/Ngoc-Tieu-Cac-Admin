@@ -235,15 +235,6 @@ export default function EditBookInfo() {
             </div>
           </div>
           <div className="w-full">
-            <div className="flex items-center gap-2 ml-6">
-              <h2 className="font-bold">Đạt chuẩn:</h2>
-              <Switch
-                onChange={() => {
-                  console.log("public");
-                }}
-                checked={true}
-              />
-            </div>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium">Tên truyện</label>
@@ -315,13 +306,22 @@ export default function EditBookInfo() {
                 className="mt-1"
               />
             </div>
-            <div className="flex">
+            <div className="flex justify-between items-center">
               <button
                 onClick={onSave}
                 className="mt-4 w-32 py-2 bg-emerald-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
               >
                 Lưu thay đổi
               </button>
+
+              <div className="flex items-center gap-2">
+                <Switch
+                  onChange={() => {
+                    console.log("public");
+                  }}
+                  checked={true}
+                />
+              </div>
             </div>
           </div>
         </div>

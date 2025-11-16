@@ -6,6 +6,7 @@ export interface Chapter {
   chapterNumber: number;
   title: string;
   createdAt?: string;
+  isQualified?: boolean
 }
 
 export async function setChapterQuality(
@@ -25,10 +26,10 @@ export async function fetchChapters(
   setChapters: (chapters: Chapter[]) => void
 ) {
   if (!bookSlug) return;
-  const res = await axios.get<{ data: Chapter[] }>(
-    getEndpoint(`chapters/${bookSlug}/titles?start=${start}&end=${end}`)
+  const res = await axios.get<Chapter[]>(
+    getEndpoint(`admin/chapters/${bookSlug}/titles?start=${start}&end=${end}`)
   );
-  setChapters(res.data.data);
+  setChapters(res.data);
 }
 
 export async function createChapters(bookSlug: string, chapters: Chapter[]) {

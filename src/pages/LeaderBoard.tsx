@@ -15,6 +15,7 @@ export default function LeaderBoard() {
 
   useEffect(() => {
     fetchAllBookSlugs((data: Book[]) => setBooks(data));
+    document.title = "Bảng Xếp Hạng";
   }, []);
 
   const handleGenerateHomeData = async () => {

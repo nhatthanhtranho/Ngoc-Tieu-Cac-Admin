@@ -140,6 +140,10 @@ export default function NapTienNgoc() {
     }
   };
 
+  useEffect(() => {
+    document.title = "Quản lí Tiên Ngọc";
+  }, []);
+
   const filteredUsers = useMemo(
     () =>
       users.filter((u) => u.email.toLowerCase().includes(search.toLowerCase())),

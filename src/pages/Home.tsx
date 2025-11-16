@@ -18,6 +18,7 @@ function App() {
   useEffect(() => {
     const savedSlugs = localStorage.getItem("bookSlugs");
     const savedBookmarks = localStorage.getItem("bookmarks");
+    document.title = "Ngọc Tiêu Các"
 
     if (savedSlugs) {
       try {

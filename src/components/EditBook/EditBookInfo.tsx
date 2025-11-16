@@ -32,6 +32,10 @@ export default function EditBookInfo() {
   const fallbackBanner = "/assets/images/create-book/default-banner.webp";
 
   useEffect(() => {
+    if (book) document.title = book.title;
+  }, [book]);
+
+  useEffect(() => {
     setLoading(true);
     fetchBookBySlug(slug, (b) => {
       setBook(b);

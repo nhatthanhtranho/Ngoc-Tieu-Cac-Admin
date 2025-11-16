@@ -2,8 +2,13 @@
 
 import { useState, useEffect } from "react";
 import ContentEditableSection from "../components/ContentEditable/ContentEditable";
-import Switch from "react-switch";
-import { ArrowLeft, ArrowLeftCircle, ArrowRight } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Save,
+  BookAlert,
+  BookCheck,
+} from "lucide-react";
 import {
   fetchChapterDetail,
   saveChapterContent,
@@ -22,15 +27,14 @@ export default function ChapterDetailPage() {
 
   const navigate = useNavigate();
 
-  const [chaptersContent, setChaptersContent] = useState<{
-    [key: number]: string;
-  }>({});
+  const [chapterContent, setChapterContent] = useState<string>("");
+  const [loading, setLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
-  const [isOn, setIsOn] = useState(false);
+  const [isQualified, setIsQualified] = useState(false);
 
-  const handeSetQuality = () => {
-    setChapterQuality(slug, chapterNumber, !isOn);
-    setIsOn(!isOn);
+  const handleSetQuality = async () => {
+    await setChapterQuality(slug, chapterNumber, !isQualified);
+    setIsQualified(!isQualified);
     toast.success("Đã lưu chapter quality!", {
       position: "bottom-right",
       autoClose: 2000,
@@ -38,27 +42,22 @@ export default function ChapterDetailPage() {
     });
   };
 
-  // Load current + next chapter
+  // Load chapter
   useEffect(() => {
     if (!slug) return;
-    const loadChapters = async () => {
+    setLoading(true);
+    const loadChapter = async () => {
       await fetchChapterDetail(
         slug,
         chapterNumber,
         (content) => {
-          setChaptersContent((prev) => ({ ...prev, [chapterNumber]: content }));
+          setChapterContent(content);
         },
-        setIsOn
+        setIsQualified
       );
-
-      await fetchChapterDetail(slug, chapterNumber + 1, (content) => {
-        setChaptersContent((prev) => ({
-          ...prev,
-          [chapterNumber + 1]: content,
-        }));
-      });
+      setLoading(false);
     };
-    loadChapters();
+    loadChapter();
   }, [slug, chapterNumber]);
 
   useEffect(() => {
@@ -72,14 +71,10 @@ export default function ChapterDetailPage() {
     navigate(`/book/${slug}/chapter/${newNumber}`);
   };
 
-  const handleSaveAll = async () => {
+  const handleSave = async () => {
     try {
-      await Promise.all(
-        [chapterNumber, chapterNumber + 1].map((num) =>
-          saveChapterContent(slug, num, chaptersContent[num] || "")
-        )
-      );
-      toast.success(`💾 Đã lưu 2 chương thành công!`, {
+      await saveChapterContent(slug, chapterNumber, chapterContent || "");
+      toast.success(`💾 Đã lưu chương thành công!`, {
         position: "bottom-right",
         autoClose: 2000,
         theme: "dark",
@@ -113,60 +108,72 @@ export default function ChapterDetailPage() {
               <ArrowLeft className="w-4 h-4" />
               <span>Trở về</span>
             </button>
+          </div>
+          <div className="flex justify-center gap-1">
+            <button
+              onClick={() => goToChapter(chapterNumber - 1)}
+              disabled={chapterNumber <= 1}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-base font-medium transition cursor-pointer ${
+                chapterNumber > 1
+                  ? "bg-zinc-800 hover:bg-zinc-700 text-gray-200"
+                  : "bg-zinc-800 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
 
-            <div className="flex items-center gap-2 ml-6">
-              <Switch onChange={handeSetQuality} checked={isOn} />
-            </div>
+            <button
+              onClick={() => goToChapter(chapterNumber + 1)}
+              className="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg text-base font-medium transition bg-zinc-800 hover:bg-zinc-700 text-gray-200"
+            >
+              <ArrowRight className="w-5 h-5" />
+            </button>
           </div>
 
-          {/* Lưu 2 chương */}
-          <button
-            onClick={handleSaveAll}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-md"
-          >
-            💾 Lưu cả 2 chương
-          </button>
+          <div className="flex gap-3">
+            <div
+              className="flex items-center gap-2 ml-6"
+              onClick={() => handleSetQuality()}
+            >
+              {isQualified ? (
+                <BookCheck className="w-7 h-7 text-emerald-400 cursor-pointer" />
+              ) : (
+                <BookAlert className="w-7 h-7 text-amber-500 cursor-pointer" />
+              )}
+            </div>
+            <button
+              onClick={handleSave}
+              className="text-white hover:text-gray-200 cursor-pointer rounded-lg text-sm font-medium transition shadow-md"
+            >
+              <Save className="w-7 h-7" />
+            </button>
+          </div>
+
+          {/* Lưu chương */}
         </div>
       </div>
 
       {/* Nội dung */}
       <div className="container mx-auto pt-16 px-6 pb-16 space-y-12">
         {/* Điều hướng */}
-        <div className="flex justify-center gap-6 pt-6">
-          <button
-            onClick={() => goToChapter(chapterNumber - 1)}
-            disabled={chapterNumber <= 1}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-base font-medium transition ${
-              chapterNumber > 1
-                ? "bg-zinc-800 hover:bg-zinc-700 text-gray-200"
-                : "bg-zinc-800 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            <ArrowLeftCircle className="w-5 h-5" />
-            Chương trước
-          </button>
 
-          <button
-            onClick={() => goToChapter(chapterNumber + 1)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-base font-medium transition bg-zinc-800 hover:bg-zinc-700 text-gray-200"
-          >
-            Chương sau
-            <ArrowRight className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Render 2 chương */}
-        {[chapterNumber, chapterNumber + 1].map((num) => (
-          <div key={num} className="relative border-t border-zinc-700 pt-6">
-            <h2 className="text-lg font-semibold mb-2">Chương {num}</h2>
+        {/* Render chapter */}
+        <div className="relative border-t border-zinc-700 pt-6">
+          {loading ? (
+            <div className="animate-pulse space-y-2">
+              <div className="h-6 bg-zinc-700 rounded w-3/4"></div>
+              <div className="h-6 bg-zinc-700 rounded w-full"></div>
+              <div className="h-6 bg-zinc-700 rounded w-5/6"></div>
+              <div className="h-6 bg-zinc-700 rounded w-2/3"></div>
+              <div className="h-6 bg-zinc-700 rounded w-full"></div>
+            </div>
+          ) : (
             <ContentEditableSection
-              defaultContent={chaptersContent[num] || ""}
-              onChange={(val) =>
-                setChaptersContent((prev) => ({ ...prev, [num]: val }))
-              }
+              defaultContent={chapterContent}
+              onChange={setChapterContent}
             />
-          </div>
-        ))}
+          )}
+        </div>
       </div>
 
       <ToastContainer />

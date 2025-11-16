@@ -41,7 +41,7 @@ export default function EditBookInfo() {
     fetchBookBySlug(slug, (b) => {
       setBook(b);
       setOriginalBook(b);
-    }).finally(() => setLoading(true));
+    }).finally(() => setLoading(false));
   }, [slug]);
 
   const onChange = (key: keyof Book, value: any) => {

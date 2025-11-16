@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Select from "react-select";
 import { useParams } from "react-router-dom";
-import Skeleton from "react-loading-skeleton";
 import Switch from "react-switch";
 
 import ChapterListView from "./ChapterListView";
@@ -16,6 +15,7 @@ import CropImage from "../CropImage";
 import { categories } from "../../constants/category";
 import { getBannerURL, getSmallBannerURL } from "../../utils/getBannerURL";
 import CommentList from "../Comment/CommentList";
+import { Eye, Heart, Tag } from "lucide-react";
 
 export default function EditBookInfo() {
   const params = useParams<{ slug: string }>();
@@ -230,7 +230,7 @@ export default function EditBookInfo() {
                 }}
                 className="px-5 py-2 rounded-lg bg-red-500/90 text-white font-medium hover:bg-red-600 transition-all"
               >
-                🗑️ Xóa tất cả
+                Xóa tất cả
               </button>
             </div>
           </div>
@@ -245,6 +245,7 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium">Tác giả</label>
                 <input
@@ -254,6 +255,7 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium">Dịch giả</label>
                 <input
@@ -263,6 +265,7 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium">
                   Số chương hiện có
@@ -276,7 +279,7 @@ export default function EditBookInfo() {
               </div>
             </div>
 
-            <div>
+            <div className="mb-4">
               <label className="block text-sm font-medium">Mô tả</label>
               <textarea
                 rows={15}
@@ -285,7 +288,8 @@ export default function EditBookInfo() {
                 className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
               />
             </div>
-            <div>
+
+            <div className="mb-4">
               <label className="block text-sm font-medium mb-1">Thể loại</label>
               <Select
                 isMulti
@@ -305,6 +309,61 @@ export default function EditBookInfo() {
                 isSearchable
                 className="mt-1"
               />
+            </div>
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              {/* PRICE */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Price</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+                    <Tag size={18} />
+                  </span>
+                  <input
+                    value={book.price}
+                    onChange={(e) => onChange("price", e.target.value)}
+                    type="number"
+                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 
+                   focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
+                   appearance-none" // ẩn spinner
+                  />
+                </div>
+              </div>
+
+              {/* LOVE */}
+              <div>
+                <label className="block text-sm font-medium mb-1">Love</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none">
+                    <Heart size={18} />
+                  </span>
+                  <input
+                    value={book.loves}
+                    onChange={(e) => onChange("loves", e.target.value)}
+                    type="number"
+                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 
+                   focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
+                   appearance-none"
+                  />
+                </div>
+              </div>
+
+              {/* VIEW */}
+              <div>
+                <label className="block text-sm font-medium mb-1">View</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none">
+                    <Eye size={18} />
+                  </span>
+                  <input
+                    onChange={(e) => onChange("totalViews", e.target.value)}
+                    value={book.totalViews}
+                    type="number"
+                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 
+                   focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
+                   appearance-none"
+                  />
+                </div>
+              </div>
             </div>
             <div className="flex justify-between items-center">
               <button

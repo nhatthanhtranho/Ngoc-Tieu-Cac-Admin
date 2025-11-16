@@ -17,6 +17,9 @@ export interface Book {
   tags?: string[];
   categories?: string[];
   tacGia: string;
+  loves: number;
+  price: number;
+  totalViews: number;
 }
 
 export async function createBook(newBook: Book): Promise<Book> {

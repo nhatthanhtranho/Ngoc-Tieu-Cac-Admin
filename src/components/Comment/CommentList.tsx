@@ -1,9 +1,8 @@
-// frontend/src/components/CommentList.tsx
-"use client";
-
 import { useState, useEffect } from "react";
+import { Plus } from "lucide-react";
 import CommentItem from "./CommentItem";
 import { api } from "../../../apis";
+import AddCommentModal from "../EditBook/AddCommentModal";
 
 interface CommentListProps {
   bookSlug: string;
@@ -28,6 +27,7 @@ export interface Comment {
 export default function CommentList({ bookSlug }: CommentListProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddCommentModal, setShowAddCommentModal] = useState(false);
 
   // ✅ Lấy comment theo bookSlug
   useEffect(() => {
@@ -50,27 +50,40 @@ export default function CommentList({ bookSlug }: CommentListProps) {
   }, [bookSlug]);
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-5">
-        <div className="flex items-center gap-2">
-          <h2 className="text-xl font-semibold">Bình luận</h2>
+    <>
+      <div className="p-6">
+        <div className="flex justify-between items-center mb-5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-semibold">
+              Bình luận ({comments.length})
+            </h2>
+          </div>
+          <button
+            onClick={() => setShowAddCommentModal(true)}
+            className="bg-green-600 rounded p-2 cursor-pointer hover:bg-green-800 transition-colors duration-200 shadow text-white"
+          >
+            <Plus className="w-6 h-6" />
+          </button>{" "}
         </div>
-        <span className="text-sm text-slate-400 italic">
-          {comments.length} bình luận
-        </span>
-      </div>
 
-      {loading ? (
-        <p className="text-center text-slate-400/80 italic py-6">
-          Đang tải bình luận...
-        </p>
-      ) : comments.length === 0 ? (
-        <p className="text-center text-slate-400/80 italic py-6">
-          Chưa có bình luận nào, hãy là người đầu tiên!
-        </p>
-      ) : (
-        comments.map((c) => <CommentItem key={c._id} comment={c} depth={1} />)
+        {loading ? (
+          <p className="text-center text-slate-400/80 italic py-6">
+            Đang tải bình luận...
+          </p>
+        ) : comments.length === 0 ? (
+          <p className="text-center text-slate-400/80 italic py-6">
+            Chưa có bình luận nào, hãy là người đầu tiên!
+          </p>
+        ) : (
+          comments.map((c) => <CommentItem key={c._id} comment={c} depth={1} />)
+        )}
+      </div>
+      {showAddCommentModal && (
+        <AddCommentModal
+          bookSlug={bookSlug}
+          onClose={() => setShowAddCommentModal(false)}
+        />
       )}
-    </div>
+    </>
   );
 }

@@ -94,7 +94,7 @@ function App() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold drop-shadow-glow tracking-wide">
-            ✦ Danh Sách Truyện ✦
+            Danh Sách Truyện
           </h1>
 
           <button

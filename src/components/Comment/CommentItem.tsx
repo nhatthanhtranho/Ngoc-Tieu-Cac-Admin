@@ -28,11 +28,9 @@ export default function CommentItem({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`rounded-xl p-4 mb-3 border bg-slate-900/30 backdrop-blur-sm transition-all ${
-        comment.isPinned
-          ? "border-emerald-400/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]"
-          : "border-slate-700/50 hover:border-emerald-400/40"
-      } ${depth > 1 ? "ml-10 border-l-2 border-slate-700/40 pl-4" : ""}`}
+      className={`rounded-xl p-4 mb-3 border backdrop-blur-sm transition-all ${
+        depth > 1 ? "ml-10 border-l-2 border-slate-700/40 pl-4" : ""
+      }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
@@ -46,14 +44,12 @@ export default function CommentItem({
           />
           <div>
             <div className="flex items-center gap-1">
-              <span className="font-medium text-slate-100 text-sm">
-                {comment.user.name}
-              </span>
+              <span className="font-medium text-sm">{comment.user.name}</span>
               {comment.isPinned && (
                 <Pin size={14} className="text-emerald-400 ml-1" />
               )}
             </div>
-            <span className="text-[12px] text-slate-400">
+            <span className="text-[12px] text-slate-800">
               {new Date(comment.createdAt).toLocaleString("vi-VN", {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -66,7 +62,7 @@ export default function CommentItem({
       </div>
 
       {/* Nội dung */}
-      <p className="text-slate-200 text-sm leading-relaxed whitespace-pre-line">
+      <p className="text-sm leading-relaxed whitespace-pre-line">
         {comment.content}
       </p>
 
@@ -74,7 +70,7 @@ export default function CommentItem({
       <div className="flex items-center gap-5 mt-3">
         <button
           onClick={() => onLike?.(comment._id)}
-          className="flex items-center gap-1 text-slate-400 hover:text-pink-400 transition"
+          className="flex items-center gap-1 transition"
         >
           <Heart
             size={16}
@@ -86,7 +82,7 @@ export default function CommentItem({
         {!isMaxDepth && (
           <button
             onClick={() => setShowInput((s) => !s)}
-            className="flex items-center gap-1 text-slate-400 hover:text-emerald-400 transition"
+            className="flex items-center gap-1"
           >
             <MessageSquare size={16} />
             <span className="text-xs">Trả lời</span>
@@ -96,7 +92,7 @@ export default function CommentItem({
         {comment.replies?.length ? (
           <button
             onClick={() => setShowReplies((s) => !s)}
-            className="text-xs text-slate-500 hover:text-slate-300 transition"
+            className="text-xs transition"
           >
             {showReplies
               ? `Ẩn ${comment.replies.length} phản hồi`

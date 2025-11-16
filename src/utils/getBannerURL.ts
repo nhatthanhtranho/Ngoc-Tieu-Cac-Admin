@@ -1,13 +1,13 @@
-// helper generate banner URL
+const STORAGE = "https://ngoc-tieu-cac-public.s3.ap-southeast-1.amazonaws.com";
+
 export function getBannerURL(storySlug: string): string {
-  const BASE_URL =
-    "https://ngoc-tieu-cac-public.s3.ap-southeast-1.amazonaws.com";
-  return `${BASE_URL}/${storySlug}/banner.webp`;
+  return `${STORAGE}/${storySlug}/banner.webp`;
 }
 
-
 export function getSmallBannerURL(storySlug: string): string {
-  const BASE_URL =
-    "https://ngoc-tieu-cac-public.s3.ap-southeast-1.amazonaws.com";
-  return `${BASE_URL}/${storySlug}/banner-small.webp`;
+  return `${STORAGE}/${storySlug}/banner-small.webp`;
+}
+
+export function getAvatarUrl(id: string): string {
+  return `${STORAGE}/user-avatar/${id}.webp`;
 }

@@ -1,26 +1,18 @@
 export const users = [
   {
-    name: "Trần Bá",
-    avatarUrl: "https://i.pravatar.cc/40?img=1",
-    id: "1",
-    gender: "male",
+    name: "meomeo0188",
+    id: "69195c2bb096837e117d654c",
   },
   {
-    name: "Nguyễn An",
-    avatarUrl: "https://i.pravatar.cc/40?img=2",
-    id: "2",
-    gender: "female",
+    name: "cathuc96",
+    id: "6919600eb096837e117d6551",
+  },
+    {
+    name: "QiQi",
+    id: "6919614db096837e117d6554",
   },
   {
-    name: "Lê Bình",
-    avatarUrl: "https://i.pravatar.cc/40?img=3",
-    id: "3",
-    gender: "male",
-  },
-  {
-    name: "Phạm Lan",
-    avatarUrl: "https://i.pravatar.cc/40?img=4",
-    id: "4",
-    gender: "female",
+    name: "tangtang2311",
+    id: "69196226b096837e117d6555",
   },
 ];

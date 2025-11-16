@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Heart, MessageSquare, Pin } from "lucide-react";
 import { useState } from "react";
 import { Comment } from "./CommentList";
+import { getAvatarUrl } from "../../utils/getBannerURL";
 
 interface CommentItemProps {
   comment: Comment;
@@ -36,11 +37,9 @@ export default function CommentItem({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <img
-            src={comment.user.avatar || "/avatar-default.png"}
+            src={getAvatarUrl(comment.user._id)}
             alt={comment.user.name}
-            width={32}
-            height={32}
-            className="rounded-full border border-slate-700/60"
+            className="rounded-full overflow-hidden object-cover object-center border border-slate-700/60 w-10 h-10"
           />
           <div>
             <div className="flex items-center gap-1">

@@ -3,6 +3,7 @@ import Select, { components } from "react-select";
 import { toast } from "react-toastify";
 import CommentItem from "../Comment/CommentItem";
 import { users } from "../../constants/user";
+import { getAvatarUrl } from "../../utils/getBannerURL";
 
 interface AddCommentModalProps {
   bookSlug: string;
@@ -14,9 +15,9 @@ const OptionWithAvatarAndGender = (props: any) => {
     <components.Option {...props}>
       <div className="flex items-center gap-2">
         <img
-          src={props.data.avatarUrl}
+          src={getAvatarUrl(props.data.id)}
           alt={props.data.name}
-          className="w-6 h-6 rounded-full"
+          className="w-6 h-6 rounded-full object-cover"
         />
         <span>{props.data.name}</span>
       </div>
@@ -24,14 +25,14 @@ const OptionWithAvatarAndGender = (props: any) => {
   );
 };
 
-const SingleValueWithAvatarAndGender = (props: any) => {
+const Character = (props: any) => {
   return (
     <components.SingleValue {...props}>
       <div className="flex items-center gap-2">
         <img
-          src={props.data.avatarUrl}
+          src={getAvatarUrl(props.data.id)}
           alt={props.data.name}
-          className="w-6 h-6 rounded-full"
+          className="w-6 h-6 rounded-full object-cover"
         />
         <span>{props.data.name}</span>
       </div>
@@ -52,11 +53,6 @@ export default function AddCommentModal({
   const [genderFilter, setGenderFilter] = useState<"male" | "female" | null>(
     null
   );
-
-  const filteredUsers = genderFilter
-    ? users.filter((u) => u.gender === genderFilter)
-    : users;
-
   const handleCreateComment = async () => {
     if (!content) {
       setError("Nội dung comment không được để trống.");
@@ -109,14 +105,13 @@ export default function AddCommentModal({
               <CommentItem
                 comment={{
                   content,
-                  _id: "",
+                  _id: selectedUser.id,
                   likes: 0,
                   createdAt: new Date().toString(),
                   isPinned: false,
                   user: {
                     _id: selectedUser.id,
                     name: selectedUser.name,
-                    avatar: selectedUser.avatarUrl,
                   },
                 }}
               />
@@ -155,12 +150,12 @@ export default function AddCommentModal({
             placeholder="Chọn nhân vật..."
             value={selectedUser}
             onChange={(option) => setSelectedUser(option as any)}
-            options={filteredUsers}
+            options={users}
             getOptionLabel={(option: any) => option.name}
             getOptionValue={(option: any) => option.id}
             components={{
               Option: OptionWithAvatarAndGender,
-              SingleValue: SingleValueWithAvatarAndGender,
+              SingleValue: Character,
             }}
             isClearable
           />

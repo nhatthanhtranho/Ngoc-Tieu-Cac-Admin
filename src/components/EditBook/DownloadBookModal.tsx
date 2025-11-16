@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { downloadBooks } from "../../../apis/books";
 import { X } from "lucide-react";
+import { formatImageLink } from "../../utils/formatImageLink";
 
 interface DownloadModalProps {
   bookSlug: string;
@@ -35,7 +36,10 @@ export default function DownloadBookModal({
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-50 h-screen bg-black/30">
       <div className="bg-white rounded-2xl overflow-hidden shadow w-96 relative">
-        <img src="/download-bg.png" className="w-full h-auto" />
+        <img
+          src={formatImageLink("/download-bg.png")}
+          className="w-full h-auto"
+        />
 
         {/* Close button góc phải */}
         <div className="px-6 pb-4">

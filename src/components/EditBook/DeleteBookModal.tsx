@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { deleteAllChapters } from "../../../apis/chapters";
 import { toast } from "react-toastify";
+import { formatImageLink } from "../../utils/formatImageLink";
 
 interface DeleteBookModal {
   bookSlug: string;
@@ -32,7 +33,10 @@ export default function DeleteBookModal({
   return (
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-50 h-screen bg-black/30">
       <div className="bg-white rounded-2xl overflow-hidden shadow w-96 relative">
-        <img src="/confirm-delete-bg.png" className="w-full h-auto" />
+        <img
+          src={formatImageLink("/confirm-delete-bg.png")}
+          className="w-full h-auto"
+        />
 
         {/* Close button góc phải */}
         <div className="px-6 pb-4">

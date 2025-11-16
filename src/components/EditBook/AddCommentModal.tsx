@@ -50,9 +50,6 @@ export default function AddCommentModal({
     null
   );
   const [content, setContent] = useState("");
-  const [genderFilter, setGenderFilter] = useState<"male" | "female" | null>(
-    null
-  );
   const handleCreateComment = async () => {
     if (!content) {
       setError("Nội dung comment không được để trống.");
@@ -117,33 +114,6 @@ export default function AddCommentModal({
               />
             </div>
           )}
-          {/* Nút chọn Nam / Nữ */}
-          <div className="flex gap-2 mb-4 pt-5">
-            <button
-              className={`px-3 py-1 rounded ${
-                genderFilter === "male"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
-              }`}
-              onClick={() =>
-                setGenderFilter((prev) => (prev === "male" ? null : "male"))
-              }
-            >
-              Nam
-            </button>
-            <button
-              className={`px-3 py-1 rounded ${
-                genderFilter === "female"
-                  ? "bg-pink-500 text-white"
-                  : "bg-gray-200"
-              }`}
-              onClick={() =>
-                setGenderFilter((prev) => (prev === "female" ? null : "female"))
-              }
-            >
-              Nữ
-            </button>
-          </div>
 
           {/* Select user */}
           <Select

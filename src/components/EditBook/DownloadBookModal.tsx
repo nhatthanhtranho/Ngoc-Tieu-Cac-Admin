@@ -37,7 +37,7 @@ export default function DownloadBookModal({
     <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm z-50 h-screen bg-black/30">
       <div className="bg-white rounded-2xl overflow-hidden shadow w-96 relative">
         <img
-          src={formatImageLink("/download-bg.png")}
+          src={formatImageLink("download-bg.png")}
           className="w-full h-auto"
         />
 

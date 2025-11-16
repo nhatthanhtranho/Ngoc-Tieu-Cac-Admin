@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
+
+import { getCommentsInBook } from "../../../apis/comments";
 import CommentItem from "./CommentItem";
-import { api } from "../../../apis";
 import AddCommentModal from "../EditBook/AddCommentModal";
 
 interface CommentListProps {
@@ -36,7 +37,7 @@ export default function CommentList({ bookSlug }: CommentListProps) {
     const fetchComments = async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/books/slug/${bookSlug}/comments`);
+        const res = await getCommentsInBook(bookSlug);
         setComments(res.data || []);
       } catch (error) {
         console.error("Lỗi khi tải bình luận:", error);

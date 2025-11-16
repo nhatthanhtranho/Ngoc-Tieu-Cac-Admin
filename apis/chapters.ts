@@ -10,11 +10,12 @@ export interface Chapter {
 
 export async function setChapterQuality(
   bookSlug: string,
-  chapterNumber: number
+  chapterNumber: number,
+  isQualified: boolean
 ) {
-  return axios.post(
-    getEndpoint(`chapters/${bookSlug}/${chapterNumber}/quality`)
-  );
+  return api.post(`/chapters/${bookSlug}/content/${chapterNumber}/quality`, {
+    isQualified,
+  });
 }
 
 export async function fetchChapters(
@@ -41,11 +42,11 @@ export async function fetchChapterDetail(
   setQuality?: (isQualified: boolean) => void
 ) {
   const res = await axios.get(
-    getEndpoint(`chapters/${bookSlug}/${chapterNumber}`)
+    getEndpoint(`chapters/${bookSlug}/content/${chapterNumber}`)
   );
   const content = decompressText(res.data.content);
   setContent(content);
-  if (setQuality) setQuality(res.data.chapterInfo.isQualified);
+  if (setQuality) setQuality(res.data.chapterInfo.isQualified || false);
   return res.data;
 }
 

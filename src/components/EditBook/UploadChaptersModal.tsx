@@ -25,7 +25,7 @@ export default function UploadChaptersModal({
   onClose,
   onUploaded,
 }: UploadChaptersModalProps) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [parsedChapters, setParsedChapters] = useState<ParsedChapter[]>([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -34,10 +34,18 @@ export default function UploadChaptersModal({
   const abortRef = useRef<AbortController | null>(null);
 
   // extract first line as chapter title
-  const extractFirstLine = async (file: File) => {
+  const extractTitle = async (file: File, chapterNumber: number) => {
     const text = await file.text();
     const firstLine = text.split("\n")[0].trim();
-    return firstLine.replace(/^Chương\s*\d+\s*[:\-–]?\s*/i, "").trim();
+
+    // Kiểm tra xem dòng đầu có format Chương X: title không
+    const match = firstLine.match(/^Chương\s*\d+\s*[:\-–]?\s*(.*)$/i);
+    if (match && match[1].trim()) {
+      return match[1].trim(); // trả về title nếu có
+    }
+
+    // Nếu không có title, fallback về "Chương <chapterNumber>"
+    return `Chương ${chapterNumber}`;
   };
 
   const handleChooseFolder = () => {
@@ -58,7 +66,7 @@ export default function UploadChaptersModal({
         files.map(async (file) => {
           const match = file.name.match(/chuong-(\d+)/i);
           const chapterNumber = match ? Number(match[1]) : NaN;
-          const title = await extractFirstLine(file);
+          const title = await extractTitle(file, chapterNumber);
           return { chapterNumber, title, fileName: file.name, file };
         })
       );
@@ -226,7 +234,7 @@ export default function UploadChaptersModal({
       >
         <div className="p-4 flex justify-between items-center">
           <h3 className="font-semibold text-gray-800 dark:text-gray-100">
-            Upload chương truyện (Brotli)
+            Upload chương
           </h3>
           <button
             onClick={onClose}

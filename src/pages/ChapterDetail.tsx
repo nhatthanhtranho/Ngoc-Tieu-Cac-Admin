@@ -38,15 +38,13 @@ export default function ChapterDetailPage() {
   const popoverRef = useRef<HTMLDivElement>(null);
 
   const handeSetQuality = () => {
-    if (isOn === false) {
-      setChapterQuality(slug, chapterNumber);
-      toast.success("💾Chapter đã đủ quality!", {
-        position: "bottom-right",
-        autoClose: 2000,
-        theme: "dark",
-      });
-      setIsOn(true);
-    }
+    setChapterQuality(slug, chapterNumber, !isOn);
+    setIsOn(!isOn);
+    toast.success("Đã lưu chapter quality!", {
+      position: "bottom-right",
+      autoClose: 2000,
+      theme: "dark",
+    });
   };
 
   useEffect(() => {
@@ -212,7 +210,10 @@ export default function ChapterDetailPage() {
         </div>
 
         <div className="relative mt-4">
-          <ContentEditableSection defaultContent={chapterContent} onChange={setChapterContent}/>
+          <ContentEditableSection
+            defaultContent={chapterContent}
+            onChange={setChapterContent}
+          />
         </div>
       </div>
 

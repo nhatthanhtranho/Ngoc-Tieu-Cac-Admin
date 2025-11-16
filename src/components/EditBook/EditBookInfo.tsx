@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Select from "react-select";
 import { useParams } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
+import Switch from "react-switch";
 
 import ChapterListView from "./ChapterListView";
 
@@ -234,6 +235,15 @@ export default function EditBookInfo() {
             </div>
           </div>
           <div className="w-full">
+            <div className="flex items-center gap-2 ml-6">
+              <h2 className="font-bold">Đạt chuẩn:</h2>
+              <Switch
+                onChange={() => {
+                  console.log("public");
+                }}
+                checked={true}
+              />
+            </div>
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <label className="block text-sm font-medium">Tên truyện</label>

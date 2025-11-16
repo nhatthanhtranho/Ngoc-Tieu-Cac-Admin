@@ -118,7 +118,6 @@ export default function ChapterDetailPage() {
             </button>
 
             <div className="flex items-center gap-2 ml-6">
-              <h2 className="font-bold">Đạt chuẩn:</h2>
               <Switch
                 onChange={() => {
                   handeSetQuality();

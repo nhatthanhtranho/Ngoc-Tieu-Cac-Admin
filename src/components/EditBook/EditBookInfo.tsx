@@ -150,7 +150,7 @@ export default function EditBookInfo() {
 
   return (
     <>
-      <div className="container mx-auto">
+      <div className="container px-4 lg:px-0 mx-auto">
         <h2 className="text-2xl font-bold mb-3 text-gray-900">
           Chỉnh sửa thông tin truyện
         </h2>
@@ -173,7 +173,7 @@ export default function EditBookInfo() {
         )}
 
         {/* Ảnh bìa */}
-        <div className="flex px-8 py-10 gap-4 bg-white rounded-2xl shadow">
+        <div className="flex flex-col lg:flex-row px-8 py-10 gap-4 bg-white rounded-2xl shadow">
           <div className="w-auto">
             <div className="flex flex-col flex-wrap gap-6">
               {[
@@ -327,7 +327,7 @@ export default function EditBookInfo() {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-6 mx-auto container pb-10">
+      <div className="mt-6 grid lg:grid-cols-2 gap-6 mx-auto container pb-10">
         <div className="bg-white rounded-2xl shadow">
           <ChapterListView
             numberOfChapters={book.currentChapter}

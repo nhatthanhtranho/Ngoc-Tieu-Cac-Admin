@@ -41,9 +41,7 @@ export async function fetchChapterDetail(
   setContent: (content: string) => void,
   setQuality?: (isQualified: boolean) => void
 ) {
-  const res = await axios.get(
-    getEndpoint(`chapters/${bookSlug}/content/${chapterNumber}`)
-  );
+  const res = await api.get(`chapters/${bookSlug}/content/${chapterNumber}`);
   const content = decompressText(res.data.content);
   setContent(content);
   if (setQuality) setQuality(res.data.chapterInfo.isQualified || false);

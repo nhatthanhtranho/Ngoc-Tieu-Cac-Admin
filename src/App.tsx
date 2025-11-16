@@ -47,7 +47,7 @@ export default function App() {
       <div className="flex h-screen">
         {/* Sidebar trái */}
         {!hideSidebar && (
-          <aside className="w-64 bg-zinc-900 text-white flex flex-col justify-between">
+          <aside className="lg:w-64 bg-zinc-900 text-white flex flex-col justify-between">
             {/* Phần trên: logo + menu */}
             <div>
               <div className="p-6 border-b border-zinc-800">

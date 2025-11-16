@@ -1,15 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import ContentEditableSection from "../components/ContentEditable/ContentEditable";
 import Switch from "react-switch";
-import {
-  ArrowLeft,
-  ArrowLeftCircle,
-  ArrowRight,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { ArrowLeft, ArrowLeftCircle, ArrowRight } from "lucide-react";
 import {
   fetchChapterDetail,
   saveChapterContent,
@@ -17,7 +11,6 @@ import {
 } from "../../apis/chapters";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import GeminiPrompt from "../components/Prompt/GeminiPrompt";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function ChapterDetailPage() {
@@ -29,13 +22,11 @@ export default function ChapterDetailPage() {
 
   const navigate = useNavigate();
 
-  const [chapterContent, setChapterContent] = useState<string>("");
-  const contentRef = useRef<string>("");
-  const [showGeminiPopover, setShowGeminiPopover] = useState(false);
+  const [chaptersContent, setChaptersContent] = useState<{
+    [key: number]: string;
+  }>({});
   const [scrolled, setScrolled] = useState(false);
   const [isOn, setIsOn] = useState(false);
-
-  const popoverRef = useRef<HTMLDivElement>(null);
 
   const handeSetQuality = () => {
     setChapterQuality(slug, chapterNumber, !isOn);
@@ -47,24 +38,28 @@ export default function ChapterDetailPage() {
     });
   };
 
+  // Load current + next chapter
   useEffect(() => {
     if (!slug) return;
-    fetchChapterDetail(slug, chapterNumber, setChapterContent, setIsOn);
-  }, [slug, chapterNumber]);
+    const loadChapters = async () => {
+      await fetchChapterDetail(
+        slug,
+        chapterNumber,
+        (content) => {
+          setChaptersContent((prev) => ({ ...prev, [chapterNumber]: content }));
+        },
+        setIsOn
+      );
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        popoverRef.current &&
-        !popoverRef.current.contains(e.target as Node)
-      ) {
-        setShowGeminiPopover(false);
-      }
+      await fetchChapterDetail(slug, chapterNumber + 1, (content) => {
+        setChaptersContent((prev) => ({
+          ...prev,
+          [chapterNumber + 1]: content,
+        }));
+      });
     };
-    if (showGeminiPopover)
-      document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showGeminiPopover]);
+    loadChapters();
+  }, [slug, chapterNumber]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -77,18 +72,21 @@ export default function ChapterDetailPage() {
     navigate(`/book/${slug}/chapter/${newNumber}`);
   };
 
-  const handleSave = async (newContent: string) => {
-    contentRef.current = newContent;
+  const handleSaveAll = async () => {
     try {
-      await saveChapterContent(slug, chapterNumber, newContent);
-      toast.success("💾 Đã lưu chương thành công!", {
+      await Promise.all(
+        [chapterNumber, chapterNumber + 1].map((num) =>
+          saveChapterContent(slug, num, chaptersContent[num] || "")
+        )
+      );
+      toast.success(`💾 Đã lưu 2 chương thành công!`, {
         position: "bottom-right",
         autoClose: 2000,
         theme: "dark",
       });
     } catch (err) {
       console.error(err);
-      toast.error("❌ Lưu thất bại, vui lòng thử lại!", {
+      toast.error(`❌ Lưu thất bại, vui lòng thử lại!`, {
         position: "bottom-right",
         autoClose: 3000,
         theme: "dark",
@@ -98,7 +96,7 @@ export default function ChapterDetailPage() {
 
   return (
     <div className="min-h-screen bg-zinc-900 text-gray-100">
-      {/* 🧭 Header */}
+      {/* Header */}
       <div
         className={`fixed top-0 left-0 w-full z-40 border-b transition-all duration-200 ${
           scrolled
@@ -107,7 +105,6 @@ export default function ChapterDetailPage() {
         }`}
       >
         <div className="relative container mx-auto px-6 py-3 flex items-center justify-between">
-          {/* ⬅️ Trái: Trở về + Checkbox */}
           <div className="flex justify-center items-center gap-4">
             <button
               onClick={() => navigate("/")}
@@ -118,73 +115,23 @@ export default function ChapterDetailPage() {
             </button>
 
             <div className="flex items-center gap-2 ml-6">
-              <Switch
-                onChange={() => {
-                  handeSetQuality();
-                }}
-                checked={isOn}
-              />
+              <Switch onChange={handeSetQuality} checked={isOn} />
             </div>
           </div>
 
-          {/* 💾 Giữa: Nút Lưu chương */}
-          <div className="absolute left-1/2 -translate-x-1/2">
-            <button
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-md"
-              onClick={() => handleSave(chapterContent)}
-            >
-              Lưu chương
-            </button>
-          </div>
-
-          {/* ✨ Phải: Nút Gợi ý */}
-          <div className="relative" ref={popoverRef}>
-            <button
-              onClick={() => setShowGeminiPopover((p) => !p)}
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition shadow-md"
-              title="Nhận gợi ý từ Gemini"
-            >
-              <Sparkles className="w-4 h-4" />
-              Gợi ý
-            </button>
-
-            {/* Popover nhỏ */}
-            <div
-              className={`absolute right-0 mt-2 bg-zinc-800 text-sm rounded-xl shadow-lg border border-zinc-700 transition-all duration-200 origin-top-right ${
-                showGeminiPopover
-                  ? "scale-100 opacity-100"
-                  : "scale-90 opacity-0 pointer-events-none"
-              }`}
-              style={{ width: "320px", zIndex: 50 }}
-            >
-              <div className="p-3">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium text-gray-200 text-sm">
-                    ✨ Gemini Gợi ý
-                  </span>
-                  <button
-                    onClick={() => setShowGeminiPopover(false)}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-                <GeminiPrompt
-                  content={chapterContent}
-                  onResponse={(res) => {
-                    setChapterContent(res);
-                    setShowGeminiPopover(false);
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+          {/* Lưu 2 chương */}
+          <button
+            onClick={handleSaveAll}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-md"
+          >
+            💾 Lưu cả 2 chương
+          </button>
         </div>
       </div>
 
-      {/* ⚙️ Nội dung */}
-      <div className="container mx-auto pt-16 px-6 pb-16">
-        {/* Điều hướng chương */}
+      {/* Nội dung */}
+      <div className="container mx-auto pt-16 px-6 pb-16 space-y-12">
+        {/* Điều hướng */}
         <div className="flex justify-center gap-6 pt-6">
           <button
             onClick={() => goToChapter(chapterNumber - 1)}
@@ -208,12 +155,18 @@ export default function ChapterDetailPage() {
           </button>
         </div>
 
-        <div className="relative mt-4">
-          <ContentEditableSection
-            defaultContent={chapterContent}
-            onChange={setChapterContent}
-          />
-        </div>
+        {/* Render 2 chương */}
+        {[chapterNumber, chapterNumber + 1].map((num) => (
+          <div key={num} className="relative border-t border-zinc-700 pt-6">
+            <h2 className="text-lg font-semibold mb-2">Chương {num}</h2>
+            <ContentEditableSection
+              defaultContent={chaptersContent[num] || ""}
+              onChange={(val) =>
+                setChaptersContent((prev) => ({ ...prev, [num]: val }))
+              }
+            />
+          </div>
+        ))}
       </div>
 
       <ToastContainer />

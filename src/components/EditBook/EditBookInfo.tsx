@@ -412,10 +412,10 @@ export default function EditBookInfo() {
 
               <div className="flex items-center gap-2">
                 <Switch
-                  onChange={() => {
-                    console.log("public");
+                  onChange={(checked) => {
+                    onChange("isPublished", checked);
                   }}
-                  checked={true}
+                  checked={book.isPublished}
                 />
               </div>
             </div>

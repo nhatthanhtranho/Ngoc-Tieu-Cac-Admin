@@ -21,6 +21,7 @@ export interface Book {
   loves: number;
   price: number;
   totalViews: number;
+  isPublished: boolean;
 }
 
 export async function createBook(newBook: Book): Promise<Book> {

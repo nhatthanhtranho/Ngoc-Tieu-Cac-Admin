@@ -1,6 +1,5 @@
-import { getEndpoint, api } from ".";
+import { api } from ".";
 import { compressText, decompressText } from "../src/utils/compress";
-import axios from "axios";
 
 export interface Chapter {
   chapterNumber: number;
@@ -33,7 +32,11 @@ export async function fetchChapters(
 }
 
 export async function createChapters(bookSlug: string, chapters: Chapter[]) {
-  return api.post(`/chapters/${bookSlug}`, chapters);
+   return api.post(`/chapters/${bookSlug}`, chapters);
+}
+
+export async function refreshBookAndChapterData(bookSlug: string) {
+  
 }
 
 export async function fetchChapterDetail(

@@ -104,6 +104,14 @@ export async function updateBook(
   book: Book
 ) {
   const res = await api.patch(`/books/${bookSlug}`, { ...changedData });
-  uploadDataToS3(PUBLIC_BUCKET, `books/${bookSlug}`, JSON.stringify(book));
+  await uploadDataToS3(
+    PUBLIC_BUCKET,
+    `books/${bookSlug}.json`,
+    JSON.stringify(book)
+  );
   return res.data;
+}
+
+export async function syncBookData(bookSlug: string) {
+  return api.get(`/admin/books/${bookSlug}/sync`);
 }

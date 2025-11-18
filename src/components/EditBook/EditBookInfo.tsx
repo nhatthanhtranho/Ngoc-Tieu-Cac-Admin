@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import Select from "react-select";
 import { useParams } from "react-router-dom";
 import Switch from "react-switch";
+import { CloudUpload } from "lucide-react";
+import { toast } from "react-toastify";
 
 import ChapterListView from "./ChapterListView";
 
@@ -9,6 +11,7 @@ import {
   Book,
   fetchBookBySlug,
   getUploadBookBannerUrl,
+  syncBookData,
   updateBook,
 } from "../../../apis/books";
 import CropImage from "../CropImage";
@@ -65,34 +68,31 @@ export default function EditBookInfo() {
     return changed;
   };
 
+  const handleSyncBook = async () => {
+    setLoading(true);
+    await syncBookData(slug).finally(() => setLoading(false));
+    toast.success(`Hoàn tất sync ${book?.title}!`);
+  };
+
   const onSave = async () => {
     if (!book || !originalBook) return;
     const changedData = getChangedFields(book, originalBook);
     if (Object.keys(changedData).length === 0) {
-      alert("⚠️ Không có thay đổi nào để lưu.");
+      toast.warning("Không có thay đổi nào để lưu!");
       return;
     }
     try {
       await updateBook(book.slug, changedData, book);
-      alert("✅ Lưu thay đổi thành công!");
+      toast.success("Lưu thay đổi thành công!");
       setOriginalBook(book);
     } catch (err) {
       console.error("❌ Lỗi khi lưu:", err);
-      alert(
+      toast.error(
         `Đã xảy ra lỗi khi lưu thay đổi: ${
           err instanceof Error ? err.message : err
         }`
       );
     }
-  };
-
-  const getBannerUrl = (url: string | null) => {
-    if (!url) return fallbackBanner;
-
-    // ⚡ Nếu là base64, trả trực tiếp
-    if (url.startsWith("data:image")) return url;
-
-    return url;
   };
 
   const handleCropComplete = (result: { small: string; default: string }) => {
@@ -150,10 +150,47 @@ export default function EditBookInfo() {
 
   return (
     <>
-      <div className="container px-4 lg:px-0 mx-auto">
-        <h2 className="text-2xl font-bold mb-3 text-gray-900">
-          Chỉnh sửa thông tin truyện
-        </h2>
+      <div className="container px-4 lg:px-0 mx-auto pt-6">
+        <div className="flex gap-2 items-center justify-between mb-5">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Chỉnh sửa thông tin truyện
+          </h2>
+          <button
+            onClick={handleSyncBook}
+            disabled={loading}
+            className={`p-3 rounded shadow text-white flex items-center justify-center
+    ${
+      loading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-emerald-500 hover:bg-emerald-600"
+    }`}
+          >
+            {loading ? (
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
+            ) : (
+              <CloudUpload />
+            )}
+          </button>
+        </div>
 
         {/* Modal crop ảnh */}
         {showCrop && (

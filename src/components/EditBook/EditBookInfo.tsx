@@ -73,7 +73,7 @@ export default function EditBookInfo() {
       return;
     }
     try {
-      await updateBook(book.slug, changedData);
+      await updateBook(book.slug, changedData, book);
       alert("✅ Lưu thay đổi thành công!");
       setOriginalBook(book);
     } catch (err) {

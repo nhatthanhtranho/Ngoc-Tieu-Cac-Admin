@@ -3,6 +3,7 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
 import { getEndpoint, api } from ".";
+import { PUBLIC_BUCKET, uploadDataToS3 } from "./s3";
 import { decompressText, JsonBuffer } from "../src/utils/compress";
 
 export interface Book {
@@ -97,7 +98,12 @@ export async function getUploadBookBannerUrl(bookSlug: string) {
   return response.data;
 }
 
-export async function updateBook(bookSlug: string, book: Partial<Book>) {
-  const res = await api.patch(`/books/${bookSlug}`, { ...book });
+export async function updateBook(
+  bookSlug: string,
+  changedData: Partial<Book>,
+  book: Book
+) {
+  const res = await api.patch(`/books/${bookSlug}`, { ...changedData });
+  uploadDataToS3(PUBLIC_BUCKET, `books/${bookSlug}`, JSON.stringify(book));
   return res.data;
 }

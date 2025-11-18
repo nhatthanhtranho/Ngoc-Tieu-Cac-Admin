@@ -1,12 +1,13 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { api } from ".";
+
 // ============================
 // CONFIG
 // ============================
 
 const S3_REGION = "ap-southeast-1";
-const PUBLIC_BUCKET = "ngoc-tieu-cac";
-const PRIVATE_BUCKET = "ngoc-tieu-cac-private";
+export const PUBLIC_BUCKET = "ngoc-tieu-cac";
+export const PRIVATE_BUCKET = "ngoc-tieu-cac-private";
 const STORAGE_KEY = "s3_credentials";
 
 // ============================
@@ -22,13 +23,12 @@ async function getValidS3Credentials() {
     const expired = Date.now() > new Date(creds.expiration).getTime();
 
     if (!expired) {
-      return creds; // Token vẫn dùng được
+      return creds;
     }
   }
 
   // 2. Hết hạn → gọi API lấy token mới
   const res = await api.get("admin/token");
-
   const newCreds = res.data;
 
   // 3. Lưu vào localStorage
@@ -37,10 +37,36 @@ async function getValidS3Credentials() {
   return newCreds;
 }
 
-// ============================
-// UPLOAD FUNCTION
-// ============================
+export async function uploadDataToS3(
+  bucket: string,
+  key: string,
+  data: string
+) {
+  const creds = await getValidS3Credentials();
 
-export async function uploadToS3(file: File) {
-    
+  // Tạo S3 client với temporary credentials
+  const s3 = new S3Client({
+    region: S3_REGION,
+    credentials: {
+      accessKeyId: creds.accessKeyId,
+      secretAccessKey: creds.secretAccessKey,
+      sessionToken: creds.sessionToken, // ⭐ Quan trọng khi dùng temp token
+    },
+  });
+
+  // Xây command upload
+  const command = new PutObjectCommand({
+    Bucket: bucket,
+    Key: key,
+    Body: data,
+  });
+
+  // Upload
+  await s3.send(command);
+
+  return {
+    bucket,
+    key,
+    url: `https://${bucket}.s3.${S3_REGION}.amazonaws.com/${key}`,
+  };
 }

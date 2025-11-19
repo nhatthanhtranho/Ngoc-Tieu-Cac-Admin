@@ -91,7 +91,7 @@ export async function downloadBooks(
 
 export async function checkBookSlugValid(bookSlug: string): Promise<boolean> {
   const res = await axios.get(getEndpoint(`books/check-slug/${bookSlug}`));
-  return true;
+  return res.data.isValid;
 }
 
 export async function getUploadBookBannerUrl(bookSlug: string) {

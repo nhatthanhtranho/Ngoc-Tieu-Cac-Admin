@@ -1,23 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { Routes, Route, useLocation, Link } from "react-router-dom";
-import Home from "./pages/Home";
-import BookDetail from "./pages/BookDetail";
-import ChapterDetailPage from "./pages/ChapterDetail";
-import LeaderBoard from "./pages/LeaderBoard";
-import NapTienNgoc from "./pages/NapTienNgoc";
-import TopUp from "./pages/TopUp";
 import LoginModal from "./components/Modal/LoginModal";
 import { ToastContainer } from "react-toastify";
 import { useAuthState } from "./stores/auth.store";
-import {
-  Home as HomeIcon,
-  Crown,
-  PlusSquare,
-  Coins,
-  LogOut,
-} from "lucide-react";
+import { Home as HomeIcon, Crown, PlusSquare, Coins, LogOut } from "lucide-react";
+
+// Dynamic imports
+const Home = lazy(() => import("./pages/Home"));
+const BookDetail = lazy(() => import("./pages/BookDetail"));
+const ChapterDetailPage = lazy(() => import("./pages/ChapterDetail"));
+const LeaderBoard = lazy(() => import("./pages/LeaderBoard"));
+const NapTienNgoc = lazy(() => import("./pages/NapTienNgoc"));
+const TopUp = lazy(() => import("./pages/TopUp"));
 
 export default function App() {
   const { accessToken, user, logout } = useAuthState();
@@ -30,7 +26,6 @@ export default function App() {
     setIsLoggedIn(!!accessToken && !!user);
   }, [accessToken, user]);
 
-  // Ẩn sidebar ở trang đọc chương
   const hideSidebar = location.pathname.includes("/chapter/");
 
   return (
@@ -45,47 +40,23 @@ export default function App() {
       />
 
       <div className="flex h-screen">
-        {/* Sidebar trái */}
+        {/* Sidebar */}
         {!hideSidebar && (
           <aside className="lg:w-64 bg-zinc-900 text-white flex flex-col justify-between">
-            {/* Phần trên: logo + menu */}
             <div>
               <div className="p-6 border-b border-zinc-800">
-                <h1 className="text-xl font-bold tracking-wide">
-                  Ngọc Tiêu Các
-                </h1>
+                <h1 className="text-xl font-bold tracking-wide">Ngọc Tiêu Các</h1>
               </div>
 
               <nav className="flex flex-col p-4 space-y-2">
-                <NavItem
-                  to="/"
-                  icon={<HomeIcon size={20} />}
-                  label="Trang chủ"
-                />
-                <NavItem
-                  to="/leaderboard"
-                  icon={<Crown size={20} />}
-                  label="Bảng Xếp Hạng"
-                />
-                <NavItem
-                  to="/create-book"
-                  icon={<PlusSquare size={20} />}
-                  label="Thêm Truyện"
-                />
-                <NavItem
-                  to="/nap-tien-ngoc"
-                  icon={<Coins size={20} />}
-                  label="Nạp Tiên Ngọc"
-                />
-                <NavItem
-                  to="/top-up"
-                  icon={<Coins size={20} />}
-                  label="Top Up"
-                />
+                <NavItem to="/" icon={<HomeIcon size={20} />} label="Trang chủ" />
+                <NavItem to="/leaderboard" icon={<Crown size={20} />} label="Bảng Xếp Hạng" />
+                <NavItem to="/create-book" icon={<PlusSquare size={20} />} label="Thêm Truyện" />
+                <NavItem to="/nap-tien-ngoc" icon={<Coins size={20} />} label="Nạp Tiên Ngọc" />
+                <NavItem to="/top-up" icon={<Coins size={20} />} label="Top Up" />
               </nav>
             </div>
 
-            {/* Phần dưới: user info + logout */}
             {user && (
               <div className="border-t border-zinc-800 p-4 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -110,40 +81,30 @@ export default function App() {
           </aside>
         )}
 
-        {/* Nội dung bên phải */}
+        {/* Main content */}
         <main className="flex-1 bg-zinc-50 overflow-y-auto">
           <div className={isLoggedIn ? "" : "filter blur-sm"}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/leaderboard" element={<LeaderBoard />} />
-              <Route path="/nap-tien-ngoc" element={<NapTienNgoc />} />
-              <Route path="/top-up" element={<TopUp />} />
-              <Route path="/book/:slug" element={<BookDetail />} />
-              <Route
-                path="/book/:slug/chapter/:chapterNumber"
-                element={<ChapterDetailPage />}
-              />
-            </Routes>
+            <Suspense fallback={<div className="p-4">Đang tải...</div>}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/leaderboard" element={<LeaderBoard />} />
+                <Route path="/nap-tien-ngoc" element={<NapTienNgoc />} />
+                <Route path="/top-up" element={<TopUp />} />
+                <Route path="/book/:slug" element={<BookDetail />} />
+                <Route path="/book/:slug/chapter/:chapterNumber" element={<ChapterDetailPage />} />
+              </Routes>
+            </Suspense>
           </div>
         </main>
       </div>
 
-      {/* Modal login */}
       {!isLoggedIn && <LoginModal onLoginSuccess={() => setIsLoggedIn(true)} />}
     </>
   );
 }
 
-// 🧩 Component nhỏ cho item trong sidebar
-function NavItem({
-  to,
-  icon,
-  label,
-}: {
-  to: string;
-  icon: React.ReactNode;
-  label: string;
-}) {
+// NavItem component
+function NavItem({ to, icon, label }: { to: string; icon: React.ReactNode; label: string }) {
   const location = useLocation();
   const isActive = location.pathname === to;
 

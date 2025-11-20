@@ -33,6 +33,7 @@ export default function ChapterDetailPage() {
   const [loading, setLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [isQualified, setIsQualified] = useState(false);
+  const [newContet, setNewContent] = useState<string>("");
 
   const handleSetQuality = async () => {
     await setChapterQuality(slug, chapterNumber, !isQualified);
@@ -72,7 +73,7 @@ export default function ChapterDetailPage() {
 
   const handleSave = async () => {
     try {
-      await saveChapterContent(slug, chapterNumber, chapterContent || "");
+      await saveChapterContent(slug, chapterNumber, newContet || "");
       toast.success(`💾 Đã lưu chương thành công!`, {
         position: "bottom-right",
         autoClose: 2000,
@@ -169,7 +170,7 @@ export default function ChapterDetailPage() {
           ) : (
             <ContentEditableSection
               defaultContent={chapterContent}
-              onChange={setChapterContent}
+              onChange={setNewContent}
             />
           )}
         </div>

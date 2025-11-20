@@ -2,7 +2,11 @@
 import { useEffect, useRef } from "react";
 import styled from "styled-components";
 
-const Content = styled.div<{ fontSize?: number; fontFamily?: string; width?: number }>`
+const Content = styled.div<{
+  fontSize?: number;
+  fontFamily?: string;
+  width?: number;
+}>`
   margin: 0 auto;
   outline: none;
   white-space: pre-wrap;
@@ -25,38 +29,34 @@ interface Props {
   onChange: (content: string) => void;
 }
 
-export default function ContentEditableSection({
-  defaultContent,
-  isEditMode = true,
-  onChange,
+export default function ReadContent({
   fontSize,
   width,
-  fontFamily
+  defaultContent,
+  onChange,
 }: Props) {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Khi parent thay đổi defaultContent, update div
+  // Khi defaultContent thay đổi → cập nhật lại UI
   useEffect(() => {
-    if (contentRef.current && contentRef.current.innerHTML !== defaultContent) {
-      contentRef.current.innerHTML = defaultContent;
+    if (contentRef.current) {
+      contentRef.current.innerText = defaultContent;
     }
   }, [defaultContent]);
 
-  const handleInput = () => {
-    if (!contentRef.current) return;
-    onChange(contentRef.current.innerHTML); // báo content mới cho parent
-  };
-
   return (
-    <Content
-      ref={contentRef}
-      contentEditable={isEditMode}
-      suppressContentEditableWarning
-      spellCheck={false}
-      onInput={isEditMode ? handleInput : undefined}
-      fontSize={fontSize}
-      width={width}
-      fontFamily={fontFamily}
-    />
+    <div className="relative text-gray-100 pb-10">
+      <Content
+        ref={contentRef}
+        fontSize={fontSize}
+        width={width}
+        contentEditable={true}
+        suppressContentEditableWarning
+        onInput={(e) => {
+          const value = (e.target as HTMLDivElement).innerText;
+          onChange(value);
+        }}
+      />
+    </div>
   );
 }

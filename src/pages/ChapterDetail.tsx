@@ -11,12 +11,14 @@ import {
 } from "lucide-react";
 import {
   fetchChapterDetail,
+  getChapterQuality,
   saveChapterContent,
   setChapterQuality,
 } from "../../apis/chapters";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate, useParams } from "react-router-dom";
+import { fetchAndDecompress } from "../utils/compress";
 
 export default function ChapterDetailPage() {
   const params = useParams<{ slug: string; chapterNumber?: string }>();
@@ -47,14 +49,11 @@ export default function ChapterDetailPage() {
     if (!slug) return;
     setLoading(true);
     const loadChapter = async () => {
-      await fetchChapterDetail(
-        slug,
-        chapterNumber,
-        (content) => {
-          setChapterContent(content);
-        },
-        setIsQualified
-      );
+      const response = await fetchChapterDetail(slug, chapterNumber);
+      const chapter = await getChapterQuality(slug, chapterNumber);
+      const content = await fetchAndDecompress(response.content);
+      setChapterContent(content);
+      setIsQualified(chapter.isQualified || false);
       setLoading(false);
     };
     loadChapter();

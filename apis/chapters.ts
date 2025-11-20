@@ -18,6 +18,16 @@ export async function setChapterQuality(
   });
 }
 
+export async function getChapterQuality(
+  bookSlug: string,
+  chapterNumber: number
+) {
+  const res = await api.get(
+    `/chapters/${bookSlug}/content/${chapterNumber}/quality`
+  );
+  return res.data;
+}
+
 export async function fetchChapters(
   bookSlug: string,
   start: number,
@@ -32,23 +42,14 @@ export async function fetchChapters(
 }
 
 export async function createChapters(bookSlug: string, chapters: Chapter[]) {
-   return api.post(`/chapters/${bookSlug}`, chapters);
-}
-
-export async function refreshBookAndChapterData(bookSlug: string) {
-  
+  return api.post(`/chapters/${bookSlug}`, chapters);
 }
 
 export async function fetchChapterDetail(
   bookSlug: string,
-  chapterNumber: number,
-  setContent: (content: string) => void,
-  setQuality?: (isQualified: boolean) => void
+  chapterNumber: number
 ) {
   const res = await api.get(`chapters/${bookSlug}/content/${chapterNumber}`);
-  const content = decompressText(res.data.content);
-  setContent(content);
-  if (setQuality) setQuality(res.data.chapterInfo.isQualified || false);
   return res.data;
 }
 

@@ -5,14 +5,14 @@ import { Routes, Route, useLocation, Link } from "react-router-dom";
 import LoginModal from "./components/Modal/LoginModal";
 import { ToastContainer } from "react-toastify";
 import { useAuthState } from "./stores/auth.store";
-import { Home as HomeIcon, Crown, PlusSquare, Coins, LogOut } from "lucide-react";
+import { Home as HomeIcon, Crown, PlusSquare, Coins, LogOut, ChartAreaIcon } from "lucide-react";
 
 // Dynamic imports
 const Home = lazy(() => import("./pages/Home"));
 const BookDetail = lazy(() => import("./pages/BookDetail"));
 const ChapterDetailPage = lazy(() => import("./pages/ChapterDetail"));
 const LeaderBoard = lazy(() => import("./pages/LeaderBoard"));
-const NapTienNgoc = lazy(() => import("./pages/NapTienNgoc"));
+const ThongKe = lazy(() => import("./pages/ThongKe"));
 const TopUp = lazy(() => import("./pages/TopUp"));
 
 export default function App() {
@@ -52,7 +52,7 @@ export default function App() {
                 <NavItem to="/" icon={<HomeIcon size={20} />} label="Trang chủ" />
                 <NavItem to="/leaderboard" icon={<Crown size={20} />} label="Bảng Xếp Hạng" />
                 <NavItem to="/create-book" icon={<PlusSquare size={20} />} label="Thêm Truyện" />
-                <NavItem to="/nap-tien-ngoc" icon={<Coins size={20} />} label="Nạp Tiên Ngọc" />
+                <NavItem to="/thong-ke" icon={<ChartAreaIcon size={20} />} label="Thống kê" />
                 <NavItem to="/top-up" icon={<Coins size={20} />} label="Top Up" />
               </nav>
             </div>
@@ -88,7 +88,7 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/leaderboard" element={<LeaderBoard />} />
-                <Route path="/nap-tien-ngoc" element={<NapTienNgoc />} />
+                <Route path="/thong-ke" element={<ThongKe />} />
                 <Route path="/top-up" element={<TopUp />} />
                 <Route path="/book/:slug" element={<BookDetail />} />
                 <Route path="/book/:slug/chapter/:chapterNumber" element={<ChapterDetailPage />} />

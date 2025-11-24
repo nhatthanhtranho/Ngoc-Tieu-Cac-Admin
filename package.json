@@ -29,6 +29,7 @@
     "multer": "^2.0.2",
     "pako": "^2.1.0",
     "react": "^19.1.1",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.1.1",
     "react-easy-crop": "^5.5.3",
     "react-loading-skeleton": "^3.5.0",

@@ -1,4 +1,6 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -8,50 +10,48 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { BarChart3, Coins, Eye } from "lucide-react";
+import { Coins, Eye } from "lucide-react";
+import { api } from "../../apis";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
-
-const sampleViews = Array.from({ length: 10 }, (_, i) => ({
-  name: `Truyện ${i + 1}`,
-  views: Math.floor(6000 + Math.random() * 6000),
-}));
-
-const sampleCoins = Array.from({ length: 10 }, (_, i) => ({
-  name: `Truyện ${String.fromCharCode(65 + i)}`,
-  coins: Math.floor(7000 + Math.random() * 7000),
-}));
 
 export default function ThongKe() {
   const [filter, setFilter] = useState("today");
 
-  const viewData = {
-    labels: sampleViews.map((i) => i.name),
-    datasets: [
-      {
-        label: "Lượt xem",
-        data: sampleViews.map((i) => i.views),
-        backgroundColor: "rgba(59, 130, 246, 0.7)", // blue-500
-        borderColor: "rgba(37, 99, 235, 1)",
-        borderWidth: 1,
-        borderRadius: 6,
-      },
-    ],
-  };
+  const [topTienNgoc, setTopTienNgoc] = useState([]);
+  const [topViews, setTopViews] = useState([]);
 
-  const coinData = {
-    labels: sampleCoins.map((i) => i.name),
-    datasets: [
-      {
-        label: "Tiêu tiên ngọc",
-        data: sampleCoins.map((i) => i.coins),
-        backgroundColor: "rgba(236, 72, 153, 0.7)", // pink-500
-        borderColor: "rgba(219, 39, 119, 1)",
-        borderWidth: 1,
-        borderRadius: 6,
-      },
-    ],
-  };
+  const viewData = useMemo(() => {
+    return {
+      labels: topViews.map((i: any) => i?.title),
+      datasets: [
+        {
+          label: "Lượt xem",
+          data: topViews.map((i: any) => i.totalViews),
+          backgroundColor: "rgba(59, 130, 246, 0.7)",
+          borderColor: "rgba(37, 99, 235, 1)",
+          borderWidth: 1,
+          borderRadius: 6,
+        },
+      ],
+    };
+  }, [topViews]);
+
+  const tienNgocData = useMemo(() => {
+    return {
+      labels: topTienNgoc.map((i: any) => i.book.title),
+      datasets: [
+        {
+          label: "Tiêu tiên ngọc",
+          data: topTienNgoc.map((i: any) => i.totalTienNgoc),
+          backgroundColor: "rgba(236, 72, 153, 0.7)",
+          borderColor: "rgba(219, 39, 119, 1)",
+          borderWidth: 1,
+          borderRadius: 6,
+        },
+      ],
+    };
+  }, [topTienNgoc]);
 
   const chartOptions = {
     responsive: true,
@@ -62,23 +62,52 @@ export default function ThongKe() {
     },
   };
 
+  useEffect(() => {
+    async function fetchTopData() {
+      const res = await api.get("/books/top-book");
+      setTopTienNgoc(res.data.topTienNgoc || []);
+      setTopViews(res.data.topViews || []);
+    }
+
+    fetchTopData();
+  }, []);
+
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      {/* Filter */}
+    <div className="container mx-auto p-4 space-y-8 mt-10">
+      {/* Page Title */}
+      <h1 className="text-3xl font-bold text-gray-800 text-center">
+        Thông Tin Hoạt Động
+      </h1>
+
+      {/* Filter Button Group */}
       <div className="flex justify-end">
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="w-40 p-2 border rounded-xl bg-white shadow-sm hover:shadow-md transition capitalize"
-        >
-          <option value="today">Hôm nay</option>
-          <option value="7days">7 ngày</option>
-          <option value="30days">30 ngày</option>
-        </select>
+        <div className="inline-flex bg-gray-100 rounded-xl p-1 shadow-sm">
+          {[
+            { key: "today", label: "Hôm nay" },
+            { key: "7days", label: "7 ngày" },
+            { key: "30days", label: "30 ngày" },
+          ].map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setFilter(item.key)}
+              className={`
+                px-4 py-2 rounded-lg font-medium transition
+                ${
+                  filter === item.key
+                    ? "bg-blue-600 text-white shadow"
+                    : "text-gray-700 hover:bg-white"
+                }
+              `}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
       </div>
 
+      {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Chart lượt view */}
+        {/* Views Chart */}
         <div className="rounded-2xl p-5 bg-gradient-to-br from-blue-50 to-white border hover:shadow-lg transition">
           <div className="flex items-center gap-2 mb-4">
             <Eye className="text-blue-600" />
@@ -89,7 +118,7 @@ export default function ThongKe() {
           <Bar data={viewData} options={chartOptions} />
         </div>
 
-        {/* Chart tiêu tiên ngọc */}
+        {/* Coins Chart */}
         <div className="rounded-2xl p-5 bg-gradient-to-br from-pink-50 to-white border hover:shadow-lg transition">
           <div className="flex items-center gap-2 mb-4">
             <Coins className="text-pink-600" />
@@ -97,7 +126,7 @@ export default function ThongKe() {
               Top 10 truyện tiêu tiên ngọc cao nhất
             </h2>
           </div>
-          <Bar data={coinData} options={chartOptions} />
+          <Bar data={tienNgocData} options={chartOptions} />
         </div>
       </div>
     </div>

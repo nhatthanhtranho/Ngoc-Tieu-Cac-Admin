@@ -8,11 +8,10 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
-  const pageSize = 35; // số truyện mỗi trang
-  const [bookSlugs, setBookSlugs] = useState<
-    Array<{ slug: string; title: string }>
-  >([]);
+  const [bookSlugs, setBookSlugs] = useState<Array<{ slug: string; title: string }>>([]);
   const [loading, setLoading] = useState(true);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const pageSize = 35;
 
   // Load bookmark từ localStorage
   useEffect(() => {
@@ -23,7 +22,6 @@ function App() {
     if (savedSlugs) {
       try {
         const parsedSlugs = JSON.parse(savedSlugs);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (Array.isArray(parsedSlugs)) setBookSlugs(parsedSlugs);
       } catch {
         console.error("Lỗi khi parse bookSlugs từ localStorage");
@@ -41,14 +39,30 @@ function App() {
     }
   }, []);
 
-  // Fetch books và sắp bookmark lên đầu toàn bộ danh sách
+  // Fetch books theo bookmark / page / search
   useEffect(() => {
-    // Tách bookmark và non-bookmark
-    const bookmarkedSlugs = bookSlugs
+    setLoading(true);
+
+    // Lọc theo searchKeyword
+    let filteredSlugs = bookSlugs;
+    if (searchKeyword.trim() !== "") {
+      const keyword = searchKeyword
+        .toLowerCase()
+        .replace(/\s+/g, ""); // loại bỏ space để match slug/title
+
+      filteredSlugs = bookSlugs.filter((b) => {
+        const titleNormalized = b.title.toLowerCase().replace(/\s+/g, "");
+        const slugNormalized = b.slug.toLowerCase().replace(/\s+/g, "");
+        return titleNormalized.includes(keyword) || slugNormalized.includes(keyword);
+      });
+    }
+
+    // Sắp bookmark lên đầu
+    const bookmarkedSlugs = filteredSlugs
       .filter((b) => bookmarks.includes(b.slug))
       .map((b) => b.slug);
 
-    const normalSlugs = bookSlugs
+    const normalSlugs = filteredSlugs
       .filter((b) => !bookmarks.includes(b.slug))
       .map((b) => b.slug);
 
@@ -59,12 +73,12 @@ function App() {
     const slugsPage = allSlugsOrdered.slice(start, end);
 
     if (slugsPage.length > 0)
-      fetchBookBySlugs(slugsPage, (data) => {
-        setBooks(data);
-      }).finally(() => {
-        setLoading(false);
-      });
-  }, [currentPage, bookmarks, bookSlugs]);
+      fetchBookBySlugs(slugsPage, (data) => setBooks(data)).finally(() =>
+        setLoading(false)
+      );
+    else setBooks([]); // không có kết quả
+    setLoading(false);
+  }, [currentPage, bookmarks, bookSlugs, searchKeyword]);
 
   const addNewBook = useCallback(
     (book: any) => {
@@ -73,7 +87,6 @@ function App() {
     [setBooks]
   );
 
-  // Toggle bookmark
   const toggleBookmark = (slug: string) => {
     let updated: string[];
     if (bookmarks.includes(slug)) {
@@ -83,7 +96,6 @@ function App() {
     }
     setBookmarks(updated);
     localStorage.setItem("bookmarks", JSON.stringify(updated));
-    // Khi bookmark thay đổi, tự động load lại trang 1 để ưu tiên bookmark
     setCurrentPage(1);
   };
 
@@ -93,11 +105,10 @@ function App() {
     <div className="overflow-hidden">
       <div className="container mx-auto px-4 py-10 font-genshin text-genshin-dark">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-4">
           <h1 className="text-4xl font-bold drop-shadow-glow tracking-wide">
             Danh Sách Truyện
           </h1>
-
           <button
             onClick={() => setIsCreateModalOpen(true)}
             className="px-4 py-2 bg-yellow-400 text-white rounded-lg font-semibold hover:bg-yellow-500 transition-colors"
@@ -106,10 +117,24 @@ function App() {
           </button>
         </div>
 
-        <>
-          <BookList initialBooks={books} loading={loading} />
+        {/* Search bar */}
+        <div className="mb-6">
+          <input
+            type="text"
+            value={searchKeyword}
+            onChange={(e) => {
+              setSearchKeyword(e.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder="Tìm truyện..."
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
+        </div>
 
-          {/* Pagination controls */}
+        <BookList initialBooks={books} loading={loading} />
+
+        {/* Pagination */}
+        {!searchKeyword && (
           <div className="flex justify-center gap-3 mt-6">
             <button
               disabled={currentPage === 1}
@@ -123,7 +148,9 @@ function App() {
                 key={p}
                 onClick={() => setCurrentPage(p)}
                 className={`px-3 py-1 rounded ${
-                  currentPage === p ? "bg-yellow-400 text-white" : "bg-gray-200"
+                  currentPage === p
+                    ? "bg-yellow-400 text-white"
+                    : "bg-gray-200"
                 }`}
               >
                 {p}
@@ -137,14 +164,12 @@ function App() {
               Sau
             </button>
           </div>
-        </>
+        )}
       </div>
 
       <CreateStoryFormModal
         isOpen={isCreateModalOpen}
-        onClose={() => {
-          setIsCreateModalOpen(false);
-        }}
+        onClose={() => setIsCreateModalOpen(false)}
         onCreate={addNewBook}
       />
     </div>

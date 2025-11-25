@@ -22,6 +22,7 @@ export interface Book {
   price: number;
   totalViews: number;
   isPublished: boolean;
+  beginBlockChapter: number
 }
 
 export async function createBook(newBook: Book): Promise<Book> {

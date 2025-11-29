@@ -37,11 +37,9 @@ export default function EditBookInfo() {
   const fallbackBanner = "/assets/images/create-book/default-banner.webp";
 
   useEffect(() => {
-    console.log('book', book)
+    console.log("book", book);
     if (book) document.title = book.title;
   }, [book]);
-
-
 
   useEffect(() => {
     setLoading(true);
@@ -92,7 +90,8 @@ export default function EditBookInfo() {
     } catch (err) {
       console.error("❌ Lỗi khi lưu:", err);
       toast.error(
-        `Đã xảy ra lỗi khi lưu thay đổi: ${err instanceof Error ? err.message : err
+        `Đã xảy ra lỗi khi lưu thay đổi: ${
+          err instanceof Error ? err.message : err
         }`
       );
     }
@@ -162,10 +161,11 @@ export default function EditBookInfo() {
             onClick={handleSyncBook}
             disabled={loading}
             className={`p-3 rounded shadow text-white flex items-center justify-center
-    ${loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-emerald-500 hover:bg-emerald-600"
-              }`}
+    ${
+      loading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-emerald-500 hover:bg-emerald-600"
+    }`}
           >
             {loading ? (
               <svg
@@ -221,8 +221,8 @@ export default function EditBookInfo() {
                 const url = preview
                   ? preview // Ưu tiên ảnh preview
                   : size === "small"
-                    ? getSmallBannerURL(book.slug)
-                    : getBannerURL(book.slug);
+                  ? getSmallBannerURL(book.slug)
+                  : getBannerURL(book.slug);
 
                 return (
                   <div key={size} className="flex flex-col">
@@ -274,11 +274,20 @@ export default function EditBookInfo() {
             </div>
           </div>
           <div className="w-full">
-            {book.hasEbook &&
+            {book.hasEbook && (
               <div className="flex flex-row gap-2 items-center">
-                <BookA color="green" width={30} height={30} />
+                <BookA
+                  color={
+                    book.currentChapter === book.currentEbookChapter
+                      ? "green"
+                      : "yellow"
+                  }
+                  width={30}
+                  height={30}
+                />
               </div>
-            }
+            )}
+
             <div className="grid grid-cols-2 gap-4 mb-4 mt-5">
               <div>
                 <label className="block text-sm font-medium">Tên truyện</label>
@@ -366,14 +375,18 @@ export default function EditBookInfo() {
             </div>
             <div className="grid grid-cols-4 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Miễn phí đến chương</label>
+                <label className="block text-sm font-medium mb-1">
+                  Miễn phí đến chương
+                </label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
                     <BookOpen size={18} />
                   </span>
                   <input
                     value={book.beginBlockChapter}
-                    onChange={(e) => onChange("beginBlockChapter", e.target.value)}
+                    onChange={(e) =>
+                      onChange("beginBlockChapter", e.target.value)
+                    }
                     type="number"
                     className="w-full border border-gray-300 rounded-lg pl-10 p-2 
                    focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
@@ -446,8 +459,12 @@ export default function EditBookInfo() {
 
                 <button
                   onClick={async () => {
-                    const res = await api.get(`/admin/ebook/${book.slug}?currentChapter=${book.currentChapter}`)
-                    toast(`Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`)
+                    const res = await api.get(
+                      `/admin/ebook/${book.slug}?currentChapter=${book.currentChapter}`
+                    );
+                    toast(
+                      `Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`
+                    );
                   }}
                   className="mt-4 w-32 py-2 bg-cyan-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
                 >

@@ -37,8 +37,11 @@ export default function EditBookInfo() {
   const fallbackBanner = "/assets/images/create-book/default-banner.webp";
 
   useEffect(() => {
+    console.log('book', book)
     if (book) document.title = book.title;
   }, [book]);
+
+
 
   useEffect(() => {
     setLoading(true);
@@ -271,9 +274,11 @@ export default function EditBookInfo() {
             </div>
           </div>
           <div className="w-full">
-            <div className="flex flex-row gap-2 items-center">
-              <BookA color="green" width={30} height={30} />
-            </div>
+            {book.hasEbook &&
+              <div className="flex flex-row gap-2 items-center">
+                <BookA color="green" width={30} height={30} />
+              </div>
+            }
             <div className="grid grid-cols-2 gap-4 mb-4 mt-5">
               <div>
                 <label className="block text-sm font-medium">Tên truyện</label>
@@ -321,7 +326,7 @@ export default function EditBookInfo() {
                 </label>
                 <input
                   type="number"
-                  value={book.currentChapter ?? 0}
+                  value={book.currentEbookChapter ?? 0}
                   disabled
                   className="mt-1 w-full border border-gray-300 bg-gray-50 text-gray-600 rounded-lg p-2 cursor-not-allowed"
                 />
@@ -441,7 +446,6 @@ export default function EditBookInfo() {
 
                 <button
                   onClick={async () => {
-                    console.log("call me", book.slug)
                     const res = await api.get(`/admin/ebook/${book.slug}?currentChapter=${book.currentChapter}`)
                     toast(`Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`)
                   }}

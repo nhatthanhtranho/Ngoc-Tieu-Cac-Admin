@@ -23,6 +23,8 @@ export interface Book {
   totalViews: number;
   isPublished: boolean;
   beginBlockChapter: number
+  hasEbook: boolean
+  currentEbookChapter: number
 }
 
 export async function createBook(newBook: Book): Promise<Book> {

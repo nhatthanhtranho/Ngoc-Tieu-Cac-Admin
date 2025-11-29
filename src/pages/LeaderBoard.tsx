@@ -11,7 +11,7 @@ type Book = { slug: string; title: string };
 
 export default function LeaderBoard() {
   const [books, setBooks] = useState<Book[]>([]);
-  const [activeTab, setActiveTab] = useState<string>("top_love");
+  const [activeTab, setActiveTab] = useState<string>("top_view");
 
   useEffect(() => {
     fetchAllBookSlugs((data: Book[]) => setBooks(data));
@@ -24,10 +24,14 @@ export default function LeaderBoard() {
   };
 
   const tabs = [
+    { key: "top_view", label: "Truyện Xem Nhiều" },
     { key: "top_love", label: "Truyện Yêu Thích" },
+    { key: "banners", label: "Truyện Trên Banners" },
     { key: "trending_now", label: "Truyện Xu Hướng" },
     { key: "recommended", label: "Truyện Đề Cử" },
+    { key: "latest", label: "Truyện Mới Cập Nhật" },
     { key: "limited_free", label: "Truyện Miễn Phí" },
+    { key: "top_tien_hiep", label: "Top Tiên Hiệp" },
   ] as const;
 
   return (
@@ -61,6 +65,13 @@ export default function LeaderBoard() {
 
       {/* Tabs Content */}
       <div className="mt-4">
+        {activeTab === "top_view" && (
+          <LeaderBoardEdit
+            books={books}
+            type="top_love"
+            title="Truyện Xem Nhiều"
+          />
+        )}
         {activeTab === "top_love" && (
           <LeaderBoardEdit
             books={books}
@@ -80,6 +91,30 @@ export default function LeaderBoard() {
             books={books}
             type="recommended"
             title="Truyện Đề Cử"
+          />
+        )}
+
+        {activeTab === "banners" && (
+          <LeaderBoardEdit
+            books={books}
+            type="banners"
+            title="Truyện Đề Cử Banners"
+          />
+        )}
+
+        {activeTab === "latest" && (
+          <LeaderBoardEdit
+            books={books}
+            type="banners"
+            title="Truyện Mới Cập Nhật"
+          />
+        )}
+
+        {activeTab === "top_tien_hiep" && (
+          <LeaderBoardEdit
+            books={books}
+            type="banners"
+            title="Top Tiên Hiệp"
           />
         )}
 

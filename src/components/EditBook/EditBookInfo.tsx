@@ -442,7 +442,7 @@ export default function EditBookInfo() {
                 <button
                   onClick={async () => {
                     console.log("call me", book.slug)
-                    const res = await api.get(`/admin/ebook/${book.slug}`)
+                    const res = await api.get(`/admin/ebook/${book.slug}?currentChapter=${book.currentChapter}`)
                     toast(`Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`)
                   }}
                   className="mt-4 w-32 py-2 bg-cyan-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"

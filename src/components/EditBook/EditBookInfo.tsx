@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Select from "react-select";
 import { useParams } from "react-router-dom";
 import Switch from "react-switch";
-import { BookOpen, CloudUpload } from "lucide-react";
+import { BookA, BookOpen, CloudUpload } from "lucide-react";
 import { toast } from "react-toastify";
 
 import ChapterListView from "./ChapterListView";
@@ -270,7 +270,10 @@ export default function EditBookInfo() {
             </div>
           </div>
           <div className="w-full">
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="flex flex-row gap-2 items-center">
+              <BookA color="green" width={30} height={30} />
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-4 mt-5">
               <div>
                 <label className="block text-sm font-medium">Tên truyện</label>
                 <input
@@ -304,6 +307,16 @@ export default function EditBookInfo() {
               <div>
                 <label className="block text-sm font-medium">
                   Số chương hiện có
+                </label>
+                <input
+                  type="number"
+                  value={book.currentChapter ?? 0}
+                  disabled
+                  className="mt-1 w-full border border-gray-300 bg-gray-50 text-gray-600 rounded-lg p-2 cursor-not-allowed"
+                />
+
+                <label className="block text-sm font-medium mt-2">
+                  Ebook đến chương
                 </label>
                 <input
                   type="number"
@@ -417,12 +430,21 @@ export default function EditBookInfo() {
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <button
-                onClick={onSave}
-                className="mt-4 w-32 py-2 bg-emerald-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
-              >
-                Lưu thay đổi
-              </button>
+              <div className="flex flex-row gap-4">
+                <button
+                  onClick={onSave}
+                  className="mt-4 w-32 py-2 bg-emerald-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
+                >
+                  Lưu thay đổi
+                </button>
+
+                <button
+                  onClick={() => {}}
+                  className="mt-4 w-32 py-2 bg-cyan-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
+                >
+                  Tạo ebook
+                </button>
+              </div>
 
               <div className="flex items-center gap-2">
                 <Switch

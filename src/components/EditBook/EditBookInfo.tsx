@@ -19,6 +19,7 @@ import { categories } from "../../constants/category";
 import { getBannerURL, getSmallBannerURL } from "../../utils/getBannerURL";
 import CommentList from "../Comment/CommentList";
 import { Eye, Heart, Tag } from "lucide-react";
+import { api } from "../../../apis";
 
 export default function EditBookInfo() {
   const params = useParams<{ slug: string }>();
@@ -439,7 +440,11 @@ export default function EditBookInfo() {
                 </button>
 
                 <button
-                  onClick={() => {}}
+                  onClick={async () => {
+                    console.log("call me", book.slug)
+                    const res = await api.get(`/admin/ebook/${book.slug}`)
+                    toast(`Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`)
+                  }}
                   className="mt-4 w-32 py-2 bg-cyan-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
                 >
                   Tạo ebook

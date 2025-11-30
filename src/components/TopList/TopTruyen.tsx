@@ -36,11 +36,11 @@ export default function TopTruyen({
       <BookSwiper renderMore={renderMore}>
         {books.map((book, i) => (
           <BookCard
-            slug={book.slug}
+            slug={book?.slug}
             key={book?.slug}
             title={book?.title}
-            thumbnailUrl={getSmallBannerURL(book.slug)}
-            handleClick={() => navigate(`/doc-truyen/${book.slug}`)}
+            thumbnailUrl={getSmallBannerURL(book?.slug)}
+            handleClick={() => navigate(`/doc-truyen/${book?.slug}`)}
           />
         ))}
       </BookSwiper>

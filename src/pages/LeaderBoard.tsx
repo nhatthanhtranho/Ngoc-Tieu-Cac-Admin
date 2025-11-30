@@ -123,7 +123,7 @@ export default function LeaderBoard() {
           <LeaderBoardEdit books={books} type="tien-hiep" title="Top Tiên Hiệp" category="tien-hiep"/>
         )}
         {activeTab === "huyen-huyen" && (
-          <LeaderBoardEdit books={books} type="top_huyen_huyen" title="Top Huyền Huyễn" category="huyen-huyen"/>
+          <LeaderBoardEdit books={books} type="huyen-huyen" title="Top Huyền Huyễn" category="huyen-huyen"/>
         )}
       </div>
     </div>

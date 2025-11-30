@@ -32,6 +32,7 @@ export default function LeaderBoard() {
     { key: "latest", label: "Truyện Mới Cập Nhật" },
     { key: "limited_free", label: "Truyện Miễn Phí" },
     { key: "top_tien_hiep", label: "Top Tiên Hiệp" },
+    { key: "top_huyen_huyen", label: "Top Huyền Huyễn" },
   ] as const;
 
   return (
@@ -111,11 +112,11 @@ export default function LeaderBoard() {
         )}
 
         {activeTab === "top_tien_hiep" && (
-          <LeaderBoardEdit
-            books={books}
-            type="banners"
-            title="Top Tiên Hiệp"
-          />
+          <LeaderBoardEdit books={books} type="banners" title="Top Tiên Hiệp" />
+        )}
+
+          {activeTab === "top_huyen_huyen" && (
+          <LeaderBoardEdit books={books} type="top_huyen_huyen" title="Top Huyền Huyễn" />
         )}
 
         {activeTab === "limited_free" && (

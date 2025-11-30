@@ -57,19 +57,19 @@ export default function BookCard({
         />
       </button>
 
-      {/* {hasEbook && */}
+      {hasEbook &&
 
         <button
 
-          className="absolute bottom-15 left-2 z-20"
+          className="absolute top-2  left-2 z-20"
         >
           <BookIcon
-            size={20}
-            className={`transition-colors fill-gray-500 cursor-pointer ${latestEbook ? "fill-green-400 text-black" : "text-yellow-500 "
+            size={24}
+            className={`transition-colors cursor-pointer ${latestEbook ? "text-emerald-500 fill-emerald-300" : "text-yellow-500 fill-yellow-300 "
               }`}
           />
         </button>
-      {/* } */}
+      }
     </div>
   );
 }

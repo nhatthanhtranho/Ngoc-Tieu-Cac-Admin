@@ -10,9 +10,12 @@ import {
   Plus,
   ArrowUp,
   ArrowDown,
+  Crown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import TopTruyen from "../TopList/TopTruyen";
+import { api } from "../../../apis";
+import { toast } from "react-toastify";
 
 type Book = { slug: string; title: string };
 
@@ -20,12 +23,14 @@ interface LeaderBoardEditProps {
   books: Book[];
   type: string;
   title: string;
+  category?: string;
 }
 
 export default function LeaderBoardEdit({
   books,
   title,
   type,
+  category,
 }: LeaderBoardEditProps) {
   const [leaderboard, setLeaderboardState] = useState<string[]>([]);
   const [available, setAvailable] = useState<Book[]>([]);
@@ -94,13 +99,34 @@ export default function LeaderBoardEdit({
   const findBookTitle = (slug: string) =>
     books.find((b) => b.slug === slug)?.title || slug;
 
+  const handleGenerateLeaderBoard = async (category: string | null) => {
+    if (category === null) {
+      toast.error("Category bị null");
+    }
+    await api.get(`/admin/generate-trending?category=${category}`);
+    toast.success("Đã tạo xong bảng xếp hạng tự động");
+  };
+
   return (
     <div className="container mx-auto py-8">
       <h2 className="text-3xl font-bold mb-8 text-gray-800 flex items-center gap-2">
         <BookOpen className="w-7 h-7 text-blue-600" /> {title}
       </h2>
-      <TopTruyen bookSlugs={leaderboard}/>
+      <TopTruyen bookSlugs={leaderboard} />
 
+      {/* NÚT TẠO XẾP HẠNG */}
+      <div className="flex flex-row mt-10">
+        <button
+          onClick={() => handleGenerateLeaderBoard(category || null)}
+          className="flex items-center gap-2 py-2 px-4
+             rounded-xl bg-emerald-500 text-white 
+             shadow-md hover:bg-emerald-600 active:scale-95 
+             transition font-medium"
+        >
+          <Crown className="w-5 h-5" />
+          Tạo danh sách xếp hạng
+        </button>
+      </div>
       <div className="flex flex-col lg:flex-row gap-8 mt-5">
         {/* Available Books */}
         <div className="flex-1 bg-white p-6 rounded-2xl shadow-md flex flex-col border border-gray-100">

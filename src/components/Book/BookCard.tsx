@@ -7,15 +7,19 @@ interface BookCardProps {
   thumbnailUrl: string;
   handleClick?: () => void;
   isBookmarked?: boolean;
+  hasEbook?: boolean;
+  latestEbook?: boolean
   onToggleBookmark?: () => void;
 }
 
 export default function BookCard({
-  slug,
   title,
   thumbnailUrl,
   handleClick,
   isBookmarked = false,
+  latestEbook = false,
+  hasEbook = false,
+
   onToggleBookmark,
 }: BookCardProps) {
   return (

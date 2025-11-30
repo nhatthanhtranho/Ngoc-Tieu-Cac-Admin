@@ -81,6 +81,8 @@ export default function BookList({
                 thumbnailUrl={getBannerURL(book.slug) || ""}
                 isBookmarked={bookmarks.includes(book.slug)}
                 onToggleBookmark={() => toggleBookmark(book.slug)}
+                hasEbook={book.hasEbook}
+                latestEbook={book.currentChapter == book.currentEbookChapter}
               />
             </motion.div>
           ))}

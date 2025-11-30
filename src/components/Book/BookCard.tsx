@@ -1,5 +1,5 @@
 "use client";
-import { Bookmark } from "lucide-react";
+import { Book as BookIcon, Bookmark } from "lucide-react";
 
 interface BookCardProps {
   slug: string;
@@ -52,11 +52,24 @@ export default function BookCard({
       >
         <Bookmark
           size={20}
-          className={`transition-colors fill-gray-500 cursor-pointer hover:fill-yellow-400 hover:text-yellow-400 ${
-            isBookmarked ? "fill-yellow-400 text-yellow-400" : "text-gray-500"
-          }`}
+          className={`transition-colors fill-gray-500 cursor-pointer hover:fill-yellow-400 hover:text-yellow-400 ${isBookmarked ? "fill-yellow-400 text-yellow-400" : "text-gray-500"
+            }`}
         />
       </button>
+
+      {/* {hasEbook && */}
+
+        <button
+
+          className="absolute bottom-15 left-2 z-20"
+        >
+          <BookIcon
+            size={20}
+            className={`transition-colors fill-gray-500 cursor-pointer ${latestEbook ? "fill-green-400 text-black" : "text-yellow-500 "
+              }`}
+          />
+        </button>
+      {/* } */}
     </div>
   );
 }

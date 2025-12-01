@@ -113,8 +113,8 @@ export default function LeaderBoardEdit({
         <div className="flex flex-row mt-10">
           <button
             onClick={
-              () => {
-                generate?.()
+              async () => {
+                await generate?.()
                 window.location.reload();
               }
 

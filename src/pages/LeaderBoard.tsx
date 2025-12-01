@@ -84,15 +84,15 @@ export default function LeaderBoard() {
     { key: "limited_free", label: "Truyện Miễn Phí" },
 
     // Thể loại
-    { key: "tien-hiep", label: "Top Tiên Hiệp" },
-    { key: "huyen-ao", label: "Top Huyền Ảo" },
-    { key: "do-thi", label: "Top Đô Thị" },
-    { key: "hai-huoc", label: "Top Hài Hước" },
-    { key: "co-dai", label: "Top Cổ Đại" },
-    { key: "kiem-hiep", label: "Top Kiếm Hiệp" },
-    { key: "tu-chan", label: "Top Tu Chân" },
-    { key: "linh-di", label: "Top Linh Dị" },
-    { key: "trinh-tham", label: "Top Trinh Thám" },
+      { label: "Top Tiên Hiệp", key: "tien-hiep" },
+      { label: "Top Huyền Huyễn", key: "huyen-huyen" },
+      { label: "Top Đô Thị", key: "do-thi" },
+      { label: "Top Linh Dị", key: "linh-di" },
+      { label: "Top Trinh Thám", key: "trinh-tham" },
+      { label: "Top Hệ Thống", key: "he-thong" },
+      { label: "Top Dị Giới", key: "di-gioi" },
+      { label: "Top Cơ Trí", key: "co-tri" },
+      { label: "Top Trọng Sinh", key: "trong-sinh" },
   ];
 
   return (

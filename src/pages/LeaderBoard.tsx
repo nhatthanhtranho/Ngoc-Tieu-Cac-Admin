@@ -22,6 +22,9 @@ export default function LeaderBoard() {
   const [books, setBooks] = useState<Book[]>([]);
   const [activeTab, setActiveTab] = useState<string>(getTabFromHash());
 
+  // 👇 loading overlay toàn màn hình
+  const [loadingOverlay, setLoadingOverlay] = useState(false);
+
   useEffect(() => {
     fetchAllBookSlugs((data: Book[]) => setBooks(data));
     document.title = "Bảng Xếp Hạng";
@@ -45,9 +48,17 @@ export default function LeaderBoard() {
     window.location.hash = `${path}?${params.toString()}`;
   };
 
+  // 🔥 Generate Home Data (có spinner overlay)
   const handleGenerateHomeData = async () => {
-    await generateHomePageData();
-    toast.success("Genrate Home Data thành công!");
+    try {
+      setLoadingOverlay(true);
+      await generateHomePageData();
+      toast.success("Generate Home Data thành công!");
+    } catch (err) {
+      toast.error("Lỗi khi generate Home Data");
+    } finally {
+      setLoadingOverlay(false);
+    }
   };
 
   const handleGenerateLeaderBoard = async (category: string | null) => {
@@ -59,7 +70,6 @@ export default function LeaderBoard() {
   };
 
   const handleGenerateLeaderBoardLatest = async () => {
-
     await api.get(`/admin/generate-trending-latest`);
     toast.success("Đã tạo xong bảng xếp hạng tự động");
   };
@@ -87,26 +97,43 @@ export default function LeaderBoard() {
 
   return (
     <div className="container mx-auto pt-8">
+
+      {/* ===========================
+          🔥 FULLSCREEN LOADING OVERLAY
+      ============================ */}
+      {loadingOverlay && (
+        <div className="fixed inset-0 bg-black/50 z-[999] flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      )}
+
       {/* Nút tạo Home Data */}
       <div className="flex justify-end mb-5">
         <button
           onClick={handleGenerateHomeData}
-          className="px-4 py-2 bg-emerald-500 text-white hover:bg-emerald-600 rounded shadow cursor-pointer"
+          disabled={loadingOverlay}
+          className={`px-4 py-2 rounded shadow cursor-pointer flex items-center gap-2 text-white 
+            ${loadingOverlay ? "bg-gray-400 cursor-not-allowed" : "bg-emerald-500 hover:bg-emerald-600"}
+          `}
         >
-          Tạo Home Data
+          {loadingOverlay && (
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          )}
+          {loadingOverlay ? "Đang tạo..." : "Tạo Home Data"}
         </button>
       </div>
 
-      {/* Tabs Header - scroll ngang */}
+      {/* Tabs Header */}
       <div className="flex gap-4 overflow-x-auto whitespace-nowrap no-scrollbar border-b border-gray-300 mb-6">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => handleChangeTab(tab.key)}
-            className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${activeTab === tab.key
+            className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${
+              activeTab === tab.key
                 ? "bg-blue-600 text-white shadow-md"
                 : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
-              }`}
+            }`}
           >
             {tab.label}
           </button>
@@ -136,9 +163,12 @@ export default function LeaderBoard() {
         )}
 
         {activeTab === "latest" && (
-          <LeaderBoardEdit books={books} type="latest" title="Truyện Mới Cập Nhật" generate={() => {
-            handleGenerateLeaderBoardLatest()
-          }} />
+          <LeaderBoardEdit
+            books={books}
+            type="latest"
+            title="Truyện Mới Cập Nhật"
+            generate={() => handleGenerateLeaderBoardLatest()}
+          />
         )}
 
         {activeTab === "limited_free" && (

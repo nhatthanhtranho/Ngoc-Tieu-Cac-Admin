@@ -11,10 +11,8 @@ type Book = { slug: string; title: string };
 
 // 🔥 Hàm đọc tab từ hash
 function getTabFromHash() {
-  // Ví dụ hash: "#/leaderboard?tab=top_view"
   const hash = window.location.hash;
   const [, queryString] = hash.split("?");
-
   const params = new URLSearchParams(queryString || "");
   return params.get("tab") || "top_view";
 }
@@ -28,26 +26,22 @@ export default function LeaderBoard() {
     document.title = "Bảng Xếp Hạng";
   }, []);
 
-  // 🔥 Lắng nghe khi URL hash thay đổi (vd: user refresh, back/forward)
   useEffect(() => {
     const onHashChange = () => setActiveTab(getTabFromHash());
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  // 🔥 Đổi tab + cập nhật hash đúng format
+  // 🔥 Đổi tab + cập nhật hash
   const handleChangeTab = (tab: string) => {
     setActiveTab(tab);
 
-    const hash = window.location.hash; // "#/leaderboard?x=y"
+    const hash = window.location.hash;
     const [path, queryString] = hash.split("?");
-
     const params = new URLSearchParams(queryString || "");
     params.set("tab", tab);
 
-    const newHash = `${path}?${params.toString()}`;
-
-    window.location.hash = newHash; // cập nhật URL
+    window.location.hash = `${path}?${params.toString()}`;
   };
 
   const handleGenerateHomeData = async () => {
@@ -63,8 +57,17 @@ export default function LeaderBoard() {
     { key: "recommended", label: "Truyện Đề Cử" },
     { key: "latest", label: "Truyện Mới Cập Nhật" },
     { key: "limited_free", label: "Truyện Miễn Phí" },
+
+    // Thể loại
     { key: "tien-hiep", label: "Top Tiên Hiệp" },
-    { key: "huyen-huyen", label: "Top Huyền Huyễn" },
+    { key: "huyen-ao", label: "Top Huyền Ảo" },
+    { key: "do-thi", label: "Top Đô Thị" },
+    { key: "hai-huoc", label: "Top Hài Hước" },
+    { key: "co-dai", label: "Top Cổ Đại" },
+    { key: "kiem-hiep", label: "Top Kiếm Hiệp" },
+    { key: "tu-chan", label: "Top Tu Chân" },
+    { key: "linh-di", label: "Top Linh Dị" },
+    { key: "trinh-tham", label: "Top Trinh Thám" },
   ];
 
   return (
@@ -79,8 +82,8 @@ export default function LeaderBoard() {
         </button>
       </div>
 
-      {/* Tabs Header */}
-      <div className="flex justify-start gap-4 border-b border-gray-300 mb-6">
+      {/* Tabs Header - scroll ngang */}
+      <div className="flex gap-4 overflow-x-auto whitespace-nowrap no-scrollbar border-b border-gray-300 mb-6">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -96,34 +99,71 @@ export default function LeaderBoard() {
         ))}
       </div>
 
-      {/* Tabs Content */}
+      {/* CONTENT */}
       <div className="mt-4">
         {activeTab === "top_view" && (
           <LeaderBoardEdit books={books} type="top_view" title="Truyện Xem Nhiều" />
         )}
+
         {activeTab === "top_love" && (
           <LeaderBoardEdit books={books} type="top_love" title="Truyện Yêu Thích" />
         )}
+
         {activeTab === "banners" && (
           <LeaderBoardEdit books={books} type="banners" title="Truyện Trên Banners" />
         )}
+
         {activeTab === "trending_now" && (
           <LeaderBoardEdit books={books} type="trending_now" title="Truyện Xu Hướng" />
         )}
+
         {activeTab === "recommended" && (
           <LeaderBoardEdit books={books} type="recommended" title="Truyện Đề Cử" />
         )}
+
         {activeTab === "latest" && (
           <LeaderBoardEdit books={books} type="latest" title="Truyện Mới Cập Nhật" />
         )}
+
         {activeTab === "limited_free" && (
           <LeaderBoardEdit books={books} type="limited_free" title="Truyện Miễn Phí" />
         )}
+
+        {/* --- Thể loại --- */}
         {activeTab === "tien-hiep" && (
-          <LeaderBoardEdit books={books} type="tien-hiep" title="Top Tiên Hiệp" category="tien-hiep"/>
+          <LeaderBoardEdit books={books} type="tien-hiep" title="Top Tiên Hiệp" category="tien-hiep" />
         )}
-        {activeTab === "huyen-huyen" && (
-          <LeaderBoardEdit books={books} type="huyen-huyen" title="Top Huyền Huyễn" category="huyen-huyen"/>
+
+        {activeTab === "huyen-ao" && (
+          <LeaderBoardEdit books={books} type="huyen-ao" title="Top Huyền Ảo" category="huyen-ao" />
+        )}
+
+        {activeTab === "do-thi" && (
+          <LeaderBoardEdit books={books} type="do-thi" title="Top Đô Thị" category="do-thi" />
+        )}
+
+        {activeTab === "hai-huoc" && (
+          <LeaderBoardEdit books={books} type="hai-huoc" title="Top Hài Hước" category="hai-huoc" />
+        )}
+
+        {activeTab === "co-dai" && (
+          <LeaderBoardEdit books={books} type="co-dai" title="Top Cổ Đại" category="co-dai" />
+        )}
+
+        {activeTab === "kiem-hiep" && (
+          <LeaderBoardEdit books={books} type="kiem-hiep" title="Top Kiếm Hiệp" category="kiem-hiep" />
+        )}
+
+        {activeTab === "tu-chan" && (
+          <LeaderBoardEdit books={books} type="tu-chan" title="Top Tu Chân" category="tu-chan" />
+        )}
+
+        {activeTab === "linh-di" && (
+          <LeaderBoardEdit books={books} type="linh-di" title="Top Linh Dị" category="linh-di" />
+        )}
+
+        {activeTab === "trinh-tham" && (
+          <LeaderBoardEdit books={books} type="trinh-tham" title="Top Trinh Thám" category="trinh-tham" />
         )}
       </div>
     </div>

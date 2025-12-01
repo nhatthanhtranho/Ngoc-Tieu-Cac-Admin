@@ -23,14 +23,14 @@ interface LeaderBoardEditProps {
   books: Book[];
   type: string;
   title: string;
-  category?: string;
+  generate?: () => void
 }
 
 export default function LeaderBoardEdit({
   books,
   title,
   type,
-  category,
+  generate,
 }: LeaderBoardEditProps) {
   const [leaderboard, setLeaderboardState] = useState<string[]>([]);
   const [available, setAvailable] = useState<Book[]>([]);
@@ -98,15 +98,7 @@ export default function LeaderBoardEdit({
 
   const findBookTitle = (slug: string) =>
     books.find((b) => b.slug === slug)?.title || slug;
-
-  const handleGenerateLeaderBoard = async (category: string | null) => {
-    if (category === null) {
-      toast.error("Category bị null");
-    }
-    await api.get(`/admin/generate-trending?category=${category}`);
-    toast.success("Đã tạo xong bảng xếp hạng tự động");
-  };
-
+  
   return (
     <div className="container mx-auto py-8">
       <h2 className="text-3xl font-bold mb-8 text-gray-800 flex items-center gap-2">
@@ -116,15 +108,21 @@ export default function LeaderBoardEdit({
 
       {/* NÚT TẠO XẾP HẠNG */}
       {
-        category &&
+        generate &&
 
         <div className="flex flex-row mt-10">
           <button
-            onClick={() => handleGenerateLeaderBoard(category || null)}
+            onClick={
+              () => {
+                generate?.()
+                window.location.reload();
+              }
+
+            }
             className="flex items-center gap-2 py-2 px-4
-             rounded-xl bg-emerald-500 text-white 
-             shadow-md hover:bg-emerald-600 active:scale-95 
-             transition font-medium"
+          rounded-xl bg-emerald-500 text-white
+          shadow-md hover:bg-emerald-600 active:scale-95
+          transition font-medium"
           >
             <Crown className="w-5 h-5" />
             Tạo danh sách xếp hạng
@@ -260,6 +258,6 @@ export default function LeaderBoardEdit({
           </button>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

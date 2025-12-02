@@ -374,26 +374,6 @@ export default function EditBookInfo() {
               />
             </div>
             <div className="grid grid-cols-4 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Miễn phí đến chương
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-                    <BookOpen size={18} />
-                  </span>
-                  <input
-                    value={book.beginBlockChapter}
-                    onChange={(e) =>
-                      onChange("beginBlockChapter", e.target.value)
-                    }
-                    type="number"
-                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 
-                   focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
-                   appearance-none" // ẩn spinner
-                  />
-                </div>
-              </div>
               {/* PRICE */}
               <div>
                 <label className="block text-sm font-medium mb-1">Price</label>

@@ -11,7 +11,7 @@ function App() {
   const [bookSlugs, setBookSlugs] = useState<Array<{ slug: string; title: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const pageSize = 35;
+  const pageSize = 100;
 
   // Load bookmark từ localStorage
   useEffect(() => {
@@ -86,19 +86,6 @@ function App() {
     },
     [setBooks]
   );
-
-  const toggleBookmark = (slug: string) => {
-    let updated: string[];
-    if (bookmarks.includes(slug)) {
-      updated = bookmarks.filter((s) => s !== slug);
-    } else {
-      updated = [...bookmarks, slug];
-    }
-    setBookmarks(updated);
-    localStorage.setItem("bookmarks", JSON.stringify(updated));
-    setCurrentPage(1);
-  };
-
   const totalPages = Math.ceil(bookSlugs.length / pageSize);
 
   return (

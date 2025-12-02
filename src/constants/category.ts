@@ -29,5 +29,6 @@ export const categories = [
   { value: "he", label: "HE" },
   { value: "nu-cuong", label: "Nữ Cường" },
   { value: "hai-huoc", label: "Hài Hước" },
+  { value: "xay-dung-the-luc", label: "Xây Dựng Thế Lực" },
 
 ];

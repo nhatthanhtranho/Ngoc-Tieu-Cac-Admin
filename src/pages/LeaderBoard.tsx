@@ -59,7 +59,6 @@ export default function LeaderBoard() {
   };
 
   const handleGenerateLeaderBoardLatest = async () => {
-
     await api.get(`/admin/generate-trending-latest`);
     toast.success("Đã tạo xong bảng xếp hạng tự động");
   };
@@ -103,10 +102,11 @@ export default function LeaderBoard() {
           <button
             key={tab.key}
             onClick={() => handleChangeTab(tab.key)}
-            className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${activeTab === tab.key
+            className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${
+              activeTab === tab.key
                 ? "bg-blue-600 text-white shadow-md"
                 : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
-              }`}
+            }`}
           >
             {tab.label}
           </button>
@@ -116,70 +116,144 @@ export default function LeaderBoard() {
       {/* CONTENT */}
       <div className="mt-4">
         {activeTab === "top_view" && (
-          <LeaderBoardEdit books={books} type="top_view" title="Truyện Xem Nhiều" />
+          <LeaderBoardEdit
+            books={books}
+            type="top_view"
+            title="Truyện Xem Nhiều"
+          />
         )}
 
         {activeTab === "top_love" && (
-          <LeaderBoardEdit books={books} type="top_love" title="Truyện Yêu Thích" />
+          <LeaderBoardEdit
+            books={books}
+            type="top_love"
+            title="Truyện Yêu Thích"
+          />
         )}
 
         {activeTab === "banners" && (
-          <LeaderBoardEdit books={books} type="banners" title="Truyện Trên Banners" />
+          <LeaderBoardEdit
+            books={books}
+            type="banners"
+            title="Truyện Trên Banners"
+          />
         )}
 
         {activeTab === "trending_now" && (
-          <LeaderBoardEdit books={books} type="trending_now" title="Truyện Xu Hướng" />
+          <LeaderBoardEdit
+            books={books}
+            type="trending_now"
+            title="Truyện Xu Hướng"
+          />
         )}
 
         {activeTab === "recommended" && (
-          <LeaderBoardEdit books={books} type="recommended" title="Truyện Đề Cử" />
+          <LeaderBoardEdit
+            books={books}
+            type="recommended"
+            title="Truyện Đề Cử"
+          />
         )}
 
         {activeTab === "latest" && (
-          <LeaderBoardEdit books={books} type="latest" title="Truyện Mới Cập Nhật" generate={() => {
-            handleGenerateLeaderBoardLatest()
-          }} />
+          <LeaderBoardEdit
+            books={books}
+            type="latest"
+            title="Truyện Mới Cập Nhật"
+            generate={() => {
+              handleGenerateLeaderBoardLatest();
+            }}
+          />
         )}
 
         {activeTab === "limited_free" && (
-          <LeaderBoardEdit books={books} type="limited_free" title="Truyện Miễn Phí" />
+          <LeaderBoardEdit
+            books={books}
+            type="limited_free"
+            title="Truyện Miễn Phí"
+          />
         )}
 
         {/* --- Thể loại --- */}
         {activeTab === "tien-hiep" && (
-          <LeaderBoardEdit books={books} type="tien-hiep" title="Top Tiên Hiệp" generate={() => handleGenerateLeaderBoard("tien-hiep")} />
+          <LeaderBoardEdit
+            books={books}
+            type="tien-hiep"
+            title="Top Tiên Hiệp"
+            generate={() => handleGenerateLeaderBoard("tien-hiep")}
+          />
         )}
 
         {activeTab === "huyen-ao" && (
-          <LeaderBoardEdit books={books} type="huyen-ao" title="Top Huyền Ảo" generate={() => handleGenerateLeaderBoard("huyen-ao")} />
+          <LeaderBoardEdit
+            books={books}
+            type="huyen-ao"
+            title="Top Huyền Ảo"
+            generate={() => handleGenerateLeaderBoard("huyen-ao")}
+          />
         )}
 
         {activeTab === "do-thi" && (
-          <LeaderBoardEdit books={books} type="do-thi" title="Top Đô Thị" generate={() => handleGenerateLeaderBoard("do-thi")} />
+          <LeaderBoardEdit
+            books={books}
+            type="do-thi"
+            title="Top Đô Thị"
+            generate={() => handleGenerateLeaderBoard("do-thi")}
+          />
         )}
 
         {activeTab === "hai-huoc" && (
-          <LeaderBoardEdit books={books} type="hai-huoc" title="Top Hài Hước" generate={() => handleGenerateLeaderBoard("hai-huoc")} />
+          <LeaderBoardEdit
+            books={books}
+            type="hai-huoc"
+            title="Top Hài Hước"
+            generate={() => handleGenerateLeaderBoard("hai-huoc")}
+          />
         )}
 
         {activeTab === "co-dai" && (
-          <LeaderBoardEdit books={books} type="co-dai" title="Top Cổ Đại" generate={() => handleGenerateLeaderBoard("co-dai")} />
+          <LeaderBoardEdit
+            books={books}
+            type="co-dai"
+            title="Top Cổ Đại"
+            generate={() => handleGenerateLeaderBoard("co-dai")}
+          />
         )}
 
         {activeTab === "kiem-hiep" && (
-          <LeaderBoardEdit books={books} type="kiem-hiep" title="Top Kiếm Hiệp" generate={() => handleGenerateLeaderBoard("kiem-hiep")} />
+          <LeaderBoardEdit
+            books={books}
+            type="kiem-hiep"
+            title="Top Kiếm Hiệp"
+            generate={() => handleGenerateLeaderBoard("kiem-hiep")}
+          />
         )}
 
         {activeTab === "tu-chan" && (
-          <LeaderBoardEdit books={books} type="tu-chan" title="Top Tu Chân" generate={() => handleGenerateLeaderBoard("tu-chan")} />
+          <LeaderBoardEdit
+            books={books}
+            type="tu-chan"
+            title="Top Tu Chân"
+            generate={() => handleGenerateLeaderBoard("tu-chan")}
+          />
         )}
 
         {activeTab === "linh-di" && (
-          <LeaderBoardEdit books={books} type="linh-di" title="Top Linh Dị" generate={() => handleGenerateLeaderBoard("linh-di")} />
+          <LeaderBoardEdit
+            books={books}
+            type="linh-di"
+            title="Top Linh Dị"
+            generate={() => handleGenerateLeaderBoard("linh-di")}
+          />
         )}
 
         {activeTab === "trinh-tham" && (
-          <LeaderBoardEdit books={books} type="trinh-tham" title="Top Trinh Thám" generate={() => handleGenerateLeaderBoard("trinh-tham")} />
+          <LeaderBoardEdit
+            books={books}
+            type="trinh-tham"
+            title="Top Trinh Thám"
+            generate={() => handleGenerateLeaderBoard("trinh-tham")}
+          />
         )}
       </div>
     </div>

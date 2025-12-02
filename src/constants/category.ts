@@ -1,6 +1,7 @@
 export const categories = [
   { value: "tien-hiep", label: "Tiên Hiệp" },
   { value: "ngon-tinh", label: "Ngôn Tình" },
+  { value: "hien-dao", label: "Hiện Đại" },
   { value: "vong-du", label: "Võng Du" },
   { value: "mat-the", label: "Mạt Thế" },
   { value: "phan-phai", label: "Phản Phái" },
@@ -25,4 +26,5 @@ export const categories = [
   { value: "hoan-thanh", label: "Hoàn Thành" },
   { value: "premium", label: "Premium" },
   { value: "mien-phi", label: "Miễn Phí" },
+  { value: "he", label: "HE" },
 ];

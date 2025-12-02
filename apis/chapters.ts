@@ -32,11 +32,12 @@ export async function fetchChapters(
   bookSlug: string,
   start: number,
   end: number,
-  setChapters: (chapters: Chapter[]) => void
+  setChapters: (chapters: Chapter[]) => void,
+  sort: "asc" | "desc" = "asc"
 ) {
   if (!bookSlug) return;
   const res = await api.get<Chapter[]>(
-    `admin/chapters/${bookSlug}/titles?start=${start}&end=${end}`
+    `admin/chapters/${bookSlug}/titles?start=${start}&end=${end}&sort=${sort}`
   );
   setChapters(res.data);
 }

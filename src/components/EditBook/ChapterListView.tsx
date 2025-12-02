@@ -41,7 +41,7 @@ export default function ChapterListView({
   useEffect(() => {
     const start = (page - 1) * pageSize;
     const end = start + pageSize - 1;
-    fetchChapters(bookSlug, start, end, setChapters);
+    fetchChapters(bookSlug, start, end, setChapters, 'desc');
   }, [bookSlug, page]);
 
   const handleUploaded = async () => {

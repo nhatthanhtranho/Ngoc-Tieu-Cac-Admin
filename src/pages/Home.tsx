@@ -8,10 +8,36 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
-  const [bookSlugs, setBookSlugs] = useState<Array<{ slug: string; title: string }>>([]);
+  const [bookSlugs, setBookSlugs] = useState<
+    Array<{ slug: string; title: string }>
+  >([]);
   const [loading, setLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [bookStatusFilter, setBookStatusFilter] = useState<string[]>([
+    "hoan-thanh",
+    "dang-ra",
+  ]);
   const pageSize = 100;
+
+  const toggleStatusFilter = async (status: string) => {
+    setBookStatusFilter((prev) => {
+      let newStatus: string[];
+
+      if (prev.includes(status)) {
+        // Nếu đã có → bỏ
+        newStatus = prev.filter((s) => s !== status);
+      } else {
+        // Nếu chưa có → thêm
+        newStatus = [...prev, status];
+      }
+
+      // Fetch ngay theo giá trị mới
+      fetchAllBookSlugs(setBookSlugs, newStatus);
+      setCurrentPage(1);
+
+      return newStatus;
+    });
+  };
 
   // Load bookmark từ localStorage
   useEffect(() => {
@@ -46,14 +72,14 @@ function App() {
     // Lọc theo searchKeyword
     let filteredSlugs = bookSlugs;
     if (searchKeyword.trim() !== "") {
-      const keyword = searchKeyword
-        .toLowerCase()
-        .replace(/\s+/g, ""); // loại bỏ space để match slug/title
+      const keyword = searchKeyword.toLowerCase().replace(/\s+/g, ""); // loại bỏ space để match slug/title
 
       filteredSlugs = bookSlugs.filter((b) => {
         const titleNormalized = b.title.toLowerCase().replace(/\s+/g, "");
         const slugNormalized = b.slug.toLowerCase().replace(/\s+/g, "");
-        return titleNormalized.includes(keyword) || slugNormalized.includes(keyword);
+        return (
+          titleNormalized.includes(keyword) || slugNormalized.includes(keyword)
+        );
       });
     }
 
@@ -103,6 +129,28 @@ function App() {
             + Tạo truyện
           </button>
         </div>
+        <div className="flex gap-2 my-5">
+          <button
+            onClick={() => toggleStatusFilter("hoan-thanh")}
+            className={`text-white py-2 w-32 rounded shadow cursor-pointer ${
+              bookStatusFilter.includes("hoan-thanh")
+                ? "bg-emerald-500"
+                : "bg-gray-400"
+            }`}
+          >
+            Hoàn Thành
+          </button>
+          <button
+            onClick={() => toggleStatusFilter("dang-ra")}
+            className={`text-white py-2 w-32 rounded shadow cursor-pointer ${
+              bookStatusFilter.includes("dang-ra")
+                ? "bg-emerald-500"
+                : "bg-gray-400"
+            }`}
+          >
+            Đang Ra
+          </button>
+        </div>
 
         {/* Search bar */}
         <div className="mb-6">
@@ -135,9 +183,7 @@ function App() {
                 key={p}
                 onClick={() => setCurrentPage(p)}
                 className={`px-3 py-1 rounded ${
-                  currentPage === p
-                    ? "bg-yellow-400 text-white"
-                    : "bg-gray-200"
+                  currentPage === p ? "bg-yellow-400 text-white" : "bg-gray-200"
                 }`}
               >
                 {p}

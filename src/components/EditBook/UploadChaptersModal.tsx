@@ -16,7 +16,7 @@ interface UploadChaptersModalProps {
   onUploaded: () => void;
 }
 
-const CHAPTER_BATCH_SIZE = 50; // create chapters per batch
+const CHAPTER_BATCH_SIZE = 100; // create chapters per batch
 const FILE_BATCH_SIZE = 100; // upload files per batch
 const CONCURRENCY = 5; // parallel uploads
 

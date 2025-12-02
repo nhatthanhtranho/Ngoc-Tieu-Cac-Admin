@@ -27,4 +27,7 @@ export const categories = [
   { value: "premium", label: "Premium" },
   { value: "mien-phi", label: "Miễn Phí" },
   { value: "he", label: "HE" },
+  { value: "nu-cuong", label: "Nữ Cường" },
+  { value: "hai-huoc", label: "Hài Hước" },
+
 ];

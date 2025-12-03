@@ -7,12 +7,14 @@ import TopupCard from "./TopUpCard";
 export default function TopupManager() {
   const [topups, setTopups] = useState<TopupItem[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "ALL" | "pending" | "approved" | "rejected"
   >("ALL");
 
+  useEffect(() => {
+    console.log("Topups updated:", topups);
+  }, [topups]);
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
     start: "",
     end: "",
@@ -20,11 +22,12 @@ export default function TopupManager() {
 
   const [page, setPage] = useState(1);
 
-  const handleUpdateStatus = (id: string, newStatus: "pending" | "approved" | "rejected") => {
+  const handleUpdateStatus = (
+    id: string,
+    newStatus: "pending" | "approved" | "rejected"
+  ) => {
     setTopups((prev) =>
-      prev.map((t) =>
-        t.id === id ? { ...t, status: newStatus } : t
-      )
+      prev.map((t) => (t.id === id ? { ...t, status: newStatus } : t))
     );
   };
 
@@ -56,24 +59,23 @@ export default function TopupManager() {
   // ❤️ mỗi khi filter đổi → gọi API lại
 
   return (
-    <div className="min-h-screen w-full py-10 bg-[#05060a] text-slate-200">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen w-full py-10 bg-white text-gray-800">
+      <div className="mx-auto px-4">
         {/* 🧭 Title */}
-        <h1 className="text-3xl font-cinzel font-bold mb-8 text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] tracking-wide">
+        <h1 className="text-3xl font-cinzel font-bold mb-4 text-gray-800 drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] tracking-wide">
           Quản lý Giao Dịch
         </h1>
 
         {/* 🔍 Bộ lọc */}
-        <div className="mb-8 bg-[#0a0d14] border border-emerald-900/40 rounded-2xl p-4 shadow-inner shadow-emerald-800/20 backdrop-blur-sm">
-          <TopupFilter
-            search={search}
-            setSearch={setSearch}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            dateRange={dateRange}
-            setDateRange={setDateRange}
-          />
-        </div>
+
+        <TopupFilter
+          search={search}
+          setSearch={setSearch}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+        />
 
         {/* 📦 Danh sách giao dịch */}
         {loading ? (
@@ -95,7 +97,7 @@ export default function TopupManager() {
                   hover:shadow-[0_0_12px_rgba(16,185,129,0.15)]
                 "
               >
-                <TopupCard item={item} onStatusChange={handleUpdateStatus}/>
+                <TopupCard item={item} onStatusChange={handleUpdateStatus} />
               </div>
             ))}
           </div>

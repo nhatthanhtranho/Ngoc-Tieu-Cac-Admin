@@ -32,33 +32,16 @@ export default function TopupFilter({
   const resetDateFilter = () => setDateRange({ start: "", end: "" });
 
   return (
-    <div
-      className="
-        bg-[#070a0f]/90 
-        border border-emerald-800/40 
-        rounded-2xl p-6 
-        shadow-[0_0_30px_-10px_rgba(16,185,129,0.2)] 
-        backdrop-blur-md
-        space-y-5
-        transition
-      "
-    >
+    <div className="flex gap-4 flex-col mb-4">
       {/* 🔍 Search */}
-      <div className="flex items-center gap-3">
-        <Search className="w-5 h-5 text-emerald-400/80" />
+      <div className="flex items-center gap-3 relative">
+        <Search className="w-5 h-5 absolute left-3 text-gray-800" />
         <input
           type="text"
           placeholder="Tìm theo email hoặc nội dung..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="
-            flex-1 px-3 py-2 rounded-lg
-            border border-emerald-900/30 bg-[#0b0f16]/90 text-slate-200 text-sm
-            placeholder:text-slate-500
-            focus:outline-none focus:ring-2 focus:ring-emerald-500/50
-            focus:border-emerald-500/40
-            transition
-          "
+          className="flex-1 px-9 py-2 rounded-lg border text-slate-200 text-sm placeholder:text-slate-500"
         />
       </div>
 
@@ -89,12 +72,11 @@ export default function TopupFilter({
               key={s}
               onClick={() => setStatusFilter(s as any)}
               className={`
-                text-sm px-3 py-1.5 rounded-lg border transition-all duration-200
-                backdrop-blur-sm shadow-inner
+                text-sm px-3 py-1.5 rounded-lg border transition-all duration-200 cursor-pointer
                 ${
                   active
-                    ? `bg-${color}-500/20 text-${color}-300 border-${color}-400/50 shadow-[0_0_10px_rgba(16,185,129,0.25)]`
-                    : "bg-[#0e141c]/80 text-slate-400 border-slate-700/60 hover:border-emerald-500/30 hover:text-emerald-300/80"
+                    ? `bg-emerald-500 text-white`
+                    : "bg-gray-400  text-white"
                 }
               `}
             >
@@ -107,34 +89,33 @@ export default function TopupFilter({
       {/* 🗓 Date Filter */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-slate-400 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-emerald-400/70" />
+          <span className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
             Lọc theo ngày tạo
           </span>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleQuickSelect(0)}
-              className="text-xs px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 hover:shadow-[0_0_6px_rgba(16,185,129,0.3)] transition"
+              className="text-xs px-2 py-1 rounded-md bg-emerald-400 text-white hover:bg-emerald-500 cursor-pointer"
             >
               Hôm nay
             </button>
             <button
               onClick={() => handleQuickSelect(7)}
-              className="text-xs px-2 py-1 rounded-md bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 hover:shadow-[0_0_6px_rgba(59,130,246,0.3)] transition"
+              className="text-xs px-2 py-1 rounded-md bg-blue-400 text-white hover:bg-blue-500 cursor-pointer"
             >
               7 ngày
             </button>
             <button
               onClick={() => handleQuickSelect(30)}
-              className="text-xs px-2 py-1 rounded-md bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20 hover:shadow-[0_0_6px_rgba(99,102,241,0.3)] transition"
+              className="text-xs px-2 py-1 rounded-md bg-indigo-500 text-white hover:bg-indigo-600 cursor-pointer"
             >
               30 ngày
             </button>
             <button
               onClick={resetDateFilter}
-              className="text-xs px-2 py-1 rounded-md flex items-center gap-1
-                bg-slate-700/30 text-slate-400 hover:bg-slate-600/50 hover:text-emerald-300 hover:shadow-[0_0_6px_rgba(16,185,129,0.3)] transition"
+              className="text-xs px-2 py-1 rounded-md flex items-center gap-1 cursor-pointer bg-slate-500 text-white hover:bg-slate-600"
             >
               <RotateCcw className="w-3.5 h-3.5" /> Reset
             </button>

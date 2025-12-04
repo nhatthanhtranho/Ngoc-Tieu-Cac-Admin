@@ -74,6 +74,12 @@ export default function LeaderBoard() {
     toast.success("Đã tạo xong bảng xếp hạng tự động");
   };
 
+  const handleGenerateLeaderBoardLatestChapter = async () => {
+    await api.get(`/admin/generate-trending-latest-chapter`);
+    toast.success("Đã tạo xong bảng xếp hạng tự động");
+  };
+
+
   const tabs = [
     { key: "top_view", label: "Truyện Xem Nhiều" },
     { key: "top_love", label: "Truyện Yêu Thích" },
@@ -81,10 +87,9 @@ export default function LeaderBoard() {
     { key: "trending_now", label: "Truyện Xu Hướng" },
     { key: "recommended", label: "Truyện Đề Cử" },
     { key: "latest", label: "Truyện Mới" },
-    { key: "updated", label: "Chương Mới Cập Nhật" },
+    { key: "latest-chapters", label: "Chương Mới Cập Nhật" },
 
     { key: "limited_free", label: "Truyện Miễn Phí" },
-
     // Thể loại
     { label: "Top Tiên Hiệp", key: "tien-hiep" },
     { label: "Top Huyền Huyễn", key: "huyen-huyen" },
@@ -187,8 +192,17 @@ export default function LeaderBoard() {
           <LeaderBoardEdit
             books={books}
             type="latest"
-            title="Truyện Mới Cập Nhật"
+            title="Truyện Mới"
             generate={() => handleGenerateLeaderBoardLatest()}
+          />
+        )}
+
+        {activeTab === "latest-chapters" && (
+          <LeaderBoardEdit
+            books={books}
+            type="latest"
+            title="Chương Mới Cập Nhật"
+            generate={() => handleGenerateLeaderBoardLatestChapter()}
           />
         )}
 
@@ -264,7 +278,7 @@ export default function LeaderBoard() {
           />
         )}
 
-{activeTab === "trong-sinh" && (
+        {activeTab === "trong-sinh" && (
           <LeaderBoardEdit
             books={books}
             type="trong-sinh"

@@ -80,19 +80,21 @@ export default function LeaderBoard() {
     { key: "banners", label: "Truyện Trên Banners" },
     { key: "trending_now", label: "Truyện Xu Hướng" },
     { key: "recommended", label: "Truyện Đề Cử" },
-    { key: "latest", label: "Truyện Mới Cập Nhật" },
+    { key: "latest", label: "Truyện Mới" },
+    { key: "updated", label: "Chương Mới Cập Nhật" },
+
     { key: "limited_free", label: "Truyện Miễn Phí" },
 
     // Thể loại
-      { label: "Top Tiên Hiệp", key: "tien-hiep" },
-      { label: "Top Huyền Huyễn", key: "huyen-huyen" },
-      { label: "Top Đô Thị", key: "do-thi" },
-      { label: "Top Linh Dị", key: "linh-di" },
-      { label: "Top Trinh Thám", key: "trinh-tham" },
-      { label: "Top Hệ Thống", key: "he-thong" },
-      { label: "Top Dị Giới", key: "di-gioi" },
-      { label: "Top Cơ Trí", key: "co-tri" },
-      { label: "Top Trọng Sinh", key: "trong-sinh" },
+    { label: "Top Tiên Hiệp", key: "tien-hiep" },
+    { label: "Top Huyền Huyễn", key: "huyen-huyen" },
+    { label: "Top Đô Thị", key: "do-thi" },
+    { label: "Top Linh Dị", key: "linh-di" },
+    { label: "Top Hài Hước", key: "hai-huoc" },
+    { label: "Top Hệ Thống", key: "he-thong" },
+    { label: "Top Dị Giới", key: "di-gioi" },
+    { label: "Top Cơ Trí", key: "co-tri" },
+    { label: "Top Trọng Sinh", key: "trong-sinh" },
   ];
 
   return (
@@ -129,11 +131,10 @@ export default function LeaderBoard() {
           <button
             key={tab.key}
             onClick={() => handleChangeTab(tab.key)}
-            className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${
-              activeTab === tab.key
-                ? "bg-blue-600 text-white shadow-md"
-                : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
-            }`}
+            className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${activeTab === tab.key
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
+              }`}
           >
             {tab.label}
           </button>
@@ -209,12 +210,12 @@ export default function LeaderBoard() {
           />
         )}
 
-        {activeTab === "huyen-ao" && (
+        {activeTab === "huyen-huyen" && (
           <LeaderBoardEdit
             books={books}
-            type="huyen-ao"
-            title="Top Huyền Ảo"
-            generate={() => handleGenerateLeaderBoard("huyen-ao")}
+            type="huyen-huyen"
+            title="Top Huyền Huyễn"
+            generate={() => handleGenerateLeaderBoard("huyen-huyen")}
           />
         )}
 
@@ -236,30 +237,39 @@ export default function LeaderBoard() {
           />
         )}
 
-        {activeTab === "co-dai" && (
+        {activeTab === "he-thong" && (
           <LeaderBoardEdit
             books={books}
-            type="co-dai"
-            title="Top Cổ Đại"
-            generate={() => handleGenerateLeaderBoard("co-dai")}
+            type="he-thong"
+            title="Top Hệ Thống"
+            generate={() => handleGenerateLeaderBoard("he-thong")}
           />
         )}
 
-        {activeTab === "kiem-hiep" && (
+        {activeTab === "di-gioi" && (
           <LeaderBoardEdit
             books={books}
-            type="kiem-hiep"
-            title="Top Kiếm Hiệp"
-            generate={() => handleGenerateLeaderBoard("kiem-hiep")}
+            type="di-gioi"
+            title="Top Dị Giới"
+            generate={() => handleGenerateLeaderBoard("di-gioi")}
           />
         )}
 
-        {activeTab === "tu-chan" && (
+        {activeTab === "co-tri" && (
           <LeaderBoardEdit
             books={books}
-            type="tu-chan"
-            title="Top Tu Chân"
-            generate={() => handleGenerateLeaderBoard("tu-chan")}
+            type="co-tri"
+            title="Top Cơ Trí"
+            generate={() => handleGenerateLeaderBoard("co-tri")}
+          />
+        )}
+
+{activeTab === "trong-sinh" && (
+          <LeaderBoardEdit
+            books={books}
+            type="trong-sinh"
+            title="Top Trọng Sinh"
+            generate={() => handleGenerateLeaderBoard("trong-sinh")}
           />
         )}
 
@@ -272,14 +282,6 @@ export default function LeaderBoard() {
           />
         )}
 
-        {activeTab === "trinh-tham" && (
-          <LeaderBoardEdit
-            books={books}
-            type="trinh-tham"
-            title="Top Trinh Thám"
-            generate={() => handleGenerateLeaderBoard("trinh-tham")}
-          />
-        )}
       </div>
     </div>
   );

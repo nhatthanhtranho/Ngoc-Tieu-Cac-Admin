@@ -79,6 +79,11 @@ export default function LeaderBoard() {
     toast.success("Đã tạo xong bảng xếp hạng tự động");
   };
 
+  const handleGenerateLeaderBoardHoanThanh = async () => {
+    await api.get(`/admin/generate-trending-hoan-thanh`);
+    toast.success("Đã tạo xong bảng xếp hạng tự động");
+  };
+
 
   const tabs = [
     { key: "top_view", label: "Truyện Xem Nhiều" },
@@ -88,8 +93,8 @@ export default function LeaderBoard() {
     { key: "recommended", label: "Truyện Đề Cử" },
     { key: "latest", label: "Truyện Mới" },
     { key: "latest-chapters", label: "Chương Mới Cập Nhật" },
+    { label: "Top Hoàn Thành", key: "hoan-thanh" },
 
-    { key: "limited_free", label: "Truyện Miễn Phí" },
     // Thể loại
     { label: "Top Tiên Hiệp", key: "tien-hiep" },
     { label: "Top Huyền Huyễn", key: "huyen-huyen" },
@@ -194,6 +199,15 @@ export default function LeaderBoard() {
             type="latest"
             title="Truyện Mới"
             generate={() => handleGenerateLeaderBoardLatest()}
+          />
+        )}
+
+        {activeTab === "hoan-thanh" && (
+          <LeaderBoardEdit
+            books={books}
+            type="hoan-thanh"
+            title="Truyện Hoàn Thành"
+            generate={() => handleGenerateLeaderBoardHoanThanh()}
           />
         )}
 

@@ -28,7 +28,7 @@ const TopUp = lazy(() => import("./pages/TopUp"));
 export default function App() {
   const { accessToken, user, logout } = useAuthState();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [pendingCount, setPendingCount] = useState<number>(0); // ✅ state badge
+  const [pendingCount, setPendingCount] = useState<{ membership: number, topup: number }>({ membership: 0, topup: 0 }); // ✅ state badge
   const location = useLocation();
 
   const handleLogOut = () => logout();
@@ -41,7 +41,7 @@ export default function App() {
     const fetchPendingCount = async () => {
       try {
         const res = await api.get("/payment-requests/count-pending");
-        setPendingCount(res.data.count || 0); // axios trả data trong res.data
+        setPendingCount(res.data); // axios trả data trong res.data
       } catch (err) {
         console.error("Failed to fetch pending count", err);
       }
@@ -96,14 +96,14 @@ export default function App() {
                   to="/top-up"
                   icon={<Coins size={20} />}
                   label="Top Up"
-                  badge={pendingCount}
+                  badge={pendingCount.topup}
                 />
                 {/* ✅ thêm badge */}
                 <NavItem
                   to="/membership"
                   icon={<IdCard size={20} />}
                   label="Membership"
-                  badge={pendingCount}
+                  badge={pendingCount.membership}
                 />
                 {/* ✅ thêm badge */}
               </nav>
@@ -141,7 +141,9 @@ export default function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/leaderboard" element={<LeaderBoard />} />
                 <Route path="/thong-ke" element={<ThongKe />} />
-                <Route path="/top-up" element={<TopUp />} />
+                <Route path="/top-up" element={<TopUp topUpType="topup" />} />
+                <Route path="/membership" element={<TopUp topUpType="membership" />} />
+
                 <Route path="/book/:slug" element={<BookDetail />} />
                 <Route
                   path="/book/:slug/chapter/:chapterNumber"
@@ -176,11 +178,10 @@ function NavItem({
   return (
     <Link
       to={to}
-      className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
-        isActive
+      className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${isActive
           ? "bg-blue-600 text-white shadow-md"
           : "text-gray-300 hover:bg-zinc-800 hover:text-white"
-      }`}
+        }`}
     >
       {icon}
       <span className="text-sm font-medium">{label}</span>

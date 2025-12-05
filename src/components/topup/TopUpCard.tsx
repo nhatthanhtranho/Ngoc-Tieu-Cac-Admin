@@ -122,7 +122,7 @@ export default function TopupCard({ item, onStatusChange }: Props) {
             <div className="font-medium text-emerald-50">{item.email}</div>
             <div className="text-xs text-emerald-300/70">
               {item.type} •{" "}
-              {item.type === "Premium"
+              {item.type === "membership"
                 ? `${item.premiumDays || 0} ngày`
                 : `${item.gemAmount || 0} Tiên Ngọc`}
             </div>

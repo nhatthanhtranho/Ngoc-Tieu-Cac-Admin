@@ -4,7 +4,13 @@ import { fetchTopups, TopupItem } from "../../../apis/payment-requests";
 import TopupFilter from "./TopupFilter";
 import TopupCard from "./TopUpCard";
 
-export default function TopupManager() {
+
+interface TopUpManagerProps {
+  topUpType: string;
+}
+
+
+export default function TopUpManager({ topUpType }: TopUpManagerProps) {
   const [topups, setTopups] = useState<TopupItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -12,9 +18,7 @@ export default function TopupManager() {
     "ALL" | "pending" | "approved" | "rejected"
   >("ALL");
 
-  useEffect(() => {
-    console.log("Topups updated:", topups);
-  }, [topups]);
+
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({
     start: "",
     end: "",
@@ -44,6 +48,7 @@ export default function TopupManager() {
           startDate: dateRange.start,
           endDate: dateRange.end,
           page,
+          topUpType
         });
 
         setTopups(data.requests);
@@ -55,7 +60,7 @@ export default function TopupManager() {
     };
 
     load();
-  }, [search, statusFilter, dateRange, page]);
+  }, [search, statusFilter, dateRange, page, topUpType]);
   // ❤️ mỗi khi filter đổi → gọi API lại
 
   return (

@@ -7,7 +7,7 @@ export interface TopupItem {
   status: "pending" | "approved" | "rejected";
   amount: number;
   method: string;
-  type: "Premium" | "Tiên Ngọc";
+  type: "topup" | "membership";
   planInfo: string;
   premiumDays: number;
   gemAmount: number;
@@ -24,6 +24,7 @@ export async function fetchTopups(params?: {
   startDate?: string;
   endDate?: string;
   page?: number;
+  topUpType?:string
 }): Promise<{
   page: number;
   limit: number;
@@ -38,6 +39,8 @@ export async function fetchTopups(params?: {
   // Chỉ lấy param có giá trị
   const cleanParams: any = {};
   if (params?.search) cleanParams.search = params.search;
+  if (params?.topUpType) cleanParams.topUpType = params.topUpType;
+
   if (params?.status) cleanParams.status = params.status;
   if (params?.startDate) cleanParams.startDate = params.startDate;
   if (params?.endDate) cleanParams.endDate = params.endDate;
@@ -55,12 +58,12 @@ export async function fetchTopups(params?: {
     status: item.status,
     amount: item.amount,
     method: item.transferType,
-    type: item.topUpType === "PREMIUM" ? "Premium" : "Tiên Ngọc",
+    type: item.type,
     planInfo:
-      item.topUpType === "PREMIUM"
-        ? `Nạp Premium ${item.premiumDay || 1} ngày`
+      item.type === "membership"
+        ? `Nạp Membership ${item.premiumDays || 1} ngày`
         : `Nạp Tiên Ngọc: ${item.tienNgoc || 0} viên`,
-    premiumDays: item.premiumDay || 0,
+    premiumDays: item.premiumDays || 0,
     gemAmount: item.tienNgoc || 0,
     transferContent: item.content || "",
     createdAt: item.createdAt,

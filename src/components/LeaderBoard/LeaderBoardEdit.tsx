@@ -14,8 +14,6 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import TopTruyen from "../TopList/TopTruyen";
-import { api } from "../../../apis";
-import { toast } from "react-toastify";
 
 type Book = { slug: string; title: string };
 
@@ -23,7 +21,7 @@ interface LeaderBoardEditProps {
   books: Book[];
   type: string;
   title: string;
-  generate?: () => void
+  generate?: () => void,
 }
 
 export default function LeaderBoardEdit({

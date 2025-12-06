@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 
 import { fetchAllBookSlugs } from "../../apis/books";
@@ -8,7 +8,7 @@ import LeaderBoardEdit from "../components/LeaderBoard/LeaderBoardEdit";
 import { generateHomePageData } from "../../apis/leaderboard";
 import { api } from "../../apis";
 
-type Book = { slug: string; title: string };
+type Book = { slug: string; title: string, categories: string[] };
 
 // 🔥 Đọc tab từ hash
 function getTabFromHash() {
@@ -26,6 +26,7 @@ const TAB_CONFIG: Record<
   {
     label: string;
     type: string;
+    category?: string;
     generate?: () => Promise<void>;
   }
 > = {
@@ -58,6 +59,8 @@ const TAB_CONFIG: Record<
   "tien-hiep": {
     label: "Tiên Hiệp",
     type: "tien-hiep",
+    category: "tien-hiep",
+
     generate: async () => {
       await api.get(`/admin/generate-trending?category=tien-hiep`);
       toast.success("Đã tạo xong Top Tiên Hiệp!");
@@ -66,6 +69,8 @@ const TAB_CONFIG: Record<
   "huyen-huyen": {
     label: "Huyền Huyễn",
     type: "huyen-huyen",
+    category: "huyen-huyen",
+
     generate: async () => {
       await api.get(`/admin/generate-trending?category=huyen-huyen`);
       toast.success("Đã tạo xong Top Huyền Huyễn!");
@@ -74,6 +79,8 @@ const TAB_CONFIG: Record<
   "do-thi": {
     label: "Đô Thị",
     type: "do-thi",
+    category: "do-thi",
+
     generate: async () => {
       await api.get(`/admin/generate-trending?category=do-thi`);
       toast.success("Đã tạo xong Top Đô Thị!");
@@ -82,6 +89,8 @@ const TAB_CONFIG: Record<
   "linh-di": {
     label: "Linh Dị",
     type: "linh-di",
+    category: "linh-di",
+
     generate: async () => {
       await api.get(`/admin/generate-trending?category=linh-di`);
       toast.success("Đã tạo xong Top Linh Dị!");
@@ -90,6 +99,8 @@ const TAB_CONFIG: Record<
   "trinh-tham": {
     label: "Trinh Thám",
     type: "trinh-tham",
+    category: "trinh-tham",
+
     generate: async () => {
       await api.get(`/admin/generate-trending?category=trinh-tham`);
       toast.success("Đã tạo xong Top Trinh Thám!");
@@ -98,6 +109,8 @@ const TAB_CONFIG: Record<
   "he-thong": {
     label: "Hệ Thống",
     type: "he-thong",
+    category: "he-thong",
+
     generate: async () => {
       await api.get(`/admin/generate-trending?category=he-thong`);
       toast.success("Đã tạo xong Top Hệ Thống!");
@@ -107,6 +120,8 @@ const TAB_CONFIG: Record<
   "di-gioi": {
     label: "Top Dị Giới",
     type: "di-gioi",
+    category: "di-gioi",
+
     generate: async () => {
       await api.get(`/admin/generate-trending?category=di-gioi`);
       toast.success("Đã tạo xong Top Dị Giới!");
@@ -115,6 +130,8 @@ const TAB_CONFIG: Record<
   "co-tri": {
     label: "Top Cơ Trí",
     type: "co-tri",
+    category: "co-tri",
+
     generate: async () => {
       await api.get(`/admin/generate-trending?category=co-tri`);
       toast.success("Đã tạo xong Top Cơ Trí!");
@@ -122,16 +139,19 @@ const TAB_CONFIG: Record<
   },
 
   "trong-sinh": {
-    label: "Top Trọng Sinh",
+    label: "Trọng Sinh",
     type: "trong-sinh",
+    category: "trong-sinh",
+
     generate: async () => {
       await api.get(`/admin/generate-trending?category=trong-sinh`);
       toast.success("Đã tạo xong Top Trọng Sinh!");
     },
   },
   "hai-huoc": {
-    label: "Top Hài Hước",
+    label: "Hài Hước",
     type: "hai-huoc",
+    category: "trong-sinh",
     generate: async () => {
       await api.get(`/admin/generate-trending?category=hai-huoc`);
       toast.success("Đã tạo xong Top Hài Hước!");
@@ -182,12 +202,21 @@ export default function LeaderBoard() {
     }
   };
 
-  const currentTab = TAB_CONFIG[activeTab];
+  const currentTab = useMemo(() => {
+    return TAB_CONFIG[activeTab];
+  }, [activeTab, TAB_CONFIG])
+
+  const filteredBook = useMemo(() => {
+    if (!currentTab.category) {
+      return books
+    }
+    return books.filter(item => item?.categories?.includes(currentTab.category as any))
+  }, [currentTab.category, books])
 
   return (
     <div className="container mx-auto pt-8">
       {loadingOverlay && (
-        <div className="fixed inset-0 bg-black/50 z-[999] flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/50 z-999 flex items-center justify-center">
           <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
@@ -229,7 +258,7 @@ export default function LeaderBoard() {
       {/* Content */}
       {currentTab && (
         <LeaderBoardEdit
-          books={books}
+          books={filteredBook}
           type={currentTab.type}
           title={currentTab.label}
           generate={currentTab.generate}

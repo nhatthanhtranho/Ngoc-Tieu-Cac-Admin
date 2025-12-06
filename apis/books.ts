@@ -44,7 +44,7 @@ export async function fetchBookBySlug(
 }
 
 export async function fetchAllBookSlugs(
-  setBookSlugs: (bookSlugs: Array<{ slug: string; title: string }>) => void,
+  setBookSlugs: (bookSlugs: Array<{ slug: string; title: string, categories: string[] }>) => void,
   status?: string[]
 ): Promise<Array<{ slug: string; title: string }>> {
   const validStatuses = ["hoan-thanh", "dang-ra"];
@@ -52,11 +52,11 @@ export async function fetchAllBookSlugs(
   const shouldSetStatus =
     Array.isArray(status) &&
     status.length === 1 &&
-    validStatuses.includes(status[0]);
+    validStatuses?.includes(status[0]);
 
   const query = shouldSetStatus ? `?status=${status[0]}` : "";
 
-  const res = await axios.get<Array<{ slug: string; title: string }>>(
+  const res = await axios.get<Array<{ slug: string; title: string, categories: string[] }>>(
     getEndpoint(`books/slugs${query}`)
   );
 

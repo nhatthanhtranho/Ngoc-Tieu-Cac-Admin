@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useAuthState } from "../src/stores/auth.store";
 
-const endpoint = "https://oj9nhy6u5f.execute-api.ap-southeast-1.amazonaws.com";
+const endpoint = "https://api.itruyenchu.com";
 
 export const api = axios.create({
   baseURL: endpoint,

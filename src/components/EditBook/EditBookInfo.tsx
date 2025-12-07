@@ -134,7 +134,7 @@ export default function EditBookInfo() {
 
       alert("✅ Upload banner thành công!");
       onChange("bannerURL", defaultUrl.split("?")[0]);
-      setPreview(null); // reset preview sau khi upload xong
+      setPreview(null);
       setBannerSet({});
     } catch (err) {
       console.error("Upload failed", err);
@@ -218,7 +218,7 @@ export default function EditBookInfo() {
                 { size: "default", label: "Default (450x675)", w: 450, h: 675 },
               ].map(({ size, label, w, h }) => {
                 const url = preview
-                  ? preview // Ưu tiên ảnh preview
+                  ? preview
                   : size === "small"
                   ? getSmallBannerURL(book.slug)
                   : getBannerURL(book.slug);
@@ -372,6 +372,8 @@ export default function EditBookInfo() {
                 className="mt-1"
               />
             </div>
+
+            {/* --- GRID 4 COL --- */}
             <div className="grid grid-cols-4 gap-4 mb-4">
               {/* PRICE */}
               <div>
@@ -385,8 +387,8 @@ export default function EditBookInfo() {
                     onChange={(e) => onChange("price", e.target.value)}
                     type="number"
                     className="w-full border border-gray-300 rounded-lg pl-10 p-2 
-                   focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
-                   appearance-none" // ẩn spinner
+                    focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
+                    appearance-none"
                   />
                 </div>
               </div>
@@ -403,15 +405,29 @@ export default function EditBookInfo() {
                     onChange={(e) => onChange("loves", e.target.value)}
                     type="number"
                     className="w-full border border-gray-300 rounded-lg pl-10 p-2 
-                   focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
-                   appearance-none"
+                    focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
+                    appearance-none"
                   />
                 </div>
               </div>
 
-              {/* VIEW */}
+              {/* VIEW — with Random Button */}
               <div>
-                <label className="block text-sm font-medium mb-1">View</label>
+                <label className="block text-sm font-medium mb-1 flex items-center gap-2">
+                  View
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const rand = Math.floor(50000 + Math.random() * 50000);
+                      onChange("totalViews", rand);
+                      toast.success(`🎯 Đã random view: ${rand.toLocaleString()}`);
+                    }}
+                    className="px-2 py-0.5 text-[12px] bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Random
+                  </button>
+                </label>
+
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none">
                     <Eye size={18} />
@@ -421,12 +437,13 @@ export default function EditBookInfo() {
                     value={book.totalViews}
                     type="number"
                     className="w-full border border-gray-300 rounded-lg pl-10 p-2 
-                   focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
-                   appearance-none"
+                    focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
+                    appearance-none"
                   />
                 </div>
               </div>
             </div>
+
             <div className="flex justify-between items-center">
               <div className="flex flex-row gap-4">
                 <button

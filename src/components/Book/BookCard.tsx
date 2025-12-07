@@ -4,6 +4,7 @@ import { Book as BookIcon, Bookmark } from "lucide-react";
 interface BookCardProps {
   slug: string;
   title: string;
+  currentChapter: number;
   thumbnailUrl: string;
   handleClick?: () => void;
   isBookmarked?: boolean;
@@ -19,6 +20,7 @@ export default function BookCard({
   isBookmarked = false,
   latestEbook = false,
   hasEbook = false,
+  currentChapter,
 
   onToggleBookmark,
 }: BookCardProps) {
@@ -56,6 +58,18 @@ export default function BookCard({
             }`}
         />
       </button>
+
+      <div
+        className={`absolute top-2 right-10 z-20 px-2 py-0.5
+              text-white text-[11px] font-medium rounded-md 
+              backdrop-blur-sm shadow-sm
+              ${currentChapter === 0
+            ? "bg-red-600"
+            : "bg-black/70"
+          }`}
+      >
+        Ch.{currentChapter}
+      </div>
 
       {hasEbook &&
 

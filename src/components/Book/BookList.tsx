@@ -76,7 +76,8 @@ export default function BookList({
             >
               <BookCard2
                 slug={book.slug}
-                title={`${book.title} (${book.currentChapter})`}
+                currentChapter={book.currentChapter || 0}
+                title={`${book.title}`}
                 handleClick={() => navigate(`/book/${book.slug}`)}
                 thumbnailUrl={getBannerURL(book.slug) || ""}
                 isBookmarked={bookmarks.includes(book.slug)}

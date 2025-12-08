@@ -41,7 +41,7 @@ export default function TopTruyen({
             title={book.title}
             currentChapter={book.currentChapter}
             thumbnailUrl={getSmallBannerURL(book.slug)}
-            handleClick={() => window.open(`/#/book/${book.slug}`, "_blank", "noopener,noreferrer")}
+            handleClick={() => window.open(`/Ngoc-Tieu-Cac-Admin/#/book/${book.slug}`, "_blank", "noopener,noreferrer")}
           />
         ))}
       </BookSwiper>

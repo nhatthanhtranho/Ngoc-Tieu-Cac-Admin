@@ -37,6 +37,8 @@ function formatDate(dateStr?: string) {
 export default function TopupCard({ item, onStatusChange }: Props) {
   const [open, setOpen] = useState(false);
 
+  const [preview, setPreview] = useState<string | null>(null); // ⬅️ zoom ảnh
+
   const [notes, setNotes] = useState({
     userNote: item.userNote ?? "",
     adminNote: item.adminNote ?? "",
@@ -85,7 +87,6 @@ export default function TopupCard({ item, onStatusChange }: Props) {
 
       console.log("Approve success:", res.data);
 
-      // ⬅️ báo lên để update UI
       onStatusChange(item.id, "approved");
     } catch (err: any) {
       console.error("Approve error:", err.response?.data || err.message);
@@ -182,12 +183,13 @@ export default function TopupCard({ item, onStatusChange }: Props) {
             {(item as any).paymentProofURL && (
               <div className="flex flex-col gap-2">
                 <span className="font-medium">Hình xác nhận thanh toán:</span>
+
                 <img
                   src={(item as any).paymentProofURL}
                   alt="Payment Proof"
-                  className="w-[200px] h-[300px] object-cover rounded-lg border border-emerald-700/30"
+                  className="w-[200px] h-[300px] object-cover rounded-lg border border-emerald-700/30 cursor-pointer hover:opacity-80 transition"
+                  onClick={() => setPreview((item as any).paymentProofURL)}
                 />
-
               </div>
             )}
           </div>
@@ -221,6 +223,20 @@ export default function TopupCard({ item, onStatusChange }: Props) {
               </button>
             )}
           </div>
+        </div>
+      )}
+
+      {/* 🔥 IMAGE PREVIEW MODAL */}
+      {preview && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[999]"
+          onClick={() => setPreview(null)}
+        >
+          <img
+            src={preview}
+            alt="Preview"
+            className="max-w-[90vw] max-h-[90vh] rounded-lg shadow-xl"
+          />
         </div>
       )}
     </div>

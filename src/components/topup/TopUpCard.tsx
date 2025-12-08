@@ -185,8 +185,9 @@ export default function TopupCard({ item, onStatusChange }: Props) {
                 <img
                   src={(item as any).paymentProofURL}
                   alt="Payment Proof"
-                  className="max-w-full rounded-lg border border-emerald-700/30"
+                  className="w-[200px] h-[300px] object-cover rounded-lg border border-emerald-700/30"
                 />
+
               </div>
             )}
           </div>

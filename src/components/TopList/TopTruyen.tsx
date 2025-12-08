@@ -40,7 +40,7 @@ export default function TopTruyen({
             key={book?.slug}
             title={book?.title}
             thumbnailUrl={getSmallBannerURL(book?.slug)}
-            handleClick={() => navigate(`/doc-truyen/${book?.slug}`)}
+            handleClick={() => navigate(`/book/${book?.slug}`)}
           />
         ))}
       </BookSwiper>

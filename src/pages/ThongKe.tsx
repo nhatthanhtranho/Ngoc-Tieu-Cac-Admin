@@ -111,6 +111,8 @@ export default function ThongKe() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
         {summary.map((item, idx) => {
+
+
           return (
             <div
               key={idx}
@@ -161,7 +163,7 @@ export default function ThongKe() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
         {/* View chart */}
         <div className="rounded-xl p-5 bg-white border hover:shadow-md transition">
           <div className="flex items-center gap-2 mb-4">

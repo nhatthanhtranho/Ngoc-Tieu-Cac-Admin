@@ -34,13 +34,14 @@ export default function TopTruyen({
   return (
     <div className={className || ""}>
       <BookSwiper renderMore={renderMore}>
-        {books.map((book, i) => (
+        {books.map((book) => (
           <BookCard
-            slug={book?.slug}
-            key={book?.slug}
-            title={book?.title}
-            thumbnailUrl={getSmallBannerURL(book?.slug)}
-            handleClick={() => navigate(`/book/${book?.slug}`)}
+            slug={book.slug}
+            key={book.slug}
+            title={book.title}
+            currentChapter={book.currentChapter}
+            thumbnailUrl={getSmallBannerURL(book.slug)}
+            handleClick={() => window.open(`/book/${book.slug}`, "_blank", "noopener,noreferrer")}
           />
         ))}
       </BookSwiper>

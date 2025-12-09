@@ -76,7 +76,7 @@ export default function BookList({
                 slug={book.slug}
                 currentChapter={book.currentChapter || 0}
                 title={`${book.title}`}
-                handleClick={() => window.open(`/book/${book.slug}`)}
+                handleClick={() => window.open(`/Ngoc-Tieu-Cac-Admin/#/book/${book.slug}`, "_blank", "noopener,noreferrer")}
                 thumbnailUrl={getBannerURL(book.slug) || ""}
                 isBookmarked={bookmarks.includes(book.slug)}
                 onToggleBookmark={() => toggleBookmark(book.slug)}

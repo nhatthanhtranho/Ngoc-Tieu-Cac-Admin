@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import BookCard2 from "./BookCard";
-import { useNavigate } from "react-router-dom";
 import { Book } from "../../../apis/books";
 import { getBannerURL } from "../../utils/getBannerURL";
 import Skeleton from "react-loading-skeleton";
@@ -14,7 +13,6 @@ export default function BookList({
   initialBooks: Book[];
   loading: boolean;
 }) {
-  const navigate = useNavigate();
 
   const [books, setBooks] = useState<Book[]>(initialBooks);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
@@ -78,7 +76,7 @@ export default function BookList({
                 slug={book.slug}
                 currentChapter={book.currentChapter || 0}
                 title={`${book.title}`}
-                handleClick={() => navigate(`/book/${book.slug}`)}
+                handleClick={() => window.open(`/book/${book.slug}`)}
                 thumbnailUrl={getBannerURL(book.slug) || ""}
                 isBookmarked={bookmarks.includes(book.slug)}
                 onToggleBookmark={() => toggleBookmark(book.slug)}

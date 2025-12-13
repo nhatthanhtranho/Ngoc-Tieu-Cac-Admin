@@ -103,7 +103,7 @@ export default function ThongKe() {
       datasets: [
         {
           label: "Lượt xem",
-          data: topViews.map((i: any) => i.totalViews),
+          data: topViews.map((i: any) => i.weekViews),
           backgroundColor: "rgba(59, 130, 246, 0.7)",
           borderColor: "rgba(37, 99, 235, 1)",
           borderWidth: 1,
@@ -144,7 +144,7 @@ export default function ThongKe() {
     async function fetchTopData() {
       const res = await api.get("/books/top-book");
       const topReader = await api.get("/admin/userRequests?range=24h");
-
+      console.log(res.data.topViews)
       setCountUsers(res.data.countUsers);
       setTopTienNgoc(res.data.topTienNgoc || []);
       setTopViews(res.data.topViews || []);

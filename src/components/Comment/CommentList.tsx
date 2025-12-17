@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, X } from "lucide-react";
 
 import { getCommentsInBook, seedComment } from "../../../apis/comments";
 import CommentItem from "./CommentItem";
@@ -11,18 +10,13 @@ interface CommentListProps {
   bookSlug: string;
 }
 
-export interface CommentUser {
-  _id: string;
-  name: string;
-  avatar?: string;
-}
-
 export interface Comment {
   _id: string;
   username: string;
   avatarUrl: string;
   content: string;
   createdAt: string;
+  parentId: string;
 }
 
 export default function CommentList({ bookSlug }: CommentListProps) {
@@ -107,7 +101,7 @@ export default function CommentList({ bookSlug }: CommentListProps) {
         />
 
         {/* Parent comment select */}
-        {/* <select
+        <select
           className="w-full rounded px-3 py-2 border"
           value={parentId}
           onChange={(e) => setParentId(e.target.value)}
@@ -115,10 +109,10 @@ export default function CommentList({ bookSlug }: CommentListProps) {
           <option value="">💬 Bình luận gốc</option>
           {comments.map((c) => (
             <option key={c._id} value={c._id}>
-              ↳ Reply: {c.user.name.slice(0, 20)}
+              ↳ Reply: {c.username.slice(0, 20)}
             </option>
           ))}
-        </select> */}
+        </select>
 
         <textarea
           className="w-full rounded px-3 py-2 min-h-[90px] border"
@@ -138,7 +132,9 @@ export default function CommentList({ bookSlug }: CommentListProps) {
       </div>
 
       {/* List */}
-      {comments.map(comment => <CommentItem comment={comment}/>)}
+      {comments.map((comment) => (
+        <CommentItem comment={comment} />
+      ))}
     </div>
   );
 }

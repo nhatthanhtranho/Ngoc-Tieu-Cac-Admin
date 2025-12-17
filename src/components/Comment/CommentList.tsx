@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { toast } from "react-toastify";
 
 import { getCommentsInBook, seedComment } from "../../../apis/comments";
 import CommentItem from "./CommentItem";
-import { toast } from "react-toastify";
+import { buildCommentTree } from "./CommentNode";
 
 interface CommentListProps {
   bookSlug: string;
@@ -17,6 +18,7 @@ export interface Comment {
   content: string;
   createdAt: string;
   parentId: string;
+  replies?: Comment[];
 }
 
 export default function CommentList({ bookSlug }: CommentListProps) {
@@ -29,6 +31,9 @@ export default function CommentList({ bookSlug }: CommentListProps) {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [content, setContent] = useState("");
   const [parentId, setParentId] = useState<string | "">("");
+  const commentTree = useMemo(() => {
+    return buildCommentTree(comments);
+  }, [comments]);
 
   // 🔹 Load comments
   const fetchComments = async () => {
@@ -132,8 +137,8 @@ export default function CommentList({ bookSlug }: CommentListProps) {
       </div>
 
       {/* List */}
-      {comments.map((comment) => (
-        <CommentItem comment={comment} />
+      {commentTree.map((comment) => (
+        <CommentItem key={comment._id} comment={comment} />
       ))}
     </div>
   );

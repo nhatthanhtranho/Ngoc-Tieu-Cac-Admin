@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Book, fetchAllBookSlugs, fetchBookBySlugs, syncBookData } from "../../apis/books";
 import BookList from "../components/Book/BookList";
 import CreateStoryFormModal from "../components/CreateStoryModal";
-import { UploadCloud } from "lucide-react";
+import { StarIcon, UploadCloud } from "lucide-react";
 import { api } from "../../apis";
+import Spinner from '../components/Spinner'
 
 function App() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -53,6 +54,14 @@ function App() {
     }
     setLoading(false)
   }
+
+  const generateRelativeBook = async () => {
+    setLoading(true)
+    await api.get('/admin/gemnerateRelativeBook')
+    setLoading(false)
+  }
+
+
   // Load bookmark từ localStorage
   useEffect(() => {
     const savedSlugs = localStorage.getItem("bookSlugs");
@@ -130,6 +139,7 @@ function App() {
 
   return (
     <div className="overflow-hidden">
+      <Spinner show={loading} />
       <div className="container mx-auto px-4 py-10 font-genshin text-genshin-dark">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
@@ -149,6 +159,14 @@ function App() {
             >
               <UploadCloud />
               Sync
+            </button>
+
+            <button
+              onClick={() => generateRelativeBook()}
+              className="flex flex-row px-4 py-2 bg-blue-400 text-white rounded-lg font-semibold hover:bg-blue-500 transition-colors"
+            >
+              <StarIcon />
+              Tạo Sách Theo Tác Giả
             </button>
           </div>
 

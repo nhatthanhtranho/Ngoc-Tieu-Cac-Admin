@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Book, fetchAllBookSlugs, fetchBookBySlugs } from "../../apis/books";
+import { Book, fetchAllBookSlugs, fetchBookBySlugs, syncBookData } from "../../apis/books";
 import BookList from "../components/Book/BookList";
 import CreateStoryFormModal from "../components/CreateStoryModal";
+import { UploadCloud } from "lucide-react";
+import { api } from "../../apis";
 
 function App() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -39,6 +41,18 @@ function App() {
     });
   };
 
+  const handleSync = async () => {
+    setLoading(true)
+    const books = (await api.get('/books/slugs')).data
+    const slugs = books.map((book: any) => book.slug)
+
+    for (const slug of slugs) {
+      await syncBookData(slug)
+      console.log('done', slug)
+      await new Promise(r => setTimeout(r, 500))
+    }
+    setLoading(false)
+  }
   // Load bookmark từ localStorage
   useEffect(() => {
     const savedSlugs = localStorage.getItem("bookSlugs");
@@ -122,31 +136,40 @@ function App() {
           <h1 className="text-4xl font-bold drop-shadow-glow tracking-wide">
             Danh Sách Truyện
           </h1>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="px-4 py-2 bg-yellow-400 text-white rounded-lg font-semibold hover:bg-yellow-500 transition-colors"
-          >
-            + Tạo truyện
-          </button>
+          <div className="flex flex-row gap-4">
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="px-4 py-2 bg-yellow-400 text-white rounded-lg font-semibold hover:bg-yellow-500 transition-colors"
+            >
+              + Tạo truyện
+            </button>
+            <button
+              onClick={() => handleSync()}
+              className="flex flex-row px-4 py-2 bg-green-400 text-white rounded-lg font-semibold hover:bg-green-500 transition-colors"
+            >
+              <UploadCloud />
+              Sync
+            </button>
+          </div>
+
+
         </div>
         <div className="flex gap-2 my-5">
           <button
             onClick={() => toggleStatusFilter("hoan-thanh")}
-            className={`text-white py-2 w-32 rounded shadow cursor-pointer ${
-              bookStatusFilter.includes("hoan-thanh")
-                ? "bg-emerald-500"
-                : "bg-gray-400"
-            }`}
+            className={`text-white py-2 w-32 rounded shadow cursor-pointer ${bookStatusFilter.includes("hoan-thanh")
+              ? "bg-emerald-500"
+              : "bg-gray-400"
+              }`}
           >
             Hoàn Thành
           </button>
           <button
             onClick={() => toggleStatusFilter("dang-ra")}
-            className={`text-white py-2 w-32 rounded shadow cursor-pointer ${
-              bookStatusFilter.includes("dang-ra")
-                ? "bg-emerald-500"
-                : "bg-gray-400"
-            }`}
+            className={`text-white py-2 w-32 rounded shadow cursor-pointer ${bookStatusFilter.includes("dang-ra")
+              ? "bg-emerald-500"
+              : "bg-gray-400"
+              }`}
           >
             Đang Ra
           </button>
@@ -182,9 +205,8 @@ function App() {
               <button
                 key={p}
                 onClick={() => setCurrentPage(p)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === p ? "bg-yellow-400 text-white" : "bg-gray-200"
-                }`}
+                className={`px-3 py-1 rounded ${currentPage === p ? "bg-yellow-400 text-white" : "bg-gray-200"
+                  }`}
               >
                 {p}
               </button>

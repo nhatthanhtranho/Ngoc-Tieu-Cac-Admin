@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Select from "react-select";
 import { useParams } from "react-router-dom";
 import Switch from "react-switch";
-import { BookA, BookOpen, CloudUpload } from "lucide-react";
+import { BookA, CloudUpload } from "lucide-react";
 import { toast } from "react-toastify";
 
 import ChapterListView from "./ChapterListView";

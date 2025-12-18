@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import BookCard2 from "./BookCard";
 import { Book } from "../../../apis/books";
-import { getBannerURL } from "../../utils/getBannerURL";
+import { getSmallBannerURL } from "../../utils/getBannerURL";
 import Skeleton from "react-loading-skeleton";
 
 export default function BookList({
@@ -77,7 +77,7 @@ export default function BookList({
                 currentChapter={book.currentChapter || 0}
                 title={`${book.title}`}
                 handleClick={() => window.open(`/Ngoc-Tieu-Cac-Admin/#/book/${book.slug}`, "_blank", "noopener,noreferrer")}
-                thumbnailUrl={getBannerURL(book.slug) || ""}
+                thumbnailUrl={getSmallBannerURL(book.slug) || ""}
                 isBookmarked={bookmarks.includes(book.slug)}
                 onToggleBookmark={() => toggleBookmark(book.slug)}
                 hasEbook={book.hasEbook}

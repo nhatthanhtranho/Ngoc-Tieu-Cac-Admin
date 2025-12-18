@@ -1,6 +1,6 @@
 const STORAGE = "https://ngoc-tieu-cac-public.s3.ap-southeast-1.amazonaws.com";
 
-export function getBannerURL(storySlug: string, type: string): string {
+export function getBannerURL(storySlug: string, type?: string): string {
   if(type === "ngang") return `${STORAGE}/${storySlug}/banner-ngang.webp`;
 
   return `${STORAGE}/${storySlug}/banner.webp`;

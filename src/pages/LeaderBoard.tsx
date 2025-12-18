@@ -7,6 +7,7 @@ import { fetchAllBookSlugs } from "../../apis/books";
 import LeaderBoardEdit from "../components/LeaderBoard/LeaderBoardEdit";
 import { generateHomePageData } from "../../apis/leaderboard";
 import { api } from "../../apis";
+import { Bomb } from "lucide-react";
 
 type Book = { slug: string; title: string, categories: string[] };
 
@@ -35,7 +36,12 @@ const TAB_CONFIG: Record<
   top_view: { label: "Xem Nhiều", type: "top_view" },
   top_love: { label: "Yêu Thích", type: "top_love" },
   trending_now: { label: "Xu Hướng", type: "trending_now" },
-  hoan_thanh: { label: "Hoàn Thành", type: "hoan-thanh" },
+  hoan_thanh: {
+    label: "Hoàn Thành", type: "hoan-thanh", generate: async () => {
+      await api.get(`/admin/generate-trending?category=tien-hiep`);
+      toast.success("Đã tạo xong Top Tiên Hiệp!");
+    },
+  },
 
   latest: {
     label: "Truyện Mới",
@@ -202,6 +208,31 @@ export default function LeaderBoard() {
     }
   };
 
+
+  // 🔥 Generate Home Data
+  const handleGenerateTop = async () => {
+    try {
+      setLoadingOverlay(true);
+
+      // Lọc các tab có hàm generate
+      const tabsWithGenerate = Object.values(TAB_CONFIG).filter(tab => tab.generate);
+
+      // Chạy tuần tự tất cả các generate
+      for (const tab of tabsWithGenerate) {
+        await tab.generate?.();
+      }
+
+      toast.success("Đã tạo xong tất cả các Top!");
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      toast.error("Lỗi khi tạo các Top");
+    } finally {
+      setLoadingOverlay(false);
+    }
+  };
+
+
   const currentTab = useMemo(() => {
     return TAB_CONFIG[activeTab];
   }, [activeTab, TAB_CONFIG])
@@ -221,7 +252,25 @@ export default function LeaderBoard() {
         </div>
       )}
 
-      <div className="flex justify-end mb-5">
+      <div className="flex justify-end mb-5 flex-row gap-3">
+        <button
+          onClick={handleGenerateTop}
+          disabled={loadingOverlay}
+          className={`px-4 py-2 rounded shadow cursor-pointer flex items-center gap-2 text-white 
+            ${loadingOverlay
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600"
+            }
+          `}
+        >
+          <Bomb />
+
+          {loadingOverlay && (
+            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          )}
+          {loadingOverlay ? "Đang tạo..." : "Tạo Top"}
+        </button>
+
         <button
           onClick={handleGenerateHomeData}
           disabled={loadingOverlay}
@@ -237,6 +286,8 @@ export default function LeaderBoard() {
           )}
           {loadingOverlay ? "Đang tạo..." : "Tạo Home Data"}
         </button>
+
+
       </div>
 
       {/* Tabs */}

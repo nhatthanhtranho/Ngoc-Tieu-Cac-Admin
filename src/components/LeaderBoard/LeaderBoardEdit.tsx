@@ -54,7 +54,7 @@ export default function LeaderBoardEdit({
 
   const handleAddToLeaderboard = (slug: string) => {
     if (!leaderboard.includes(slug)) {
-      setLeaderboardState([...leaderboard, slug]);
+      setLeaderboardState([slug, ...leaderboard]);
     }
   };
 
@@ -96,7 +96,7 @@ export default function LeaderBoardEdit({
 
   const findBookTitle = (slug: string) =>
     books.find((b) => b.slug === slug)?.title || slug;
-  
+
   return (
     <div className="container mx-auto py-8">
       <h2 className="text-3xl font-bold mb-8 text-gray-800 flex items-center gap-2">

@@ -40,25 +40,23 @@ export default function CropImage({
     // 1 / 4 → banner ngang
     if (Math.abs(aspectRatio - 1 / 4) < 0.001) {
       return {
-        width:1024,
-        height:256
+        width: 1024,
+        height: 256
       }
     }
 
     // 2 / 3 → ảnh dọc
     return {
-      width:380,
-      height:600
+      width: 380,
+      height: 600
     }
   }, [aspectRatio]);
 
 
 
 
-  const WEBP_CONFIG = {
-    mime: "image/webp",
-    quality: 1,
-  };
+  const WEBP_CONFIG_SMALL = { mime: "image/webp", quality: 0.5 };
+  const WEBP_CONFIG_DEFAULT = { mime: "image/webp", quality: 0.8 };
 
   // ==================== 🧠 STATE ====================
   const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -98,7 +96,8 @@ export default function CropImage({
     image: HTMLImageElement,
     crop: any,
     targetWidth: number,
-    targetHeight: number
+    targetHeight: number,
+    config: { mime: string; quality: number }
   ): Promise<string> => {
     const canvas = document.createElement("canvas");
     canvas.width = targetWidth;
@@ -106,7 +105,9 @@ export default function CropImage({
 
     const ctx = canvas.getContext("2d")!;
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
+    ctx.imageSmoothingQuality = "medium";
+    ctx.fillStyle = "#fff"; // nền trắng
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
 
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
@@ -130,8 +131,8 @@ export default function CropImage({
           reader.onloadend = () => resolve(reader.result as string);
           reader.readAsDataURL(blob!);
         },
-        WEBP_CONFIG.mime,
-        WEBP_CONFIG.quality
+        config.mime,
+        config.quality
       );
     });
   };
@@ -148,14 +149,16 @@ export default function CropImage({
       image,
       croppedAreaPixels,
       IMAGE_OPTIMIZE_CONFIG.smallSize.width,
-      IMAGE_OPTIMIZE_CONFIG.smallSize.height
+      IMAGE_OPTIMIZE_CONFIG.smallSize.height,
+      WEBP_CONFIG_SMALL
     );
 
     const defaultImg = await resizeAndConvertWebp(
       image,
       croppedAreaPixels,
       IMAGE_OPTIMIZE_CONFIG.defaultSize.width,
-      IMAGE_OPTIMIZE_CONFIG.defaultSize.height
+      IMAGE_OPTIMIZE_CONFIG.defaultSize.height,
+      WEBP_CONFIG_DEFAULT
     );
 
     onCropComplete({ small, default: defaultImg });

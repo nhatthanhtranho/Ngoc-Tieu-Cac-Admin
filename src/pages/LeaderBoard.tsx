@@ -32,13 +32,16 @@ const TAB_CONFIG: Record<
   }
 > = {
   banners: { label: "Banners", type: "banners" },
-  recommended: { label: "Đề Cử", type: "recommended" },
+  recommended: { label: "Đề Cử", type: "recommended",  generate: async () => {
+    await api.get(`/admin/generate-trending-recommend`);
+    toast.success("Đã tạo xong Top Tiên Hiệp!");
+  }, },
   top_view: { label: "Xem Nhiều", type: "top_view" },
   top_love: { label: "Yêu Thích", type: "top_love" },
   trending_now: { label: "Xu Hướng", type: "trending_now" },
   hoan_thanh: {
     label: "Hoàn Thành", type: "hoan-thanh", generate: async () => {
-      await api.get(`/admin/generate-trending?category=tien-hiep`);
+      await api.get(`/admin/generate-trending?category=hoan-thanh`);
       toast.success("Đã tạo xong Top Tiên Hiệp!");
     },
   },

@@ -21,3 +21,8 @@ export async function seedComment(
   });
   return res.data;
 }
+
+export async function getSeedUsers() {
+  const res = await api.get(`/admin/get-seed-users`);
+  return res.data;
+}

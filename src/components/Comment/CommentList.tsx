@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { getCommentsInBook, seedComment } from "../../../apis/comments";
 import CommentItem from "./CommentItem";
 import { buildCommentTree } from "./CommentNode";
+import { useSeedUserStore } from "../../stores/seed.stote";
 
 interface CommentListProps {
   bookSlug: string;
@@ -24,6 +25,8 @@ export interface Comment {
 export default function CommentList({ bookSlug }: CommentListProps) {
   const [comments, setComments] = useState<Comment[]>([]);
 
+  const { fetchSeedUsers, getSeedUsers } = useSeedUserStore();
+
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -34,6 +37,8 @@ export default function CommentList({ bookSlug }: CommentListProps) {
   const commentTree = useMemo(() => {
     return buildCommentTree(comments);
   }, [comments]);
+
+  const users = getSeedUsers();
 
   // 🔹 Load comments
   const fetchComments = async () => {
@@ -49,6 +54,7 @@ export default function CommentList({ bookSlug }: CommentListProps) {
 
   useEffect(() => {
     fetchComments();
+    fetchSeedUsers();
   }, [bookSlug]);
 
   // 🔹 Submit admin comment
@@ -91,6 +97,23 @@ export default function CommentList({ bookSlug }: CommentListProps) {
 
       {/* Admin Add Comment */}
       <div className="mb-6 p-4 rounded-lg border border-slate-700 space-y-3">
+        <select
+          className="w-full rounded px-3 py-2 border"
+          value={username}
+          onChange={(e) => {
+            const user = users.find((u) => u.username === e.target.value);
+            if (!user) return;
+            setUserName(user.username);
+            setAvatarUrl(user.avatarUrl);
+          }}
+        >
+          <option value="">👤 Chọn seed user</option>
+          {users.map((u) => (
+            <option key={u.username} value={u.username}>
+              {u.username}
+            </option>
+          ))}
+        </select>
         <input
           className="w-full rounded px-3 py-2 border"
           placeholder="Tên người dùng"

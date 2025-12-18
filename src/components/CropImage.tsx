@@ -55,8 +55,8 @@ export default function CropImage({
 
 
 
-  const WEBP_CONFIG_SMALL = { mime: "image/webp", quality: 0.55 };
-  const WEBP_CONFIG_DEFAULT = { mime: "image/webp", quality: 0.75 };
+  const WEBP_CONFIG_SMALL = { mime: "image/webp", quality: 0.5 };
+  const WEBP_CONFIG_DEFAULT = { mime: "image/webp", quality: 0.8 };
 
   // ==================== 🧠 STATE ====================
   const [imageSrc, setImageSrc] = useState<string | null>(null);

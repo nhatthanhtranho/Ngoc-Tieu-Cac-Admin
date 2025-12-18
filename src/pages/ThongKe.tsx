@@ -21,10 +21,14 @@ export default function ThongKe() {
   const [topViews, setTopViews] = useState([]);
   const [history, setHistory] = useState<any[]>([]);
   const [topReaders, setTopReaders] = useState<any[]>([]);
+  const [totalBooks, setTotalBooks] = useState(0)
   const [countUsers, setCountUsers] = useState<{
     totalMembershipUsers: number;
-    totalUsers: number;
-  }>({ totalMembershipUsers: 0, totalUsers: 0 });
+    newYesterday: number;
+    newToday: number;
+
+    totalNew: number;
+  }>({ totalMembershipUsers: 0, newToday: 0, newYesterday: 0, totalNew: 0 });
 
   // ----------------------------
   // 🚫 HANDLE BAN USER
@@ -57,26 +61,24 @@ export default function ThongKe() {
   const summary = useMemo(() => {
     return [
       {
-        label: "Tiền Ngọc Nạp",
-        value: 1234567,
-        prevValue: 1000000,
-        icon: <Coins className="w-6 h-6 text-gray-800" />,
-      },
-      {
-        label: "Tiền Ngọc Tiêu",
-        value: 987654,
-        prevValue: 1200000,
-        icon: <Coins className="w-6 h-6 text-gray-800" />,
-      },
-      {
-        label: "Truyện Mới",
-        value: 45,
+        label: "Tổng Truyện",
+        value: totalBooks,
         prevValue: 40,
         icon: <Book className="w-6 h-6 text-gray-800" />,
       },
       {
-        label: "Người Dùng",
-        value: countUsers.totalUsers,
+        label: "Người Dùng Mới Hôm Qua",
+        value: countUsers.newYesterday,
+        icon: <User className="w-6 h-6 text-gray-800" />,
+      },
+      {
+        label: "Người Dùng Mới Hôm Nay",
+        value: countUsers.newToday,
+        icon: <User className="w-6 h-6 text-gray-800" />,
+      },
+      {
+        label: "Tổng Người Dùng Mới",
+        value: countUsers.totalNew,
         icon: <User className="w-6 h-6 text-gray-800" />,
       },
       {
@@ -144,12 +146,13 @@ export default function ThongKe() {
     async function fetchTopData() {
       const res = await api.get("/books/top-book");
       const topReader = await api.get("/admin/userRequests?range=24h");
-      console.log(res.data.topViews)
+      console.log('res user', res.data.countUsers)
       setCountUsers(res.data.countUsers);
       setTopTienNgoc(res.data.topTienNgoc || []);
       setTopViews(res.data.topViews || []);
       setHistory(sampleHistory);
-      setTopReaders(topReader.data);
+      setTopReaders(topReader.data.data);
+      setTotalBooks(res.data.totalBooks)
     }
     fetchTopData();
   }, []);
@@ -185,17 +188,16 @@ export default function ThongKe() {
             <button
               key={key}
               onClick={() => setFilter(key)}
-              className={`px-3 py-1 rounded-full font-medium transition text-sm ${
-                filter === key
-                  ? "bg-black text-white shadow"
-                  : "bg-white text-gray-700 hover:bg-gray-200"
-              }`}
+              className={`px-3 py-1 rounded-full font-medium transition text-sm ${filter === key
+                ? "bg-black text-white shadow"
+                : "bg-white text-gray-700 hover:bg-gray-200"
+                }`}
             >
               {key === "today"
                 ? "Hôm nay"
                 : key === "7days"
-                ? "7 ngày"
-                : "30 ngày"}
+                  ? "7 ngày"
+                  : "30 ngày"}
             </button>
           ))}
         </div>
@@ -203,17 +205,17 @@ export default function ThongKe() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
-        <div className="rounded-xl p-5 bg-white border hover:shadow-md transition">
+        <div className="rounded-xl transition">
           <div className="flex items-center gap-2 mb-4">
             <Eye className="text-gray-800" />
             <h2 className="text-lg font-semibold text-gray-900">
-              Top 10 truyện có lượt view cao nhất
+              Top truyện có lượt view cao nhất
             </h2>
           </div>
           <Bar data={viewData} options={chartOptions} />
         </div>
 
-        <div className="rounded-xl p-5 bg-white border hover:shadow-md transition">
+        {/* <div className="rounded-xl p-5 bg-white border hover:shadow-md transition">
           <div className="flex items-center gap-2 mb-4">
             <Coins className="text-gray-800" />
             <h2 className="text-lg font-semibold text-gray-900">
@@ -221,11 +223,11 @@ export default function ThongKe() {
             </h2>
           </div>
           <Bar data={tienNgocData} options={chartOptions} />
-        </div>
+        </div> */}
       </div>
 
       {/* History Table */}
-      <div className="mt-8">
+      {/* <div className="mt-8">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           Lịch sử sử dụng Tiền Ngọc
         </h2>
@@ -259,11 +261,10 @@ export default function ThongKe() {
                     {formatNumber(row.amount)}
                   </td>
                   <td
-                    className={`px-4 py-2 text-sm font-medium ${
-                      row.type === "Nạp"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
+                    className={`px-4 py-2 text-sm font-medium ${row.type === "Nạp"
+                      ? "text-green-600"
+                      : "text-red-600"
+                      }`}
                   >
                     {row.type}
                   </td>
@@ -275,7 +276,7 @@ export default function ThongKe() {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
 
       {/* Top Readers Table */}
       <div className="mt-10">
@@ -299,9 +300,9 @@ export default function ThongKe() {
             </thead>
 
             <tbody className="bg-white divide-y divide-gray-100">
-              {topReaders.map((row, idx) => (
+              {topReaders?.map((row, idx) => (
                 <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                  
+
                   <td className="px-4 py-2 text-sm text-gray-700">
                     {row.email}
                     {row.banned && (

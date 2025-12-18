@@ -115,7 +115,7 @@ export async function getUploadBookBannerUrl(bookSlug: string) {
 }
 
 export async function getUploadBookBannerNgangUrl(bookSlug: string) {
-  const response = await api.get(`/books/banner-ngang/upload/${bookSlug}`);
+  const response = await api.get(`/admin/banner-ngang/upload/${bookSlug}`);
   return response.data;
 }
 

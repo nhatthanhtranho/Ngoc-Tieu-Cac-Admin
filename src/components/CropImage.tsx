@@ -1,52 +1,99 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+
 import { Image as ImageIcon } from "iconsax-react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import Cropper from "react-easy-crop";
 import Slider from "@mui/material/Slider";
 
 interface CropImageProps {
   onCropComplete: (result: { small: string; default: string }) => void;
-  aspectRatio: number;
+  aspectRatio: number; // chỉ nhận 1/4 hoặc 2/3
 }
 
-// ==================== ⚙️ CONFIG DỄ TÙY CHỈNH ====================
+export default function CropImage({
+  onCropComplete,
+  aspectRatio,
+}: CropImageProps) {
+  // ==================== ⚙️ CONFIG THEO ASPECT ====================
+  const IMAGE_OPTIMIZE_CONFIG = useMemo(() => {
+    // 1 / 4 → banner ngang
+    if (Math.abs(aspectRatio - 1 / 4) < 0.001) {
+      return {
+        aspectRatio: 1 / 4,
+        smallSize: { width: 375, height: 175 },
+        defaultSize: { width: 1024, height: 256 },
+        cropBox: { width: 400, height: 100 }, // 👈 đúng tỉ lệ 1/4
+      };
+    }
 
-// ================================================================
+    // 2 / 3 → ảnh dọc
+    return {
+      aspectRatio: 2 / 3,
+      smallSize: { width: 200, height: 300 },
+      defaultSize: { width: 450, height: 675 },
+      cropBox: { width: 300, height: 450 },
+    };
+  }, [aspectRatio]);
 
-export default function CropImage({ onCropComplete, aspectRatio }: CropImageProps) {
+  const CROPSIZE = useMemo(() => {
+    // 1 / 4 → banner ngang
+    if (Math.abs(aspectRatio - 1 / 4) < 0.001) {
+      return {
+        width:1024,
+        height:256
+      }
+    }
 
-  const IMAGE_OPTIMIZE_CONFIG = {
-    aspectRatio,
-    smallSize: { width: 200, height: 300 }, // thumbnail nhỏ
-    defaultSize: { width: 450, height: 675 }, // ảnh mặc định
-    webpQuality: 1,
-    webpMime: "image/webp",
+    // 2 / 3 → ảnh dọc
+    return {
+      width:400,
+      height:600
+    }
+  }, [aspectRatio]);
+
+
+
+
+  const WEBP_CONFIG = {
+    mime: "image/webp",
+    quality: 1,
   };
 
-
+  // ==================== 🧠 STATE ====================
   const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [fileName, setFileName] = useState("");
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
-  const [fileName, setFileName] = useState<string>("");
 
-  // Đọc file khi người dùng chọn ảnh
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setFileName(file.name);
-      const reader = new FileReader();
-      reader.onload = () => setImageSrc(reader.result as string);
-      reader.readAsDataURL(file);
-    }
+  // ==================== 🔄 RESET KHI ĐỔI ASPECT ====================
+  useEffect(() => {
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+  }, [IMAGE_OPTIMIZE_CONFIG.aspectRatio]);
+
+  // ==================== 📂 LOAD IMAGE ====================
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+
+    const file = e.target.files[0];
+    setFileName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = () => setImageSrc(reader.result as string);
+    reader.readAsDataURL(file);
   };
 
-  const onCropCompleteCallback = useCallback((_: any, croppedPixels: any) => {
-    setCroppedAreaPixels(croppedPixels);
-  }, []);
+  const onCropCompleteCallback = useCallback(
+    (_: any, croppedPixels: any) => {
+      setCroppedAreaPixels(croppedPixels);
+    },
+    []
+  );
 
-  // --- Hàm resize & convert WebP ---
+  // ==================== 🖼️ RESIZE + WEBP ====================
   const resizeAndConvertWebp = async (
     image: HTMLImageElement,
     crop: any,
@@ -56,6 +103,7 @@ export default function CropImage({ onCropComplete, aspectRatio }: CropImageProp
     const canvas = document.createElement("canvas");
     canvas.width = targetWidth;
     canvas.height = targetHeight;
+
     const ctx = canvas.getContext("2d")!;
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
@@ -75,60 +123,55 @@ export default function CropImage({ onCropComplete, aspectRatio }: CropImageProp
       targetHeight
     );
 
-    return new Promise<string>((resolve) => {
+    return new Promise((resolve) => {
       canvas.toBlob(
         (blob) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result as string);
           reader.readAsDataURL(blob!);
         },
-        IMAGE_OPTIMIZE_CONFIG.webpMime,
-        IMAGE_OPTIMIZE_CONFIG.webpQuality
+        WEBP_CONFIG.mime,
+        WEBP_CONFIG.quality
       );
     });
   };
 
-  // --- Tạo 3 kích thước ảnh ---
-  const showCroppedImage = useCallback(async () => {
+  // ==================== ✂️ CROP ====================
+  const handleCrop = useCallback(async () => {
     if (!imageSrc || !croppedAreaPixels) return;
 
     const image = new Image();
     image.src = imageSrc;
     await image.decode();
 
-    const { smallSize, defaultSize } = IMAGE_OPTIMIZE_CONFIG;
-
     const small = await resizeAndConvertWebp(
       image,
       croppedAreaPixels,
-      smallSize.width,
-      smallSize.height
+      IMAGE_OPTIMIZE_CONFIG.smallSize.width,
+      IMAGE_OPTIMIZE_CONFIG.smallSize.height
     );
+
     const defaultImg = await resizeAndConvertWebp(
       image,
       croppedAreaPixels,
-      defaultSize.width,
-      defaultSize.height
+      IMAGE_OPTIMIZE_CONFIG.defaultSize.width,
+      IMAGE_OPTIMIZE_CONFIG.defaultSize.height
     );
 
-    console.table([
-      { Type: "Small", Size: `${smallSize.width}x${smallSize.height}` },
-      { Type: "Default", Size: `${defaultSize.width}x${defaultSize.height}` },
-    ]);
-
     onCropComplete({ small, default: defaultImg });
-  }, [imageSrc, croppedAreaPixels, onCropComplete]);
+  }, [imageSrc, croppedAreaPixels, IMAGE_OPTIMIZE_CONFIG, onCropComplete]);
 
+  // ==================== 🧩 UI ====================
   return (
     <div className="flex flex-col items-center justify-center">
-      {/* Upload ảnh */}
+      {/* Upload */}
       <label
         htmlFor="upload-file"
         className="cursor-pointer inline-flex items-center justify-center px-5 py-2 mt-2
                    bg-amber-500 text-white font-medium rounded-lg shadow-md
                    hover:bg-amber-600 transition-all duration-300 hover:scale-105"
       >
-        <ImageIcon size={25} color="white" className="mr-2" />
+        <ImageIcon size={24} color="white" className="mr-2" />
         Chọn ảnh để Crop
       </label>
       <input
@@ -138,26 +181,25 @@ export default function CropImage({ onCropComplete, aspectRatio }: CropImageProp
         onChange={handleFileChange}
         className="hidden"
       />
+
       {fileName && (
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 italic">
-          📸 {fileName}
-        </p>
+        <p className="mt-2 text-sm text-gray-600 italic">📸 {fileName}</p>
       )}
 
-      {/* Giao diện crop */}
+      {/* Cropper */}
       {imageSrc && (
         <div
           style={{
             position: "relative",
-            width: 400,
-            height: 400,
             background: "#222",
-            marginTop: 10,
+            marginTop: 12,
             borderRadius: 10,
             overflow: "hidden",
+            ...CROPSIZE
           }}
         >
           <Cropper
+            key={IMAGE_OPTIMIZE_CONFIG.aspectRatio} // 👈 FIX QUAN TRỌNG
             image={imageSrc}
             crop={crop}
             zoom={zoom}
@@ -165,11 +207,12 @@ export default function CropImage({ onCropComplete, aspectRatio }: CropImageProp
             onCropChange={setCrop}
             onZoomChange={setZoom}
             onCropComplete={onCropCompleteCallback}
+            cropSize={CROPSIZE}
           />
         </div>
       )}
 
-      {/* Slider zoom + nút crop */}
+      {/* Zoom + Crop */}
       {imageSrc && (
         <div className="mt-4 flex flex-col items-center">
           <Slider
@@ -181,11 +224,11 @@ export default function CropImage({ onCropComplete, aspectRatio }: CropImageProp
             sx={{ width: 200, color: "#fbbf24" }}
           />
           <button
-            onClick={showCroppedImage}
+            onClick={handleCrop}
             className="mt-3 px-5 py-2 bg-sky-600 text-white rounded-lg font-semibold
                        hover:bg-sky-700 hover:scale-105 transition-all duration-300"
           >
-            ✂️ Crop & Tạo 3 Ảnh WebP
+            ✂️ Crop & Xuất WebP
           </button>
         </div>
       )}

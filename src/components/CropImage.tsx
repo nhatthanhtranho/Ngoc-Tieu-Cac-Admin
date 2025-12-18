@@ -7,19 +7,24 @@ import Slider from "@mui/material/Slider";
 
 interface CropImageProps {
   onCropComplete: (result: { small: string; default: string }) => void;
+  aspectRatio: number;
 }
 
 // ==================== ⚙️ CONFIG DỄ TÙY CHỈNH ====================
-const IMAGE_OPTIMIZE_CONFIG = {
-  aspectRatio: 2 / 3,
-  smallSize: { width: 200, height: 300 }, // thumbnail nhỏ
-  defaultSize: { width: 450, height: 675 }, // ảnh mặc định
-  webpQuality: 1,
-  webpMime: "image/webp",
-};
+
 // ================================================================
 
-export default function CropImage({ onCropComplete }: CropImageProps) {
+export default function CropImage({ onCropComplete, aspectRatio }: CropImageProps) {
+
+  const IMAGE_OPTIMIZE_CONFIG = {
+    aspectRatio,
+    smallSize: { width: 200, height: 300 }, // thumbnail nhỏ
+    defaultSize: { width: 450, height: 675 }, // ảnh mặc định
+    webpQuality: 1,
+    webpMime: "image/webp",
+  };
+
+
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);

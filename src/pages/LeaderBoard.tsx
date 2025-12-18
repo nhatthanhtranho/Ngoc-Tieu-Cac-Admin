@@ -57,10 +57,7 @@ const TAB_CONFIG: Record<
   "latest-chapters": {
     label: "Truyện Hot",
     type: "latest-chapter",
-    generate: async () => {
-      await api.get(`/admin/generate-trending-latest-chapter`);
-      toast.success("Đã tạo xong Top Chương Mới!");
-    },
+
   },
 
 

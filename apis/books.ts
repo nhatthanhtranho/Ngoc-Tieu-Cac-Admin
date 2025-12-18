@@ -12,6 +12,7 @@ export interface Book {
   description: string;
   dichGia: string;
   bannerURL?: string;
+  bannerNgangURL?: string;
   currentChapter: number;
   slug: string;
   bannerImage?: { default: string; small: string; medium: string };
@@ -110,6 +111,11 @@ export async function checkBookSlugValid(bookSlug: string): Promise<boolean> {
 
 export async function getUploadBookBannerUrl(bookSlug: string) {
   const response = await api.get(`/books/banner/upload/${bookSlug}`);
+  return response.data;
+}
+
+export async function getUploadBookBannerNgangUrl(bookSlug: string) {
+  const response = await api.get(`/books/banner-ngang/upload/${bookSlug}`);
   return response.data;
 }
 

@@ -2,36 +2,38 @@ import { useState, useEffect } from "react";
 import Select from "react-select";
 import { useParams } from "react-router-dom";
 import Switch from "react-switch";
-import { BookA, CloudUpload } from "lucide-react";
+import { BookA, CloudUpload, Eye, Heart, Tag } from "lucide-react";
 import { toast } from "react-toastify";
 
 import ChapterListView from "./ChapterListView";
+import CommentList from "../Comment/CommentList";
+import CropImage from "../CropImage";
 
 import {
   Book,
   fetchBookBySlug,
+  getUploadBookBannerNgangUrl,
   getUploadBookBannerUrl,
   syncBookData,
   updateBook,
 } from "../../../apis/books";
-import CropImage from "../CropImage";
 import { categories } from "../../constants/category";
 import { getBannerURL, getSmallBannerURL } from "../../utils/getBannerURL";
-import CommentList from "../Comment/CommentList";
-import { Eye, Heart, Tag } from "lucide-react";
 import { api } from "../../../apis";
 
 export default function EditBookInfo() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug || "";
+
   const [book, setBook] = useState<Book | null>(null);
   const [originalBook, setOriginalBook] = useState<Book | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [previewNgang, setPreviewNgang] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
-  const [bannerSet, setBannerSet] = useState<{
-    small?: string;
-    default?: string;
-  }>({});
+  const [cropType, setCropType] = useState<"vuong" | "ngang">("vuong");
+
+  const [bannerSet, setBannerSet] = useState<{ small?: string; default?: string }>({});
+  const [bannerNgangSet, setBannerNgangSet] = useState<{ small?: string; default?: string }>({});
   const [loading, setLoading] = useState(true);
 
   const fallbackBanner = "/assets/images/create-book/default-banner.webp";
@@ -59,8 +61,7 @@ export default function EditBookInfo() {
       const oldValue = oldData[key];
       if (Array.isArray(newValue) && Array.isArray(oldValue)) {
         const isDifferent =
-          newValue.length !== oldValue.length ||
-          newValue.some((v, i) => v !== oldValue[i]);
+          newValue.length !== oldValue.length || newValue.some((v, i) => v !== oldValue[i]);
         if (isDifferent) (changed as any)[key] = newValue;
       } else if (newValue !== oldValue) {
         (changed as any)[key] = newValue;
@@ -88,17 +89,18 @@ export default function EditBookInfo() {
       setOriginalBook(book);
     } catch (err) {
       console.error("❌ Lỗi khi lưu:", err);
-      toast.error(
-        `Đã xảy ra lỗi khi lưu thay đổi: ${
-          err instanceof Error ? err.message : err
-        }`
-      );
+      toast.error(`Đã xảy ra lỗi khi lưu thay đổi: ${err instanceof Error ? err.message : err}`);
     }
   };
 
   const handleCropComplete = (result: { small: string; default: string }) => {
-    setBannerSet(result);
-    setPreview(result.default);
+    if (cropType === "ngang") {
+      setBannerNgangSet(result);
+      setPreviewNgang(result.default);
+    } else {
+      setBannerSet(result);
+      setPreview(result.default);
+    }
     setShowCrop(false);
   };
 
@@ -142,6 +144,36 @@ export default function EditBookInfo() {
     }
   };
 
+  const uploadBannerNgang = async () => {
+    if (!book || !bannerNgangSet.default || !bannerNgangSet.small) return;
+
+    try {
+      const data = await getUploadBookBannerNgangUrl(book.slug);
+      const { defaultUrl, smallUrl } = data;
+
+      await Promise.all([
+        fetch(defaultUrl, {
+          method: "PUT",
+          body: base64ToBlob(bannerNgangSet.default),
+          headers: { "Content-Type": "image/webp" },
+        }),
+        fetch(smallUrl, {
+          method: "PUT",
+          body: base64ToBlob(bannerNgangSet.small),
+          headers: { "Content-Type": "image/webp" },
+        }),
+      ]);
+
+      alert("✅ Upload banner ngang thành công!");
+      onChange("bannerNgangURL", defaultUrl.split("?")[0]);
+      setPreviewNgang(null);
+      setBannerNgangSet({});
+    } catch (err) {
+      console.error("Upload failed", err);
+      alert("❌ Upload banner ngang thất bại.");
+    }
+  };
+
   if (!book)
     return (
       <div className="p-6 text-center text-red-500">
@@ -153,18 +185,12 @@ export default function EditBookInfo() {
     <>
       <div className="container px-4 lg:px-0 mx-auto pt-6">
         <div className="flex gap-2 items-center justify-between mb-5">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Chỉnh sửa thông tin truyện
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900">Chỉnh sửa thông tin truyện</h2>
           <button
             onClick={handleSyncBook}
             disabled={loading}
-            className={`p-3 rounded shadow text-white flex items-center justify-center
-    ${
-      loading
-        ? "bg-gray-400 cursor-not-allowed"
-        : "bg-emerald-500 hover:bg-emerald-600"
-    }`}
+            className={`p-3 rounded shadow text-white flex items-center justify-center ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-emerald-500 hover:bg-emerald-600"
+              }`}
           >
             {loading ? (
               <svg
@@ -181,11 +207,7 @@ export default function EditBookInfo() {
                   stroke="currentColor"
                   strokeWidth="4"
                 ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                ></path>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
               </svg>
             ) : (
               <CloudUpload />
@@ -197,7 +219,10 @@ export default function EditBookInfo() {
         {showCrop && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="p-6 max-w-md w-full">
-              <CropImage onCropComplete={handleCropComplete} />
+              <CropImage
+                aspectRatio={cropType === "ngang" ? 1 / 4 : 2 / 3}
+                onCropComplete={handleCropComplete}
+              />
               <div className="text-center mt-3">
                 <button
                   onClick={() => setShowCrop(false)}
@@ -210,42 +235,40 @@ export default function EditBookInfo() {
           </div>
         )}
 
-        {/* Ảnh bìa */}
+        {/* Ảnh bìa vuông */}
         <div className="flex flex-col lg:flex-row px-8 py-10 gap-4 bg-white rounded-2xl shadow">
           <div className="w-auto">
             <div className="flex flex-col flex-wrap gap-6">
-              {[
-                { size: "default", label: "Default (450x675)", w: 450, h: 675 },
-              ].map(({ size, label, w, h }) => {
-                const url = preview
-                  ? preview
-                  : size === "small"
-                  ? getSmallBannerURL(book.slug)
-                  : getBannerURL(book.slug);
-
-                return (
-                  <div key={size} className="flex flex-col">
-                    <div
-                      className="relative rounded-xl overflow-hidden border-2 border-amber-300/70 dark:border-sky-600/60 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,150,0.6)] transition-all duration-300"
-                      style={{ width: `${w}px`, height: `${h}px` }}
-                    >
-                      <img
-                        src={url || fallbackBanner}
-                        alt={`Banner ${size}`}
-                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">
-                        {label}
+              {[{ size: "default", label: "Default (450x675)", w: 450, h: 675 }].map(
+                ({ size, label, w, h }) => {
+                  const url = preview ? preview : getBannerURL(book.slug, "normal");
+                  return (
+                    <div key={size} className="flex flex-col">
+                      <div
+                        className="relative rounded-xl overflow-hidden border-2 border-amber-300/70 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,150,0.6)] transition-all duration-300"
+                        style={{ width: `${w}px`, height: `${h}px` }}
+                      >
+                        <img
+                          src={url || fallbackBanner}
+                          alt={`Banner ${size}`}
+                          className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">
+                          {label}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                }
+              )}
             </div>
             <div className="flex gap-3 mt-3">
               <button
                 type="button"
-                onClick={() => setShowCrop(true)}
+                onClick={() => {
+                  setCropType("vuong");
+                  setShowCrop(true);
+                }}
                 className="px-5 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,200,0.6)] transition-all"
               >
                 Chọn ảnh
@@ -271,16 +294,61 @@ export default function EditBookInfo() {
                 Xóa tất cả
               </button>
             </div>
+
+            {/* Banner ngang 4:1 */}
+            <div className="flex flex-col flex-wrap gap-6 mt-6">
+              {[{ size: "ngang", label: "Banner Ngang (4:1)", w: 800, h: 200 }].map(
+                ({ size, label, w, h }) => {
+                  const url = previewNgang ? previewNgang : getBannerURL(book.slug, "ngang");
+                  return (
+                    <div key={size} className="flex flex-col">
+                      <div
+                        className="relative rounded-xl overflow-hidden border-2 border-amber-300/70 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,150,0.6)] transition-all duration-300"
+                        style={{ width: `${w}px`, height: `${h}px` }}
+                      >
+                        <img
+                          src={url || fallbackBanner}
+                          alt={`Banner ${size}`}
+                          className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">
+                          {label}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+              )}
+              <div className="flex gap-3 mt-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCropType("ngang");
+                    setShowCrop(true);
+                  }}
+                  className="px-5 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,200,0.6)] transition-all"
+                >
+                  Chọn ảnh ngang
+                </button>
+                {bannerNgangSet.default && bannerNgangSet.small && (
+                  <button
+                    type="button"
+                    onClick={uploadBannerNgang}
+                    className="px-5 py-2 rounded-lg bg-green-500 text-white font-medium hover:bg-green-600 transition-all"
+                  >
+                    ☁️ Upload banner ngang
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
+
+          {/* Thông tin truyện */}
           <div className="w-full">
             {book.hasEbook && (
               <div className="flex flex-row gap-2 items-center">
                 <BookA
-                  color={
-                    book.currentChapter === book.currentEbookChapter
-                      ? "green"
-                      : "yellow"
-                  }
+                  color={book.currentChapter === book.currentEbookChapter ? "green" : "yellow"}
                   width={30}
                   height={30}
                 />
@@ -319,19 +387,14 @@ export default function EditBookInfo() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium">
-                  Số chương hiện có
-                </label>
+                <label className="block text-sm font-medium">Số chương hiện có</label>
                 <input
                   type="number"
                   value={book.currentChapter ?? 0}
                   disabled
                   className="mt-1 w-full border border-gray-300 bg-gray-50 text-gray-600 rounded-lg p-2 cursor-not-allowed"
                 />
-
-                <label className="block text-sm font-medium mt-2">
-                  Ebook đến chương
-                </label>
+                <label className="block text-sm font-medium mt-2">Ebook đến chương</label>
                 <input
                   type="number"
                   value={book.currentEbookChapter ?? 0}
@@ -356,16 +419,8 @@ export default function EditBookInfo() {
               <Select
                 isMulti
                 placeholder="Chọn thể loại..."
-                value={(book.categories || []).map((c) => ({
-                  label: c,
-                  value: c,
-                }))}
-                onChange={(selected) =>
-                  onChange(
-                    "categories",
-                    selected.map((opt) => opt.value)
-                  )
-                }
+                value={(book.categories || []).map((c) => ({ label: c, value: c }))}
+                onChange={(selected) => onChange("categories", selected.map((opt) => opt.value))}
                 options={categories}
                 isClearable={false}
                 isSearchable
@@ -373,9 +428,7 @@ export default function EditBookInfo() {
               />
             </div>
 
-            {/* --- GRID 4 COL --- */}
             <div className="grid grid-cols-4 gap-4 mb-4">
-              {/* PRICE */}
               <div>
                 <label className="block text-sm font-medium mb-1">Price</label>
                 <div className="relative">
@@ -386,14 +439,11 @@ export default function EditBookInfo() {
                     value={book.price}
                     onChange={(e) => onChange("price", e.target.value)}
                     type="number"
-                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 
-                    focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
-                    appearance-none"
+                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400 appearance-none"
                   />
                 </div>
               </div>
 
-              {/* LOVE */}
               <div>
                 <label className="block text-sm font-medium mb-1">Love</label>
                 <div className="relative">
@@ -404,14 +454,11 @@ export default function EditBookInfo() {
                     value={book.loves}
                     onChange={(e) => onChange("loves", e.target.value)}
                     type="number"
-                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 
-                    focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
-                    appearance-none"
+                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400 appearance-none"
                   />
                 </div>
               </div>
 
-              {/* VIEW — with Random Button */}
               <div>
                 <label className="block text-sm font-medium mb-1 flex items-center gap-2">
                   View
@@ -436,9 +483,7 @@ export default function EditBookInfo() {
                     onChange={(e) => onChange("totalViews", e.target.value)}
                     value={book.totalViews}
                     type="number"
-                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 
-                    focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400
-                    appearance-none"
+                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400 appearance-none"
                   />
                 </div>
               </div>
@@ -458,9 +503,7 @@ export default function EditBookInfo() {
                     const res = await api.get(
                       `/admin/ebook/${book.slug}?currentChapter=${book.currentChapter}`
                     );
-                    toast(
-                      `Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`
-                    );
+                    toast(`Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`);
                   }}
                   className="mt-4 w-32 py-2 bg-cyan-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
                 >
@@ -469,12 +512,7 @@ export default function EditBookInfo() {
               </div>
 
               <div className="flex items-center gap-2">
-                <Switch
-                  onChange={(checked) => {
-                    onChange("isPublished", checked);
-                  }}
-                  checked={book.isPublished}
-                />
+                <Switch onChange={(checked) => onChange("isPublished", checked)} checked={book.isPublished} />
               </div>
             </div>
           </div>
@@ -483,10 +521,7 @@ export default function EditBookInfo() {
 
       <div className="mt-6 grid lg:grid-cols-2 gap-6 mx-auto container pb-10">
         <div className="bg-white rounded-2xl shadow">
-          <ChapterListView
-            numberOfChapters={book.currentChapter}
-            bookSlug={book.slug}
-          />
+          <ChapterListView numberOfChapters={book.currentChapter} bookSlug={book.slug} />
         </div>
         <div className="bg-white rounded-2xl shadow">
           <CommentList bookSlug={book.slug} />

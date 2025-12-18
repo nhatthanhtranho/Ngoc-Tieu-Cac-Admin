@@ -47,7 +47,7 @@ export default function CropImage({
 
     // 2 / 3 → ảnh dọc
     return {
-      width:400,
+      width:380,
       height:600
     }
   }, [aspectRatio]);

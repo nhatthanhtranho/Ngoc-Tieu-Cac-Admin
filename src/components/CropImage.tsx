@@ -9,21 +9,32 @@ import Slider from "@mui/material/Slider";
 interface CropImageProps {
   onCropComplete: (result: { small: string; default: string }) => void;
   aspectRatio: number; // chỉ nhận 1/4 hoặc 2/3
+  isBanner?: boolean;
 }
 
 export default function CropImage({
   onCropComplete,
   aspectRatio,
+  isBanner = false,
 }: CropImageProps) {
   // ==================== ⚙️ CONFIG THEO ASPECT ====================
   const IMAGE_OPTIMIZE_CONFIG = useMemo(() => {
     // 1 / 4 → banner ngang
-    if (Math.abs(aspectRatio - 1 / 4) < 0.001) {
+    if (Math.abs(aspectRatio - 1 / 5) < 0.001) {
       return {
-        aspectRatio: 1 / 4,
-        smallSize: { width: 375, height: 88 },
-        defaultSize: { width: 1280, height: 300 },
-        cropBox: { width: 400, height: 100 }, // 👈 đúng tỉ lệ 1/4
+        aspectRatio: 1 / 5,
+        smallSize: {
+          width: 750,
+          height: 150,
+        },
+        defaultSize: {
+          width: 1500,
+          height: 300, // 300
+        },
+        cropBox: {
+          width: 500,
+          height: 100, // chuẩn 5:1
+        },
       };
     }
 
@@ -37,10 +48,10 @@ export default function CropImage({
   }, [aspectRatio]);
 
   const CROPSIZE = useMemo(() => {
-    // 1 / 4 → banner ngang
-    if (Math.abs(aspectRatio - 1 / 4) < 0.001) {
+    // 1 / 5 → banner ngang
+    if (Math.abs(aspectRatio - 1 / 5) < 0.001) {
       return {
-        width: 1280,
+        width: 1500,
         height: 300,
       };
     }
@@ -52,8 +63,15 @@ export default function CropImage({
     };
   }, [aspectRatio]);
 
-  const WEBP_CONFIG_SMALL = { mime: "image/webp", quality: 0.5 };
-  const WEBP_CONFIG_DEFAULT = { mime: "image/webp", quality: 0.8 };
+  const WEBP_CONFIG_SMALL = {
+    mime: "image/webp",
+    quality: isBanner ? 0.75 : 0.5,
+  };
+
+  const WEBP_CONFIG_DEFAULT = {
+    mime: "image/webp",
+    quality: isBanner ? 0.9 : 0.8,
+  };
 
   // ==================== 🧠 STATE ====================
   const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -99,7 +117,7 @@ export default function CropImage({
 
     const ctx = canvas.getContext("2d")!;
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "medium";
+    ctx.imageSmoothingQuality = isBanner ? "high" : "medium";
     ctx.fillStyle = "#fff"; // nền trắng
     ctx.fillRect(0, 0, targetWidth, targetHeight);
 

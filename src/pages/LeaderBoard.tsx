@@ -43,6 +43,7 @@ const TAB_CONFIG: Record<
   discover: { label: "Khám phá", type: "discover" },
 
   top_view: { label: "Xem Nhiều", type: "top_view" },
+  trending_now: { label: "Truyện Hot", type: "trending_now" },
 
   hoan_thanh: {
     label: "Hoàn Thành",

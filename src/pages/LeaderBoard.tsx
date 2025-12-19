@@ -9,7 +9,7 @@ import { generateHomePageData } from "../../apis/leaderboard";
 import { api } from "../../apis";
 import { Bomb } from "lucide-react";
 
-type Book = { slug: string; title: string, categories: string[] };
+type Book = { slug: string; title: string; categories: string[] };
 
 // 🔥 Đọc tab từ hash
 function getTabFromHash() {
@@ -32,15 +32,22 @@ const TAB_CONFIG: Record<
   }
 > = {
   banners: { label: "Banners", type: "banners" },
-  recommended: { label: "Đề Cử", type: "recommended",  generate: async () => {
-    await api.get(`/admin/generate-trending-recommend`);
-    toast.success("Đã tạo xong Top Tiên Hiệp!");
-  }, },
+  recommended: {
+    label: "Đề Cử",
+    type: "recommended",
+    generate: async () => {
+      await api.get(`/admin/generate-random-trendings`);
+      toast.success("Đã tạo xong Top Tiên Hiệp!");
+    },
+  },
+  discover: { label: "Khám phá", type: "discover" },
+
   top_view: { label: "Xem Nhiều", type: "top_view" },
-  top_love: { label: "Yêu Thích", type: "top_love" },
-  trending_now: { label: "Xu Hướng", type: "trending_now" },
+
   hoan_thanh: {
-    label: "Hoàn Thành", type: "hoan-thanh", generate: async () => {
+    label: "Hoàn Thành",
+    type: "hoan-thanh",
+    generate: async () => {
       await api.get(`/admin/generate-trending?category=hoan-thanh`);
       toast.success("Đã tạo xong Top Tiên Hiệp!");
     },
@@ -57,9 +64,7 @@ const TAB_CONFIG: Record<
   "latest-chapters": {
     label: "Truyện Hot",
     type: "latest-chapter",
-
   },
-
 
   // ====== Thể loại =============
   "tien-hiep": {
@@ -163,8 +168,6 @@ const TAB_CONFIG: Record<
       toast.success("Đã tạo xong Top Hài Hước!");
     },
   },
-
-
 };
 
 export default function LeaderBoard() {
@@ -208,14 +211,15 @@ export default function LeaderBoard() {
     }
   };
 
-
   // 🔥 Generate Home Data
   const handleGenerateTop = async () => {
     try {
       setLoadingOverlay(true);
 
       // Lọc các tab có hàm generate
-      const tabsWithGenerate = Object.values(TAB_CONFIG).filter(tab => tab.generate);
+      const tabsWithGenerate = Object.values(TAB_CONFIG).filter(
+        (tab) => tab.generate
+      );
 
       // Chạy tuần tự tất cả các generate
       for (const tab of tabsWithGenerate) {
@@ -232,17 +236,18 @@ export default function LeaderBoard() {
     }
   };
 
-
   const currentTab = useMemo(() => {
     return TAB_CONFIG[activeTab];
-  }, [activeTab, TAB_CONFIG])
+  }, [activeTab, TAB_CONFIG]);
 
   const filteredBook = useMemo(() => {
     if (!currentTab.category) {
-      return books
+      return books;
     }
-    return books.filter(item => item?.categories?.includes(currentTab.category as any))
-  }, [currentTab.category, books])
+    return books.filter((item) =>
+      item?.categories?.includes(currentTab.category as any)
+    );
+  }, [currentTab.category, books]);
 
   return (
     <div className="container mx-auto pt-8">
@@ -257,9 +262,10 @@ export default function LeaderBoard() {
           onClick={handleGenerateTop}
           disabled={loadingOverlay}
           className={`px-4 py-2 rounded shadow cursor-pointer flex items-center gap-2 text-white 
-            ${loadingOverlay
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
+            ${
+              loadingOverlay
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
             }
           `}
         >
@@ -275,9 +281,10 @@ export default function LeaderBoard() {
           onClick={handleGenerateHomeData}
           disabled={loadingOverlay}
           className={`px-4 py-2 rounded shadow cursor-pointer flex items-center gap-2 text-white 
-            ${loadingOverlay
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-emerald-500 hover:bg-emerald-600"
+            ${
+              loadingOverlay
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-emerald-500 hover:bg-emerald-600"
             }
           `}
         >
@@ -286,8 +293,6 @@ export default function LeaderBoard() {
           )}
           {loadingOverlay ? "Đang tạo..." : "Tạo Home Data"}
         </button>
-
-
       </div>
 
       {/* Tabs */}
@@ -296,10 +301,11 @@ export default function LeaderBoard() {
           <button
             key={key}
             onClick={() => handleChangeTab(key)}
-            className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${activeTab === key
-              ? "bg-blue-600 text-white shadow-md"
-              : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
-              }`}
+            className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${
+              activeTab === key
+                ? "bg-blue-600 text-white shadow-md"
+                : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
+            }`}
           >
             {cfg.label}
           </button>

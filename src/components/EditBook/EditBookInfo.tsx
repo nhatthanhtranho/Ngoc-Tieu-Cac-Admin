@@ -18,7 +18,7 @@ import {
   updateBook,
 } from "../../../apis/books";
 import { categories } from "../../constants/category";
-import { getBannerURL, getSmallBannerURL } from "../../utils/getBannerURL";
+import { getBannerURL } from "../../utils/getBannerURL";
 import { api } from "../../../apis";
 
 export default function EditBookInfo() {
@@ -32,8 +32,14 @@ export default function EditBookInfo() {
   const [showCrop, setShowCrop] = useState(false);
   const [cropType, setCropType] = useState<"vuong" | "ngang">("vuong");
 
-  const [bannerSet, setBannerSet] = useState<{ small?: string; default?: string }>({});
-  const [bannerNgangSet, setBannerNgangSet] = useState<{ small?: string; default?: string }>({});
+  const [bannerSet, setBannerSet] = useState<{
+    small?: string;
+    default?: string;
+  }>({});
+  const [bannerNgangSet, setBannerNgangSet] = useState<{
+    small?: string;
+    default?: string;
+  }>({});
   const [loading, setLoading] = useState(true);
 
   const fallbackBanner = "/assets/images/create-book/default-banner.webp";
@@ -61,7 +67,8 @@ export default function EditBookInfo() {
       const oldValue = oldData[key];
       if (Array.isArray(newValue) && Array.isArray(oldValue)) {
         const isDifferent =
-          newValue.length !== oldValue.length || newValue.some((v, i) => v !== oldValue[i]);
+          newValue.length !== oldValue.length ||
+          newValue.some((v, i) => v !== oldValue[i]);
         if (isDifferent) (changed as any)[key] = newValue;
       } else if (newValue !== oldValue) {
         (changed as any)[key] = newValue;
@@ -89,7 +96,11 @@ export default function EditBookInfo() {
       setOriginalBook(book);
     } catch (err) {
       console.error("❌ Lỗi khi lưu:", err);
-      toast.error(`Đã xảy ra lỗi khi lưu thay đổi: ${err instanceof Error ? err.message : err}`);
+      toast.error(
+        `Đã xảy ra lỗi khi lưu thay đổi: ${
+          err instanceof Error ? err.message : err
+        }`
+      );
     }
   };
 
@@ -185,12 +196,17 @@ export default function EditBookInfo() {
     <>
       <div className="container px-4 lg:px-0 mx-auto pt-6">
         <div className="flex gap-2 items-center justify-between mb-5">
-          <h2 className="text-2xl font-bold text-gray-900">Chỉnh sửa thông tin truyện</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Chỉnh sửa thông tin truyện
+          </h2>
           <button
             onClick={handleSyncBook}
             disabled={loading}
-            className={`p-3 rounded shadow text-white flex items-center justify-center ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-emerald-500 hover:bg-emerald-600"
-              }`}
+            className={`p-3 rounded shadow text-white flex items-center justify-center ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-emerald-500 hover:bg-emerald-600"
+            }`}
           >
             {loading ? (
               <svg
@@ -207,7 +223,11 @@ export default function EditBookInfo() {
                   stroke="currentColor"
                   strokeWidth="4"
                 ></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
               </svg>
             ) : (
               <CloudUpload />
@@ -220,8 +240,9 @@ export default function EditBookInfo() {
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="p-6 max-w-md w-full">
               <CropImage
-                aspectRatio={cropType === "ngang" ? 1 / 4 : 2 / 3}
+                aspectRatio={cropType === "ngang" ? 1 / 5 : 2 / 3}
                 onCropComplete={handleCropComplete}
+                isBanner={cropType === "ngang"}
               />
               <div className="text-center mt-3">
                 <button
@@ -239,28 +260,30 @@ export default function EditBookInfo() {
         <div className="flex flex-col lg:flex-row px-8 py-10 gap-4 bg-white rounded-2xl shadow">
           <div className="w-auto">
             <div className="flex flex-col flex-wrap gap-6">
-              {[{ size: "default", label: "Default (450x675)", w: 450, h: 675 }].map(
-                ({ size, label, w, h }) => {
-                  const url = preview ? preview : getBannerURL(book.slug, "normal");
-                  return (
-                    <div key={size} className="flex flex-col">
-                      <div
-                        className="relative rounded-xl overflow-hidden border-2 border-amber-300/70 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,150,0.6)] transition-all duration-300"
-                        style={{ width: `${w}px`, height: `${h}px` }}
-                      >
-                        <img
-                          src={url || fallbackBanner}
-                          alt={`Banner ${size}`}
-                          className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">
-                          {label}
-                        </div>
+              {[
+                { size: "default", label: "Default (450x675)", w: 450, h: 675 },
+              ].map(({ size, label, w, h }) => {
+                const url = preview
+                  ? preview
+                  : getBannerURL(book.slug, "normal");
+                return (
+                  <div key={size} className="flex flex-col">
+                    <div
+                      className="relative rounded-xl overflow-hidden border-2 border-amber-300/70 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,150,0.6)] transition-all duration-300"
+                      style={{ width: `${w}px`, height: `${h}px` }}
+                    >
+                      <img
+                        src={url || fallbackBanner}
+                        alt={`Banner ${size}`}
+                        className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">
+                        {label}
                       </div>
                     </div>
-                  );
-                }
-              )}
+                  </div>
+                );
+              })}
             </div>
             <div className="flex gap-3 mt-3">
               <button
@@ -294,53 +317,6 @@ export default function EditBookInfo() {
                 Xóa tất cả
               </button>
             </div>
-
-            {/* Banner ngang 4:1 */}
-            <div className="flex flex-col flex-wrap gap-6 mt-6">
-              {[{ size: "ngang", label: "Banner Ngang (4:1)", w: 800, h: 200 }].map(
-                ({ size, label, w, h }) => {
-                  const url = previewNgang ? previewNgang : getBannerURL(book.slug, "ngang");
-                  return (
-                    <div key={size} className="flex flex-col">
-                      <div
-                        className="relative rounded-xl overflow-hidden border-2 border-amber-300/70 shadow-lg group hover:shadow-[0_0_20px_rgba(255,255,150,0.6)] transition-all duration-300"
-                        style={{ width: `${w}px`, height: `${h}px` }}
-                      >
-                        <img
-                          src={url || fallbackBanner}
-                          alt={`Banner ${size}`}
-                          className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">
-                          {label}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-              )}
-              <div className="flex gap-3 mt-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCropType("ngang");
-                    setShowCrop(true);
-                  }}
-                  className="px-5 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,200,0.6)] transition-all"
-                >
-                  Chọn ảnh ngang
-                </button>
-                {bannerNgangSet.default && bannerNgangSet.small && (
-                  <button
-                    type="button"
-                    onClick={uploadBannerNgang}
-                    className="px-5 py-2 rounded-lg bg-green-500 text-white font-medium hover:bg-green-600 transition-all"
-                  >
-                    ☁️ Upload banner ngang
-                  </button>
-                )}
-              </div>
-            </div>
           </div>
 
           {/* Thông tin truyện */}
@@ -348,7 +324,11 @@ export default function EditBookInfo() {
             {book.hasEbook && (
               <div className="flex flex-row gap-2 items-center">
                 <BookA
-                  color={book.currentChapter === book.currentEbookChapter ? "green" : "yellow"}
+                  color={
+                    book.currentChapter === book.currentEbookChapter
+                      ? "green"
+                      : "yellow"
+                  }
                   width={30}
                   height={30}
                 />
@@ -387,14 +367,18 @@ export default function EditBookInfo() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium">Số chương hiện có</label>
+                <label className="block text-sm font-medium">
+                  Số chương hiện có
+                </label>
                 <input
                   type="number"
                   value={book.currentChapter ?? 0}
                   disabled
                   className="mt-1 w-full border border-gray-300 bg-gray-50 text-gray-600 rounded-lg p-2 cursor-not-allowed"
                 />
-                <label className="block text-sm font-medium mt-2">Ebook đến chương</label>
+                <label className="block text-sm font-medium mt-2">
+                  Ebook đến chương
+                </label>
                 <input
                   type="number"
                   value={book.currentEbookChapter ?? 0}
@@ -419,8 +403,16 @@ export default function EditBookInfo() {
               <Select
                 isMulti
                 placeholder="Chọn thể loại..."
-                value={(book.categories || []).map((c) => ({ label: c, value: c }))}
-                onChange={(selected) => onChange("categories", selected.map((opt) => opt.value))}
+                value={(book.categories || []).map((c) => ({
+                  label: c,
+                  value: c,
+                }))}
+                onChange={(selected) =>
+                  onChange(
+                    "categories",
+                    selected.map((opt) => opt.value)
+                  )
+                }
                 options={categories}
                 isClearable={false}
                 isSearchable
@@ -467,7 +459,9 @@ export default function EditBookInfo() {
                     onClick={() => {
                       const rand = Math.floor(50000 + Math.random() * 50000);
                       onChange("totalViews", rand);
-                      toast.success(`🎯 Đã random view: ${rand.toLocaleString()}`);
+                      toast.success(
+                        `🎯 Đã random view: ${rand.toLocaleString()}`
+                      );
                     }}
                     className="px-2 py-0.5 text-[12px] bg-blue-500 text-white rounded hover:bg-blue-600"
                   >
@@ -503,25 +497,73 @@ export default function EditBookInfo() {
                     const res = await api.get(
                       `/admin/ebook/${book.slug}?currentChapter=${book.currentChapter}`
                     );
-                    toast(`Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`);
+                    toast(
+                      `Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`
+                    );
                   }}
                   className="mt-4 w-32 py-2 bg-cyan-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
                 >
                   Tạo ebook
                 </button>
               </div>
-
-              <div className="flex items-center gap-2">
-                <Switch onChange={(checked) => onChange("isPublished", checked)} checked={book.isPublished} />
-              </div>
             </div>
           </div>
         </div>
       </div>
-
+      {/* Banner ngang 5:1 */}
+      <div className="flex items-center flex-col flex-wrap gap-6 mt-6">
+        {[{ size: "ngang", label: "Banner Ngang (5:1)", w: 1500, h: 300 }].map(
+          ({ size, label, w, h }) => {
+            const url = previewNgang
+              ? previewNgang
+              : getBannerURL(book.slug, "ngang");
+            return (
+              <div key={size} className="flex flex-col">
+                <div
+                  className="relative rounded-xl overflow-hidden"
+                  style={{ width: `${w}px`, height: `${h}px` }}
+                >
+                  <img
+                    src={url || fallbackBanner}
+                    alt={`Banner ${size}`}
+                    className="object-cover object-center"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/30 text-white text-xs text-center py-1">
+                    {label}
+                  </div>
+                </div>
+              </div>
+            );
+          }
+        )}
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setCropType("ngang");
+              setShowCrop(true);
+            }}
+            className="px-5 py-2 rounded-lg bg-red-500 text-white font-medium hover:scale-105 transition-all"
+          >
+            Chọn ảnh ngang
+          </button>
+          {bannerNgangSet.default && bannerNgangSet.small && (
+            <button
+              type="button"
+              onClick={uploadBannerNgang}
+              className="px-5 py-2 rounded-lg bg-green-500 text-white font-medium hover:bg-green-600 transition-all"
+            >
+              ☁️ Upload banner ngang
+            </button>
+          )}
+        </div>
+      </div>
       <div className="mt-6 grid lg:grid-cols-2 gap-6 mx-auto container pb-10">
         <div className="bg-white rounded-2xl shadow">
-          <ChapterListView numberOfChapters={book.currentChapter} bookSlug={book.slug} />
+          <ChapterListView
+            numberOfChapters={book.currentChapter}
+            bookSlug={book.slug}
+          />
         </div>
         <div className="bg-white rounded-2xl shadow">
           <CommentList bookSlug={book.slug} />

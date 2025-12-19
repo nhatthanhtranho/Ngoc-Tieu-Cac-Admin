@@ -21,8 +21,8 @@ export default function CropImage({
     if (Math.abs(aspectRatio - 1 / 4) < 0.001) {
       return {
         aspectRatio: 1 / 4,
-        smallSize: { width: 375, height: 175 },
-        defaultSize: { width: 1024, height: 256 },
+        smallSize: { width: 375, height: 88 },
+        defaultSize: { width: 1280, height: 300 },
         cropBox: { width: 400, height: 100 }, // 👈 đúng tỉ lệ 1/4
       };
     }
@@ -40,20 +40,17 @@ export default function CropImage({
     // 1 / 4 → banner ngang
     if (Math.abs(aspectRatio - 1 / 4) < 0.001) {
       return {
-        width: 1024,
-        height: 256
-      }
+        width: 1280,
+        height: 300,
+      };
     }
 
     // 2 / 3 → ảnh dọc
     return {
       width: 380,
-      height: 600
-    }
+      height: 600,
+    };
   }, [aspectRatio]);
-
-
-
 
   const WEBP_CONFIG_SMALL = { mime: "image/webp", quality: 0.5 };
   const WEBP_CONFIG_DEFAULT = { mime: "image/webp", quality: 0.8 };
@@ -84,12 +81,9 @@ export default function CropImage({
     reader.readAsDataURL(file);
   };
 
-  const onCropCompleteCallback = useCallback(
-    (_: any, croppedPixels: any) => {
-      setCroppedAreaPixels(croppedPixels);
-    },
-    []
-  );
+  const onCropCompleteCallback = useCallback((_: any, croppedPixels: any) => {
+    setCroppedAreaPixels(croppedPixels);
+  }, []);
 
   // ==================== 🖼️ RESIZE + WEBP ====================
   const resizeAndConvertWebp = async (
@@ -198,7 +192,7 @@ export default function CropImage({
             marginTop: 12,
             borderRadius: 10,
             overflow: "hidden",
-            ...CROPSIZE
+            ...CROPSIZE,
           }}
         >
           <Cropper

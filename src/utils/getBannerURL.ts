@@ -2,6 +2,7 @@ const STORAGE = "https://ngoc-tieu-cac-public.s3.ap-southeast-1.amazonaws.com";
 
 export function getBannerURL(storySlug: string, type?: string): string {
   if(type === "ngang") return `${STORAGE}/book-cover/${storySlug}/banner-ngang.webp`;
+  if(type === "ngang-small") return `${STORAGE}/book-cover/${storySlug}/banner-ngang-small.webp`
 
   return `${STORAGE}/book-cover/${storySlug}/banner.webp`;
 }

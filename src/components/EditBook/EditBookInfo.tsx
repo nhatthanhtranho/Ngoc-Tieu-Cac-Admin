@@ -20,6 +20,7 @@ import {
 import { categories } from "../../constants/category";
 import { getBannerURL } from "../../utils/getBannerURL";
 import { api } from "../../../apis";
+import { BannerNgang } from "./BannerNgang";
 
 export default function EditBookInfo() {
   const params = useParams<{ slug: string }>();
@@ -28,18 +29,13 @@ export default function EditBookInfo() {
   const [book, setBook] = useState<Book | null>(null);
   const [originalBook, setOriginalBook] = useState<Book | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [previewNgang, setPreviewNgang] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
-  const [cropType, setCropType] = useState<"vuong" | "ngang">("vuong");
 
   const [bannerSet, setBannerSet] = useState<{
     small?: string;
     default?: string;
   }>({});
-  const [bannerNgangSet, setBannerNgangSet] = useState<{
-    small?: string;
-    default?: string;
-  }>({});
+
   const [loading, setLoading] = useState(true);
 
   const fallbackBanner = "/assets/images/create-book/default-banner.webp";
@@ -105,13 +101,8 @@ export default function EditBookInfo() {
   };
 
   const handleCropComplete = (result: { small: string; default: string }) => {
-    if (cropType === "ngang") {
-      setBannerNgangSet(result);
-      setPreviewNgang(result.default);
-    } else {
-      setBannerSet(result);
-      setPreview(result.default);
-    }
+    setBannerSet(result);
+    setPreview(result.default);
     setShowCrop(false);
   };
 
@@ -152,36 +143,6 @@ export default function EditBookInfo() {
     } catch (err) {
       console.error("Upload failed", err);
       alert("❌ Upload banner thất bại.");
-    }
-  };
-
-  const uploadBannerNgang = async () => {
-    if (!book || !bannerNgangSet.default || !bannerNgangSet.small) return;
-
-    try {
-      const data = await getUploadBookBannerNgangUrl(book.slug);
-      const { defaultUrl, smallUrl } = data;
-
-      await Promise.all([
-        fetch(defaultUrl, {
-          method: "PUT",
-          body: base64ToBlob(bannerNgangSet.default),
-          headers: { "Content-Type": "image/webp" },
-        }),
-        fetch(smallUrl, {
-          method: "PUT",
-          body: base64ToBlob(bannerNgangSet.small),
-          headers: { "Content-Type": "image/webp" },
-        }),
-      ]);
-
-      alert("✅ Upload banner ngang thành công!");
-      onChange("bannerNgangURL", defaultUrl.split("?")[0]);
-      setPreviewNgang(null);
-      setBannerNgangSet({});
-    } catch (err) {
-      console.error("Upload failed", err);
-      alert("❌ Upload banner ngang thất bại.");
     }
   };
 
@@ -240,9 +201,8 @@ export default function EditBookInfo() {
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="p-6 max-w-md w-full">
               <CropImage
-                aspectRatio={cropType === "ngang" ? 1 / 5 : 2 / 3}
+                aspectRatio={2 / 3}
                 onCropComplete={handleCropComplete}
-                isBanner={cropType === "ngang"}
               />
               <div className="text-center mt-3">
                 <button
@@ -289,7 +249,6 @@ export default function EditBookInfo() {
               <button
                 type="button"
                 onClick={() => {
-                  setCropType("vuong");
                   setShowCrop(true);
                 }}
                 className="px-5 py-2 rounded-lg bg-yellow-500 text-white font-medium hover:scale-105 hover:shadow-[0_0_15px_rgba(255,255,200,0.6)] transition-all"
@@ -510,54 +469,8 @@ export default function EditBookInfo() {
           </div>
         </div>
       </div>
-      {/* Banner ngang 5:1 */}
-      <div className="flex items-center flex-col flex-wrap gap-6 mt-6">
-        {[{ size: "ngang", label: "Banner Ngang (5:1)", w: 1500, h: 300 }].map(
-          ({ size, label, w, h }) => {
-            const url = previewNgang
-              ? previewNgang
-              : getBannerURL(book.slug, "ngang");
-            return (
-              <div key={size} className="flex flex-col">
-                <div
-                  className="relative rounded-xl overflow-hidden"
-                  style={{ width: `${w}px`, height: `${h}px` }}
-                >
-                  <img
-                    src={url || fallbackBanner}
-                    alt={`Banner ${size}`}
-                    className="object-cover object-center"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/30 text-white text-xs text-center py-1">
-                    {label}
-                  </div>
-                </div>
-              </div>
-            );
-          }
-        )}
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              setCropType("ngang");
-              setShowCrop(true);
-            }}
-            className="px-5 py-2 rounded-lg bg-red-500 text-white font-medium hover:scale-105 transition-all"
-          >
-            Chọn ảnh ngang
-          </button>
-          {bannerNgangSet.default && bannerNgangSet.small && (
-            <button
-              type="button"
-              onClick={uploadBannerNgang}
-              className="px-5 py-2 rounded-lg bg-green-500 text-white font-medium hover:bg-green-600 transition-all"
-            >
-              ☁️ Upload banner ngang
-            </button>
-          )}
-        </div>
-      </div>
+      <BannerNgang book={book} />
+
       <div className="mt-6 grid lg:grid-cols-2 gap-6 mx-auto container pb-10">
         <div className="bg-white rounded-2xl shadow">
           <ChapterListView

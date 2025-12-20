@@ -177,7 +177,6 @@ export default function UploadFreeModal({
               formData.append(k, v as string)
             );
             formData.set("key", `free/${bookSlug}/${file.name}`);
-            if (!fields.acl) formData.append("acl", "private");
             formData.append("file", file);
 
             const res = await fetch(url, {

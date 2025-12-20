@@ -76,6 +76,24 @@ export default function TopupCard({ item, onStatusChange }: Props) {
       },
     }[item.status || "pending"] || defaultStatus;
 
+      const handleApprove = useCallback(async () => {
+    try {
+      const res = await api.post("/payment-requests/approve", {
+        paymentRequestId: item.id,
+      });
+
+      console.log("Approve success:", res.data);
+
+      // ⬅️ báo lên để update UI
+      onStatusChange(item.id, "approved");
+    } catch (err: any) {
+      console.error("Approve error:", err.response?.data || err.message);
+      alert("Xử lý thất bại!");
+    }
+  }, [item.id, onStatusChange]);
+
+
+
   // ----------------------------
   // 🔥 HANDLE APPROVE
   // ----------------------------
@@ -85,7 +103,6 @@ export default function TopupCard({ item, onStatusChange }: Props) {
         paymentRequestId: item.id,
       });
 
-      console.log("Approve success:", res.data);
 
       onStatusChange(item.id, "approved");
     } catch (err: any) {
@@ -221,6 +238,16 @@ export default function TopupCard({ item, onStatusChange }: Props) {
               >
                 <Check className="w-4 h-4" />
                 Kiểm tra xong
+              </button>
+            )}
+
+             {item.status === "pending" && (
+              <button
+                onClick={handleApprove}
+                className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+              >
+                <Check className="w-4 h-4" />
+                Xử lý giao dịch
               </button>
             )}
 

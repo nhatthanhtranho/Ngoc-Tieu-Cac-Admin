@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Select from "react-select";
 import { useParams } from "react-router-dom";
-import Switch from "react-switch";
 import { BookA, CloudUpload, Eye, Heart, Tag } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -12,7 +11,6 @@ import CropImage from "../CropImage";
 import {
   Book,
   fetchBookBySlug,
-  getUploadBookBannerNgangUrl,
   getUploadBookBannerUrl,
   syncBookData,
   updateBook,

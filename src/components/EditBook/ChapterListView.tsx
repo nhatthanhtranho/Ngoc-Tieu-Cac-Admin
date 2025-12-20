@@ -170,7 +170,7 @@ export default function ChapterListView({
 
       {/* Popup Upload */}
       <AnimatePresence>
-        {showUploadFreeModal && (
+        {showUploadModal && (
           <UploadChaptersModal
             bookSlug={bookSlug}
             onClose={() => setShowUploadModal(false)}

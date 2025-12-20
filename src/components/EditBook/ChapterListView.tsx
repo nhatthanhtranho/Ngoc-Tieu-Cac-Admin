@@ -3,9 +3,10 @@ import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Upload, SquarePen, Download, BrushCleaning } from "lucide-react";
+import { Upload, Download, BrushCleaning } from "lucide-react";
 
 import UploadChaptersModal from "./UploadChaptersModal";
+import UploadFreeModal from "./UploadFreeModal";
 import { Chapter, fetchChapters } from "../../../apis/chapters";
 import DownloadBookModal from "./DownloadBookModal";
 import InlinePageInput from "./InlinePageInput";
@@ -31,6 +32,7 @@ export default function ChapterListView({
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showUploadFreeModal, setShowUploadFreeModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const navigate = useNavigate();
@@ -41,7 +43,7 @@ export default function ChapterListView({
   useEffect(() => {
     const start = (page - 1) * pageSize;
     const end = start + pageSize - 1;
-    fetchChapters(bookSlug, start, end, setChapters, 'desc');
+    fetchChapters(bookSlug, start, end, setChapters, "desc");
   }, [bookSlug, page]);
 
   const handleUploaded = async () => {
@@ -85,6 +87,13 @@ export default function ChapterListView({
             className="bg-blue-600 rounded p-2 cursor-pointer hover:bg-blue-800 transition-colors duration-200 shadow text-white"
           >
             <Upload className="w-6 h-6" />
+          </button>
+
+          <button
+            onClick={() => setShowUploadFreeModal(true)}
+            className="bg-fuchsia-600 rounded p-2 flex gap-2 cursor-pointer hover:bg-fuchsia-800 transition-colors duration-200 shadow text-white"
+          >
+            <Upload className="w-6 h-6" /> Free
           </button>
         </div>
       </div>
@@ -161,10 +170,18 @@ export default function ChapterListView({
 
       {/* Popup Upload */}
       <AnimatePresence>
-        {showUploadModal && (
+        {showUploadFreeModal && (
           <UploadChaptersModal
             bookSlug={bookSlug}
             onClose={() => setShowUploadModal(false)}
+            onUploaded={handleUploaded}
+          />
+        )}
+
+        {showUploadFreeModal && (
+          <UploadFreeModal
+            bookSlug={bookSlug}
+            onClose={() => setShowUploadFreeModal(false)}
             onUploaded={handleUploaded}
           />
         )}

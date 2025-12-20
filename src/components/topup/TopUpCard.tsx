@@ -81,7 +81,7 @@ export default function TopupCard({ item, onStatusChange }: Props) {
   // ----------------------------
   const handleProcess = useCallback(async () => {
     try {
-      const res = await api.post("/payment-requests/approve", {
+      const res = await api.post("/payment-requests/change-status-to-approved", {
         paymentRequestId: item.id,
       });
 
@@ -97,9 +97,20 @@ export default function TopupCard({ item, onStatusChange }: Props) {
   // ----------------------------
   // 🔥 HANDLE REJECT
   // ----------------------------
-  const handleMarkFailed = () => {
-    onStatusChange(item.id, "rejected");
-  };
+  const handleMarkFailed = useCallback(async () => {
+    try {
+      const res = await api.post("/payment-requests/reject", {
+        paymentRequestId: item.id,
+      });
+
+      console.log("Approve success:", res.data);
+
+      onStatusChange(item.id, "approved");
+    } catch (err: any) {
+      console.error("Approve error:", err.response?.data || err.message);
+      alert("Xử lý thất bại!");
+    }
+  }, [item.id, onStatusChange]);
 
   return (
     <div
@@ -209,7 +220,7 @@ export default function TopupCard({ item, onStatusChange }: Props) {
                 className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
               >
                 <Check className="w-4 h-4" />
-                Xử lý giao dịch
+                Kiểm tra xong
               </button>
             )}
 

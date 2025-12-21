@@ -7,6 +7,7 @@ import { PUBLIC_BUCKET, uploadDataToS3 } from "./s3";
 import { decompressText, JsonBuffer } from "../src/utils/compress";
 
 export interface Book {
+  isSeed?: boolean;
   _id?: string;
   title: string;
   description: string;

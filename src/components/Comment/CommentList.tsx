@@ -3,13 +3,19 @@
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 
-import { getCommentsInBook, seedComment } from "../../../apis/comments";
+import {
+  getCommentsInBook,
+  seedComment,
+  toggleSeedComment,
+} from "../../../apis/comments";
+
 import CommentItem from "./CommentItem";
 import { buildCommentTree } from "./CommentNode";
 import { useSeedUserStore } from "../../stores/seed.stote";
 
 interface CommentListProps {
   bookSlug: string;
+  isSeed?: boolean;
 }
 
 export interface Comment {
@@ -22,8 +28,10 @@ export interface Comment {
   replies?: Comment[];
 }
 
-export default function CommentList({ bookSlug }: CommentListProps) {
+export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
   const [comments, setComments] = useState<Comment[]>([]);
+  const [isSeedComment, setIsSeedComment] = useState(isSeed);
+
 
   const { fetchSeedUsers, getSeedUsers } = useSeedUserStore();
 
@@ -34,18 +42,26 @@ export default function CommentList({ bookSlug }: CommentListProps) {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [content, setContent] = useState("");
   const [parentId, setParentId] = useState<string | "">("");
+
+  const users = getSeedUsers();
+
+  /* ------------------------- Build comment tree ------------------------- */
   const commentTree = useMemo(() => {
     return buildCommentTree(comments);
   }, [comments]);
 
-  const users = getSeedUsers();
-
-  // 🔹 Load comments
+  /* ------------------------------ Fetch comments ------------------------------ */
   const fetchComments = async () => {
     if (!bookSlug) return;
     try {
       const res = await getCommentsInBook(bookSlug);
-      setComments(res || []);
+
+      // nếu backend trả seedEnabled
+      if (res?.seedEnabled !== undefined) {
+        setIsSeedComment(res.seedEnabled);
+      }
+
+      setComments(res?.comments || res || []);
     } catch (e) {
       console.error(e);
       setComments([]);
@@ -57,7 +73,26 @@ export default function CommentList({ bookSlug }: CommentListProps) {
     fetchSeedUsers();
   }, [bookSlug]);
 
-  // 🔹 Submit admin comment
+  /* --------------------------- Toggle seed comment --------------------------- */
+  const handleToggleSeedComment = async () => {
+    const nextValue = !isSeedComment;
+
+    try {
+      setIsSeedComment(nextValue);
+
+      await toggleSeedComment(bookSlug, nextValue);
+
+      toast.success(
+        nextValue ? "Đã bật seed comment" : "Đã tắt seed comment"
+      );
+    } catch (e) {
+      console.error(e);
+      setIsSeedComment(!nextValue); // rollback UI
+      toast.error("Không thể thay đổi trạng thái seed comment");
+    }
+  };
+
+  /* ---------------------------- Submit comment ---------------------------- */
   const handleSubmit = async () => {
     setError("");
 
@@ -93,10 +128,22 @@ export default function CommentList({ bookSlug }: CommentListProps) {
       {/* Header */}
       <div className="flex justify-between items-center mb-5">
         <h2 className="text-xl font-semibold">Bình luận</h2>
+
+        <button
+          onClick={handleToggleSeedComment}
+          className={`relative w-11 h-6 rounded-full transition-colors duration-200 
+          ${isSeedComment ? "bg-green-500" : "bg-gray-300"}`}
+        >
+          <span
+            className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200
+            ${isSeedComment ? "translate-x-5" : ""}`}
+          />
+        </button>
       </div>
 
       {/* Admin Add Comment */}
       <div className="mb-6 p-4 rounded-lg border border-slate-700 space-y-3">
+        {/* Seed user */}
         <select
           className="w-full rounded px-3 py-2 border"
           value={username}
@@ -114,6 +161,7 @@ export default function CommentList({ bookSlug }: CommentListProps) {
             </option>
           ))}
         </select>
+
         <input
           className="w-full rounded px-3 py-2 border"
           placeholder="Tên người dùng"
@@ -128,7 +176,7 @@ export default function CommentList({ bookSlug }: CommentListProps) {
           onChange={(e) => setAvatarUrl(e.target.value)}
         />
 
-        {/* Parent comment select */}
+        {/* Parent comment */}
         <select
           className="w-full rounded px-3 py-2 border"
           value={parentId}
@@ -148,7 +196,10 @@ export default function CommentList({ bookSlug }: CommentListProps) {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-        {error && <p className="text-red-500 text-sm font-medium">⚠ {error}</p>}
+
+        {error && (
+          <p className="text-red-500 text-sm font-medium">⚠ {error}</p>
+        )}
 
         <button
           disabled={submitting}
@@ -159,7 +210,7 @@ export default function CommentList({ bookSlug }: CommentListProps) {
         </button>
       </div>
 
-      {/* List */}
+      {/* Comment list */}
       {commentTree.map((comment) => (
         <CommentItem key={comment._id} comment={comment} />
       ))}

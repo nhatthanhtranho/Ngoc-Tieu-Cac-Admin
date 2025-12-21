@@ -477,7 +477,7 @@ export default function EditBookInfo() {
           />
         </div>
         <div className="bg-white rounded-2xl shadow">
-          <CommentList bookSlug={book.slug} />
+          <CommentList bookSlug={book.slug} isSeed={book.isSeed}/>
         </div>
       </div>
     </>

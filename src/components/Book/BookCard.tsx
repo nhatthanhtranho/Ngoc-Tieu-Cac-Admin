@@ -1,5 +1,5 @@
 "use client";
-import { Book as BookIcon, Bookmark } from "lucide-react";
+import { Book as BookIcon, Bookmark, Sprout } from "lucide-react";
 
 interface BookCardProps {
   slug: string;
@@ -11,6 +11,7 @@ interface BookCardProps {
   hasEbook?: boolean;
   latestEbook?: boolean
   onToggleBookmark?: () => void;
+  isSeed?: boolean
 }
 
 export default function BookCard({
@@ -21,6 +22,7 @@ export default function BookCard({
   latestEbook = false,
   hasEbook = false,
   currentChapter,
+  isSeed,
 
   onToggleBookmark,
 }: BookCardProps) {
@@ -84,6 +86,25 @@ export default function BookCard({
           />
         </button>
       }
+
+      {isSeed && (
+        <button
+          className="
+      absolute top-10 left-2 z-20
+      flex items-center justify-center
+      w-9 h-9
+      rounded-full
+      bg-green-50
+      shadow-md
+      hover:bg-green-100
+      active:scale-95
+      transition-all
+    "
+          title="Seed chapter"
+        >
+          <Sprout size={18} className="text-green-600" />
+        </button>
+      )}
     </div>
   );
 }

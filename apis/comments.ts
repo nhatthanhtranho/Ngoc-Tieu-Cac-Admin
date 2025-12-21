@@ -26,3 +26,14 @@ export async function getSeedUsers() {
   const res = await api.get(`/admin/get-seed-users`);
   return res.data;
 }
+
+/* --------------------------- Toggle seed comment --------------------------- */
+export async function toggleSeedComment(
+  bookSlug: string,
+  seed: boolean
+) {
+  const res = await api.get(
+    `/admin/comments/${bookSlug}?seed=${seed}`
+  );
+  return res.data;
+}

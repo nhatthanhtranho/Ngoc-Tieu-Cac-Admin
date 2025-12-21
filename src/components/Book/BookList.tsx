@@ -82,6 +82,7 @@ export default function BookList({
                 onToggleBookmark={() => toggleBookmark(book.slug)}
                 hasEbook={book.hasEbook}
                 latestEbook={book.currentChapter == book.currentEbookChapter}
+                isSeed={book.isSeed}
               />
             </motion.div>
           ))}

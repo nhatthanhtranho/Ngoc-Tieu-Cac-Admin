@@ -117,7 +117,7 @@ export default function UploadChaptersModal({
     abortRef.current = new AbortController();
 
     try {
-      // 1️⃣ Batch create chapters
+      // 1️⃣ Create all chapters
       for (let i = 0; i < parsedChapters.length; i += CHAPTER_BATCH_SIZE) {
         const batch = parsedChapters.slice(i, i + CHAPTER_BATCH_SIZE);
         await createChapters(
@@ -129,47 +129,77 @@ export default function UploadChaptersModal({
         );
       }
 
-      // 2️⃣ Get upload URL
-      const { url, fields } = await getChapterUploadLink(bookSlug);
-
-      // 3️⃣ Pre-read and compress all files (đảm bảo NotReadableError không xảy ra)
-      const filesToUpload = await Promise.all(
-        parsedChapters.map(async (ch) => {
-          const text = await (ch as any).file.text(); // file reference
-          const compressed = compressText(text);
-          const blob = new Blob([compressed as BlobPart], {
-            type: "application/octet-stream",
-          });
-          const fileObj = new File([blob], ch.fileName, {
-            type: "application/octet-stream",
-          });
-          return fileObj;
-        })
+      // 2️⃣ Split free / vip
+      const freeChapters = parsedChapters.filter(
+        (ch) => ch.chapterNumber <= 50
+      );
+      const vipChapters = parsedChapters.filter(
+        (ch) => ch.chapterNumber > 50
       );
 
-      const totalFiles = filesToUpload.length;
+      const totalFiles = parsedChapters.length;
       let uploadedCount = 0;
       const onSingleDone = () => {
         uploadedCount++;
         setProgress((uploadedCount / totalFiles) * 100);
       };
 
-      // 4️⃣ Upload in batches with concurrency
-      for (
-        let batchStart = 0;
-        batchStart < totalFiles;
-        batchStart += FILE_BATCH_SIZE
-      ) {
-        if (abortRef.current.signal.aborted) throw new Error("aborted");
+      // 3️⃣ Upload FREE chapters (1–50)
+      if (freeChapters.length > 0) {
+        const { url, fields } = await getChapterUploadLink(bookSlug, true);
 
-        const batchFiles = filesToUpload.slice(
-          batchStart,
-          batchStart + FILE_BATCH_SIZE
+        const freeFiles = await Promise.all(
+          freeChapters.map(async (ch) => {
+            const text = await (ch as any).file.text();
+            const compressed = compressText(text);
+            return new File(
+              [new Blob([compressed])],
+              ch.fileName,
+              { type: "application/octet-stream" }
+            );
+          })
         );
-        setCurrentBatch(batchStart / FILE_BATCH_SIZE + 1);
 
         await uploadBatchWithConcurrency(
-          batchFiles,
+          freeFiles,
+          CONCURRENCY,
+          async (file) => {
+            const formData = new FormData();
+            Object.entries(fields).forEach(([k, v]) =>
+              formData.append(k, v as string)
+            );
+            formData.set("key", `free/${bookSlug}/${file.name}`);
+            formData.append("file", file);
+
+            const res = await fetch(url, {
+              method: "POST",
+              body: formData,
+              signal: abortRef.current?.signal,
+            });
+            if (!res.ok) throw new Error(`Upload free failed: ${file.name}`);
+            onSingleDone();
+          }
+        );
+      }
+
+      // 4️⃣ Upload VIP chapters (51+)
+      if (vipChapters.length > 0) {
+        const { url, fields } = await getChapterUploadLink(bookSlug);
+
+        const vipFiles = await Promise.all(
+          vipChapters.map(async (ch) => {
+            const text = await (ch as any).file.text();
+            const compressed = compressText(text);
+            return new File(
+              [new Blob([compressed])],
+              ch.fileName,
+              { type: "application/octet-stream" }
+            );
+          })
+        );
+
+        await uploadBatchWithConcurrency(
+          vipFiles,
           CONCURRENCY,
           async (file) => {
             const formData = new FormData();
@@ -185,12 +215,7 @@ export default function UploadChaptersModal({
               body: formData,
               signal: abortRef.current?.signal,
             });
-            if (!res.ok) {
-              const text = await res.text().catch(() => "");
-              throw new Error(
-                `Upload failed for ${file.name}: ${res.status} ${text}`
-              );
-            }
+            if (!res.ok) throw new Error(`Upload vip failed: ${file.name}`);
             onSingleDone();
           }
         );
@@ -199,7 +224,7 @@ export default function UploadChaptersModal({
       setProgress(100);
       setUploading(false);
       onUploaded();
-      handleReset(); // ✅ clean state
+      handleReset();
     } catch (err: any) {
       if (err?.message === "aborted")
         setError("Upload đã bị hủy bởi người dùng.");
@@ -207,6 +232,7 @@ export default function UploadChaptersModal({
       setUploading(false);
     }
   };
+
 
   const handleCancel = () => abortRef.current?.abort();
   const handleReset = () => {

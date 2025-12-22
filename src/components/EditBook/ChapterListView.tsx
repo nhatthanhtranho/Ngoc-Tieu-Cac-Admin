@@ -102,7 +102,7 @@ export default function ChapterListView({
           </button>
 
           <button
-            onClick={() => setShowUploadFreeModal(true)}
+            onClick={() => setShowUploadAudioModal(true)}
             className="bg-emerald-600 rounded p-2 flex gap-2 cursor-pointer hover:bg-fuchsia-800 transition-colors duration-200 shadow text-white"
           >
             <Music className="w-6 h-6" /> Audio
@@ -187,7 +187,7 @@ export default function ChapterListView({
           />
         )}
 
-        {showUploadModal && (
+        {showUploadAudioModal && (
           <UploadAudioModel
             bookSlug={bookSlug}
             onClose={() => setShowUploadAudioModal(false)}

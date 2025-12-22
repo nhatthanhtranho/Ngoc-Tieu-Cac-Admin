@@ -36,12 +36,12 @@ export default function CropImage({
 
   const WEBP_CONFIG_SMALL = {
     mime: "image/webp",
-    quality: 0.5,
+    quality: 0.75,
   };
 
   const WEBP_CONFIG_DEFAULT = {
     mime: "image/webp",
-    quality: 0.8,
+    quality: 0.9,
   };
 
   // ==================== 🧠 STATE ====================

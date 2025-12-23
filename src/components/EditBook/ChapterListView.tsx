@@ -3,7 +3,7 @@ import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Upload, Download, BrushCleaning } from "lucide-react";
+import { Upload, Download, BrushCleaning, Music } from "lucide-react";
 
 import UploadChaptersModal from "./UploadChaptersModal";
 import UploadFreeModal from "./UploadFreeModal";
@@ -11,6 +11,9 @@ import { Chapter, fetchChapters } from "../../../apis/chapters";
 import DownloadBookModal from "./DownloadBookModal";
 import InlinePageInput from "./InlinePageInput";
 import DeleteBookModal from "./DeleteBookModal";
+import UploadAudioModel from "./UploadAudioModal";
+import { toast } from "react-toastify";
+import { api } from "../../../apis";
 interface ChapterListViewProps {
   numberOfChapters: number;
   bookSlug: string;
@@ -32,6 +35,8 @@ export default function ChapterListView({
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showUploadAudioModal, setShowUploadAudioModal] = useState(false);
+
   const [showUploadFreeModal, setShowUploadFreeModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -95,6 +100,13 @@ export default function ChapterListView({
           >
             <Upload className="w-6 h-6" /> Free
           </button>
+
+          <button
+            onClick={() => setShowUploadAudioModal(true)}
+            className="bg-emerald-600 rounded p-2 flex gap-2 cursor-pointer hover:bg-fuchsia-800 transition-colors duration-200 shadow text-white"
+          >
+            <Music className="w-6 h-6" /> Audio
+          </button>
         </div>
       </div>
 
@@ -111,11 +123,10 @@ export default function ChapterListView({
                 navigate(`/book/${bookSlug}/chapter/${chapter.chapterNumber}`);
               }}
               key={chapter.chapterNumber}
-              className={`py-3 cursor-pointer px-4 flex justify-between items-center rounded-lg 0 mb-1  ${
-                chapter.isQualified
-                  ? " bg-emerald-500 text-white hover:bg-emerald-600"
-                  : "bg-gray-50 hover:bg-gray-200"
-              }`}
+              className={`py-3 cursor-pointer px-4 flex justify-between items-center rounded-lg 0 mb-1  ${chapter.isQualified
+                ? " bg-emerald-500 text-white hover:bg-emerald-600"
+                : "bg-gray-50 hover:bg-gray-200"
+                }`}
             >
               <div className="flex flex-col">
                 <p className="font-semibold flex items-center gap-2">
@@ -138,11 +149,10 @@ export default function ChapterListView({
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
-            className={`px-4 py-2 rounded-lg border cursor-pointer transition-colors ${
-              page === 1
-                ? "text-gray-400 border-gray-300 cursor-not-allowed bg-gray-100 dark:bg-gray-700"
-                : "text-gray-700 dark:text-gray-200 border-gray-300 hover:bg-green-500 hover:text-white"
-            }`}
+            className={`px-4 py-2 rounded-lg border cursor-pointer transition-colors ${page === 1
+              ? "text-gray-400 border-gray-300 cursor-not-allowed bg-gray-100 dark:bg-gray-700"
+              : "text-gray-700 dark:text-gray-200 border-gray-300 hover:bg-green-500 hover:text-white"
+              }`}
           >
             ← Trước
           </button>
@@ -157,11 +167,10 @@ export default function ChapterListView({
           <button
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
-            className={`px-4 py-2 rounded-lg border transition-colors cursor-pointer ${
-              page === totalPages
-                ? "text-gray-400 border-gray-300 cursor-not-allowed bg-gray-100 dark:bg-gray-700"
-                : "text-gray-700 dark:text-gray-200 border-gray-300 hover:bg-green-500 hover:text-white"
-            }`}
+            className={`px-4 py-2 rounded-lg border transition-colors cursor-pointer ${page === totalPages
+              ? "text-gray-400 border-gray-300 cursor-not-allowed bg-gray-100 dark:bg-gray-700"
+              : "text-gray-700 dark:text-gray-200 border-gray-300 hover:bg-green-500 hover:text-white"
+              }`}
           >
             Sau →
           </button>
@@ -175,6 +184,17 @@ export default function ChapterListView({
             bookSlug={bookSlug}
             onClose={() => setShowUploadModal(false)}
             onUploaded={handleUploaded}
+          />
+        )}
+
+        {showUploadAudioModal && (
+          <UploadAudioModel
+            bookSlug={bookSlug}
+            onClose={() => setShowUploadAudioModal(false)}
+            onUploaded={async () => {
+              await api.patch(`/books/${bookSlug}`, { hasAudio: true })
+              toast.success("Đã upload audio thành công!");
+            }}
           />
         )}
 

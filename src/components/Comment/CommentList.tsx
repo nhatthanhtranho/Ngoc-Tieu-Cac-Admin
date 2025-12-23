@@ -32,7 +32,6 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isSeedComment, setIsSeedComment] = useState(isSeed);
 
-
   const { fetchSeedUsers, getSeedUsers } = useSeedUserStore();
 
   const [submitting, setSubmitting] = useState(false);
@@ -42,6 +41,7 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [content, setContent] = useState("");
   const [parentId, setParentId] = useState<string | "">("");
+  const [isRandomUser, setIsRandomUser] = useState(false);
 
   const users = getSeedUsers();
 
@@ -82,9 +82,7 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
 
       await toggleSeedComment(bookSlug, nextValue);
 
-      toast.success(
-        nextValue ? "Đã bật seed comment" : "Đã tắt seed comment"
-      );
+      toast.success(nextValue ? "Đã bật seed comment" : "Đã tắt seed comment");
     } catch (e) {
       console.error(e);
       setIsSeedComment(!nextValue); // rollback UI
@@ -96,19 +94,31 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
   const handleSubmit = async () => {
     setError("");
 
-    if (!username.trim()) {
+    const trimmedUsername = username.trim();
+    const trimmedContent = content.trim();
+
+    if (!isRandomUser && !trimmedUsername) {
       setError("Vui lòng nhập tên người dùng");
       return;
     }
 
-    if (!content.trim()) {
+    if (!isRandomUser && !trimmedContent) {
       setError("Vui lòng nhập nội dung bình luận");
       return;
     }
 
     try {
       setSubmitting(true);
-      await seedComment(bookSlug, username, avatarUrl, content, parentId);
+
+      await seedComment(
+        bookSlug,
+        trimmedUsername,
+        avatarUrl,
+        trimmedContent, // ✅ dùng content đã trim
+        parentId,
+        isRandomUser
+      );
+
       await fetchComments();
       toast.success("Thêm comment thành công!");
     } catch (e) {
@@ -144,6 +154,22 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
       {/* Admin Add Comment */}
       <div className="mb-6 p-4 rounded-lg border border-slate-700 space-y-3">
         {/* Seed user */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">🎲 Random seed user</span>
+
+          <button
+            type="button"
+            onClick={() => setIsRandomUser((v) => !v)}
+            className={`relative w-11 h-6 rounded-full transition-colors duration-200
+      ${isRandomUser ? "bg-blue-500" : "bg-gray-300"}`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200
+        ${isRandomUser ? "translate-x-5" : ""}`}
+            />
+          </button>
+        </div>
+
         <select
           className="w-full rounded px-3 py-2 border"
           value={username}
@@ -197,9 +223,7 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
           onChange={(e) => setContent(e.target.value)}
         />
 
-        {error && (
-          <p className="text-red-500 text-sm font-medium">⚠ {error}</p>
-        )}
+        {error && <p className="text-red-500 text-sm font-medium">⚠ {error}</p>}
 
         <button
           disabled={submitting}

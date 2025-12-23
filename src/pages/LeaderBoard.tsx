@@ -70,7 +70,7 @@ const TAB_CONFIG: Record<
   "mien-phi": {
     label: "Miễn Phí",
     type: "mien-phi",
-    category: "huyen-huyen",
+    category: "mien-phi",
 
     generate: async () => {
       await api.get(`/admin/generate-trending?category=mien-phi`);

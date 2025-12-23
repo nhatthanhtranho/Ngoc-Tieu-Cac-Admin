@@ -7,6 +7,7 @@ import { PUBLIC_BUCKET, uploadDataToS3 } from "./s3";
 import { decompressText, JsonBuffer } from "../src/utils/compress";
 
 export interface Book {
+  isHidden?:boolean;
   isSeed?: boolean;
   _id?: string;
   title: string;
@@ -31,6 +32,16 @@ export interface Book {
 
 export async function createBook(newBook: Book): Promise<Book> {
   const res = await api.post<Book>("/books", { ...newBook });
+  return res.data;
+}
+
+export async function toggleHiddenBook(
+  bookSlug: string,
+  seed: boolean
+) {
+  const res = await api.get(
+    `/admin/comments/${bookSlug}?seed=${seed}`
+  );
   return res.data;
 }
 

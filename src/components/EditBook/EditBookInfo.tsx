@@ -19,6 +19,7 @@ import { categories } from "../../constants/category";
 import { getBannerURL } from "../../utils/getBannerURL";
 import { api } from "../../../apis";
 import { BannerNgang } from "./BannerNgang";
+import { toggleSeedComment } from "../../../apis/comments";
 
 export default function EditBookInfo() {
   const params = useParams<{ slug: string }>();
@@ -28,6 +29,7 @@ export default function EditBookInfo() {
   const [originalBook, setOriginalBook] = useState<Book | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
+  const [isHidden, setIsHidden] = useState(book?.isHidden || false);
 
   const [bannerSet, setBannerSet] = useState<{
     small?: string;
@@ -71,6 +73,20 @@ export default function EditBookInfo() {
     return changed;
   };
 
+  const handleToggleHiddenBook = async () => {
+    const nextValue = !isHidden;
+
+    try {
+      setIsHidden(nextValue);
+      await updateBook(book?.slug as any, { isHidden: nextValue }, book as any);
+      toast.success(nextValue ? "Đã Ẩn Sách " : "Đã tắt Ẩn Sách");  
+    } catch (e) {
+      console.error(e);
+      setIsHidden(!nextValue); // rollback UI
+      toast.error("Không thể thay đổi trạng thái seed comment");
+    }
+  };
+
   const handleSyncBook = async () => {
     setLoading(true);
     await syncBookData(slug).finally(() => setLoading(false));
@@ -91,8 +107,7 @@ export default function EditBookInfo() {
     } catch (err) {
       console.error("❌ Lỗi khi lưu:", err);
       toast.error(
-        `Đã xảy ra lỗi khi lưu thay đổi: ${
-          err instanceof Error ? err.message : err
+        `Đã xảy ra lỗi khi lưu thay đổi: ${err instanceof Error ? err.message : err
         }`
       );
     }
@@ -161,11 +176,10 @@ export default function EditBookInfo() {
           <button
             onClick={handleSyncBook}
             disabled={loading}
-            className={`p-3 rounded shadow text-white flex items-center justify-center ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-emerald-500 hover:bg-emerald-600"
-            }`}
+            className={`p-3 rounded shadow text-white flex items-center justify-center ${loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-emerald-500 hover:bg-emerald-600"
+              }`}
           >
             {loading ? (
               <svg
@@ -215,6 +229,24 @@ export default function EditBookInfo() {
         )}
 
         {/* Ảnh bìa vuông */}
+        <div className="flex flex-row gap-2 mb-3 justify-end">
+          Ẩn truyện
+          <button
+            onClick={() => {
+              () => {
+
+              }
+            }}
+            className={`relative w-11 h-6 rounded-full transition-colors duration-200 
+          ${book?.isHidden ? "bg-green-500" : "bg-gray-300"}`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200
+            ${book?.isHidden ? "translate-x-5" : ""}`}
+            />
+          </button>
+
+        </div>
         <div className="flex flex-col lg:flex-row px-8 py-10 gap-4 bg-white rounded-2xl shadow">
           <div className="w-auto">
             <div className="flex flex-col flex-wrap gap-6">
@@ -323,6 +355,7 @@ export default function EditBookInfo() {
                 />
               </div>
 
+
               <div>
                 <label className="block text-sm font-medium">
                   Số chương hiện có
@@ -343,6 +376,8 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 bg-gray-50 text-gray-600 rounded-lg p-2 cursor-not-allowed"
                 />
               </div>
+
+
             </div>
 
             <div className="mb-4">
@@ -477,7 +512,7 @@ export default function EditBookInfo() {
           />
         </div>
         <div className="bg-white rounded-2xl shadow">
-          <CommentList bookSlug={book.slug} isSeed={book.isSeed}/>
+          <CommentList bookSlug={book.slug} isSeed={book.isSeed} />
         </div>
       </div>
     </>

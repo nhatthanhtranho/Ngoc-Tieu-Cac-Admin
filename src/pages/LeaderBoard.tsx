@@ -67,6 +67,17 @@ const TAB_CONFIG: Record<
     type: "latest-chapter",
   },
 
+  "mien-phi": {
+    label: "Miễn Phí",
+    type: "mien-phi",
+    category: "huyen-huyen",
+
+    generate: async () => {
+      await api.get(`/admin/generate-trending?category=mien-phi`);
+      toast.success("Đã tạo xong Top Miễn Phí!");
+    },
+  },
+
   // ====== Thể loại =============
   "tien-hiep": {
     label: "Tiên Hiệp",

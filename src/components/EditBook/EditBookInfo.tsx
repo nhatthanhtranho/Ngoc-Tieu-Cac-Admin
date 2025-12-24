@@ -79,6 +79,7 @@ export default function EditBookInfo() {
     try {
       setIsHidden(nextValue);
       await updateBook(book?.slug as any, { isHidden: nextValue }, book as any);
+      await handleSyncBook()
       toast.success(nextValue ? "Đã Ẩn Sách " : "Đã tắt Ẩn Sách");  
     } catch (e) {
       console.error(e);
@@ -232,17 +233,15 @@ export default function EditBookInfo() {
         <div className="flex flex-row gap-2 mb-3 justify-end">
           Ẩn truyện
           <button
-            onClick={() => {
-              () => {
-
-              }
+            onClick={async () => {
+              await handleToggleHiddenBook()
             }}
             className={`relative w-11 h-6 rounded-full transition-colors duration-200 
-          ${book?.isHidden ? "bg-green-500" : "bg-gray-300"}`}
+          ${isHidden ? "bg-green-500" : "bg-gray-300"}`}
           >
             <span
               className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200
-            ${book?.isHidden ? "translate-x-5" : ""}`}
+            ${isHidden ? "translate-x-5" : ""}`}
             />
           </button>
 

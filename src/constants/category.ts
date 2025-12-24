@@ -36,4 +36,6 @@ export const categories = [
   { value: "huyen-nghi", label: "Huyền Nghi" },
   { value: "thiet-huyen", label: "Thiết Huyền" },
   { value: "quy-bi", label: "Quỷ Bí" },
+  { value: "nhiet-huyet", label: "Nhiệt Huyết" },
+  { value: "vo-dich", label: "Vô Địch" },
 ];

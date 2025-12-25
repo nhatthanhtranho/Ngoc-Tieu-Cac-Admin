@@ -29,7 +29,13 @@ export default function EditBookInfo() {
   const [originalBook, setOriginalBook] = useState<Book | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
-  const [isHidden, setIsHidden] = useState(book?.isHidden || false);
+  const [isHidden, setIsHidden] = useState(false);
+
+  useEffect(() => {
+    if (book) {
+      setIsHidden(book.isHidden || false);
+    }
+  }, [book]);
 
   const [bannerSet, setBannerSet] = useState<{
     small?: string;
@@ -80,7 +86,7 @@ export default function EditBookInfo() {
       setIsHidden(nextValue);
       await updateBook(book?.slug as any, { isHidden: nextValue }, book as any);
       await handleSyncBook()
-      toast.success(nextValue ? "Đã Ẩn Sách " : "Đã tắt Ẩn Sách");  
+      toast.success(nextValue ? "Đã Ẩn Sách " : "Đã tắt Ẩn Sách");
     } catch (e) {
       console.error(e);
       setIsHidden(!nextValue); // rollback UI

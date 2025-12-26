@@ -7,6 +7,7 @@ import { PUBLIC_BUCKET, uploadDataToS3 } from "./s3";
 import { decompressText, JsonBuffer } from "../src/utils/compress";
 
 export interface Book {
+  currentAudioChapter?: number;
   isHidden?:boolean;
   isSeed?: boolean;
   _id?: string;
@@ -57,7 +58,7 @@ export async function fetchBookBySlug(
 }
 
 export async function fetchAllBookSlugs(
-  setBookSlugs: (bookSlugs: Array<{ slug: string; title: string, categories: string[], hasAudio: boolean }>) => void,
+  setBookSlugs: (bookSlugs: Array<{ slug: string; title: string, categories: string[], currentAudioChapter: string | null }>) => void,
   status?: string[]
 ): Promise<Array<{ slug: string; title: string }>> {
   const validStatuses = ["hoan-thanh", "dang-ra"];
@@ -69,7 +70,7 @@ export async function fetchAllBookSlugs(
 
   const query = shouldSetStatus ? `?status=${status[0]}` : "";
 
-  const res = await axios.get<Array<{ slug: string; title: string, categories: string[], hasAudio: boolean }>>(
+  const res = await axios.get<Array<{ slug: string; title: string, categories: string[], currentAudioChapter: string | null }>>(
     getEndpoint(`books/slugs${query}`)
   );
 

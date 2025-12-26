@@ -339,6 +339,7 @@ export default function EditBookInfo() {
                 />
               </div>
 
+
               <div>
                 <label className="block text-sm font-medium">Tác giả</label>
                 <input
@@ -348,7 +349,15 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
                 />
               </div>
-
+              <div>
+                <label className="block text-sm font-medium">Audio tới chương</label>
+                <input
+                  type="number"
+                  value={book.currentAudioChapter ?? 0}
+                  onChange={(e) => onChange("currentAudioChapter", e.target.value)}
+                  className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
+                />
+              </div>
               <div>
                 <label className="block text-sm font-medium">Dịch giả</label>
                 <input
@@ -358,6 +367,7 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
                 />
               </div>
+
 
 
               <div>
@@ -382,7 +392,10 @@ export default function EditBookInfo() {
               </div>
 
 
+
+
             </div>
+
 
             <div className="mb-4">
               <label className="block text-sm font-medium">Mô tả</label>

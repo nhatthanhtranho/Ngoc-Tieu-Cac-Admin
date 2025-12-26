@@ -9,7 +9,7 @@ import { generateHomePageData } from "../../apis/leaderboard";
 import { api } from "../../apis";
 import { Bomb } from "lucide-react";
 
-type Book = { slug: string; title: string; categories: string[], hasAudio: boolean };
+type Book = { slug: string; title: string; categories: string[], currentAudioChapter: string | null};
 
 // 🔥 Đọc tab từ hash
 function getTabFromHash() {
@@ -266,11 +266,11 @@ export default function LeaderBoardAudio() {
 
   const filteredBook = useMemo(() => {
     if (!currentTab?.category) {
-      return books.filter((b) => b.hasAudio === true);
+      return books.filter((b) => b.currentAudioChapter !== null);
     }
     return books.filter((item) =>
       item?.categories?.includes(currentTab?.category as any)
-    ).filter(b => b.hasAudio === true);
+    ).filter(b => b.currentAudioChapter !== null);
   }, [currentTab?.category, books]);
 
   return (

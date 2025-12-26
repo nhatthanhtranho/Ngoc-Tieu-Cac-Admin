@@ -13,9 +13,11 @@ import {
   LogOut,
   ChartAreaIcon,
   IdCard,
+  Music2,
 } from "lucide-react";
 import { api } from "../apis";
 import Badge from "./components/Badge";
+import LeaderBoardAudio from "./pages/LeaderBoardAudio";
 
 // Dynamic imports
 const Home = lazy(() => import("./pages/Home"));
@@ -88,10 +90,16 @@ export default function App() {
                   label="Bảng Xếp Hạng"
                 />
                 <NavItem
+                  to="/leaderboard-audio"
+                  icon={<Music2 size={20} />}
+                  label="Bảng Xếp Hạng Audio"
+                />
+                <NavItem
                   to="/thong-ke"
                   icon={<ChartAreaIcon size={20} />}
                   label="Thống kê"
                 />
+
                 <NavItem
                   to="/top-up"
                   icon={<Coins size={20} />}
@@ -140,6 +148,8 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/leaderboard" element={<LeaderBoard />} />
+                <Route path="/leaderboard-audio" element={<LeaderBoardAudio />} />
+
                 <Route path="/thong-ke" element={<ThongKe />} />
                 <Route path="/top-up" element={<TopUp topUpType="topup" />} />
                 <Route path="/membership" element={<TopUp topUpType="membership" />} />
@@ -179,8 +189,8 @@ function NavItem({
     <Link
       to={to}
       className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${isActive
-          ? "bg-blue-600 text-white shadow-md"
-          : "text-gray-300 hover:bg-zinc-800 hover:text-white"
+        ? "bg-blue-600 text-white shadow-md"
+        : "text-gray-300 hover:bg-zinc-800 hover:text-white"
         }`}
     >
       {icon}

@@ -19,7 +19,6 @@ import { categories } from "../../constants/category";
 import { getBannerURL } from "../../utils/getBannerURL";
 import { api } from "../../../apis";
 import { BannerNgang } from "./BannerNgang";
-import { toggleSeedComment } from "../../../apis/comments";
 
 export default function EditBookInfo() {
   const params = useParams<{ slug: string }>();

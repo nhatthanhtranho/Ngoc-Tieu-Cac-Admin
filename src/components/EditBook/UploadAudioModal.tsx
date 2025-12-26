@@ -155,7 +155,7 @@ export default function UploadAudioModel({
             );
 
             formData.set("key", `free/${bookSlug}/${ch.fileName}`);
-            formData.append("Content-Type", "audio/opus");
+            // formData.append("Content-Type", "audio/opus");
             formData.append("file", ch.file);
 
             const res = await fetch(url, {

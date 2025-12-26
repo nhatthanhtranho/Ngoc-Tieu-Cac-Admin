@@ -16,9 +16,7 @@ function getTabFromHash() {
   const hash = window.location.hash;
   const [, queryString] = hash.split("?");
   const params = new URLSearchParams(queryString || "");
-  return params.get("tab") || "latest-audio";
-
-
+  return params.get("tab") || "banners-audio";
 }
 
 // ================================
@@ -33,7 +31,7 @@ const TAB_CONFIG: Record<
     generate?: () => Promise<void>;
   }
 > = {
-  banners: { label: "Banners", type: "banners-audio" },
+  "banners-audio": { label: "Banners", type: "banners-audio" },
   // recommended: {
   //   label: "Đề Cử",
   //   type: "recommended",
@@ -56,7 +54,7 @@ const TAB_CONFIG: Record<
   //   },
   // },
 
-  latest: {
+  "latest-audio": {
     label: "Truyện Mới",
     type: "latest-audio",
     generate: async () => {
@@ -198,6 +196,8 @@ export default function LeaderBoardAudio() {
   const [books, setBooks] = useState<Book[]>([]);
   const [activeTab, setActiveTab] = useState<string>(getTabFromHash());
   const [loadingOverlay, setLoadingOverlay] = useState(false);
+  
+  console.log('books', books)
 
   useEffect(() => {
     fetchAllBookSlugs((data: Book[]) => setBooks(data));
@@ -266,11 +266,11 @@ export default function LeaderBoardAudio() {
 
   const filteredBook = useMemo(() => {
     if (!currentTab?.category) {
-      return books.filter((b) => b.currentAudioChapter !== null);
+      return books.filter((b) => b.currentAudioChapter!);
     }
     return books.filter((item) =>
       item?.categories?.includes(currentTab?.category as any)
-    ).filter(b => b.currentAudioChapter !== null);
+    ).filter(b => b.currentAudioChapter!);
   }, [currentTab?.category, books]);
 
   return (

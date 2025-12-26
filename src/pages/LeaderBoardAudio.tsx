@@ -16,7 +16,9 @@ function getTabFromHash() {
   const hash = window.location.hash;
   const [, queryString] = hash.split("?");
   const params = new URLSearchParams(queryString || "");
-  return params.get("tab") || "latest";
+  return params.get("tab") || "latest-audio";
+
+
 }
 
 // ================================

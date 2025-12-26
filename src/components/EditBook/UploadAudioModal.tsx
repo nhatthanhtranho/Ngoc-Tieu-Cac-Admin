@@ -188,7 +188,7 @@ export default function UploadAudioModel({
             formData.set("key", `${bookSlug}/${ch.fileName}`);
             if (!fields.acl) formData.append("acl", "private");
 
-            formData.append("Content-Type", "audio/opus");
+            // formData.append("Content-Type", "audio/opus");
             formData.append("file", ch.file);
 
             const res = await fetch(url, {

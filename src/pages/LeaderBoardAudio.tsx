@@ -9,14 +9,14 @@ import { generateHomePageData } from "../../apis/leaderboard";
 import { api } from "../../apis";
 import { Bomb } from "lucide-react";
 
-type Book = { slug: string; title: string; categories: string[] };
+type Book = { slug: string; title: string; categories: string[], currentAudioChapter: string | null};
 
 // 🔥 Đọc tab từ hash
 function getTabFromHash() {
   const hash = window.location.hash;
   const [, queryString] = hash.split("?");
   const params = new URLSearchParams(queryString || "");
-  return params.get("tab") || "top_view";
+  return params.get("tab") || "banners-audio";
 }
 
 // ================================
@@ -31,171 +31,173 @@ const TAB_CONFIG: Record<
     generate?: () => Promise<void>;
   }
 > = {
-  banners: { label: "Banners", type: "banners" },
-  recommended: {
-    label: "Đề Cử",
-    type: "recommended",
-    generate: async () => {
-      await api.get(`/admin/generate-random-trendings`);
-      toast.success("Đã tạo xong Top Tiên Hiệp!");
-    },
-  },
-  discover: { label: "Khám phá", type: "discover" },
+  "banners-audio": { label: "Banners", type: "banners-audio" },
+  // recommended: {
+  //   label: "Đề Cử",
+  //   type: "recommended",
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-random-trendings`);
+  //     toast.success("Đã tạo xong Top Tiên Hiệp!");
+  //   },
+  // },
+  // discover: { label: "Khám phá", type: "discover" },
 
-  top_view: { label: "Xem Nhiều", type: "top_view" },
-  trending_now: { label: "Truyện Hot", type: "trending_now" },
+  // top_view: { label: "Xem Nhiều", type: "top_view" },
+  // trending_now: { label: "Truyện Hot", type: "trending_now" },
 
-  hoan_thanh: {
-    label: "Hoàn Thành",
-    type: "hoan-thanh",
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=hoan-thanh`);
-      toast.success("Đã tạo xong Top Tiên Hiệp!");
-    },
-  },
+  // hoan_thanh: {
+  //   label: "Hoàn Thành",
+  //   type: "hoan-thanh",
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=hoan-thanh`);
+  //     toast.success("Đã tạo xong Top Tiên Hiệp!");
+  //   },
+  // },
 
-  latest: {
+  "latest-audio": {
     label: "Truyện Mới",
-    type: "latest",
+    type: "latest-audio",
     generate: async () => {
-      await api.get(`/admin/generate-trending-latest`);
-      toast.success("Đã tạo xong Top Truyện Mới!");
+      await api.get(`/admin/generate-trending-latest-audio`);
+      toast.success("Đã tạo xong Top Audio Mới!");
     },
   },
-  "latest-chapters": {
-    label: "Truyện Hot",
-    type: "latest-chapter",
-  },
+  // "latest-chapters": {
+  //   label: "Truyện Hot",
+  //   type: "latest-chapter",
+  // },
 
-  "mien-phi": {
-    label: "Miễn Phí",
-    type: "mien-phi",
-    category: "mien-phi",
+  // "mien-phi": {
+  //   label: "Miễn Phí",
+  //   type: "mien-phi",
+  //   category: "mien-phi",
 
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=mien-phi`);
-      toast.success("Đã tạo xong Top Miễn Phí!");
-    },
-  },
-  "premium": {
-    label: "Premium mỗi tuần",
-    type: "premium",
-    category: "premium",
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=mien-phi`);
+  //     toast.success("Đã tạo xong Top Miễn Phí!");
+  //   },
+  // },
+  // "premium": {
+  //   label: "Premium mỗi tuần",
+  //   type: "premium",
+  //   category: "premium",
 
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=premium?limit=10`);
-      toast.success("Đã tạo xong Top Premium Mỗi Tuần");
-    },
-  },
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=premium?limit=10`);
+  //     toast.success("Đã tạo xong Top Premium Mỗi Tuần");
+  //   },
+  // },
 
-  // ====== Thể loại =============
-  "tien-hiep": {
-    label: "Tiên Hiệp",
-    type: "tien-hiep",
-    category: "tien-hiep",
+  // // ====== Thể loại =============
+  // "tien-hiep": {
+  //   label: "Tiên Hiệp",
+  //   type: "tien-hiep",
+  //   category: "tien-hiep",
 
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=tien-hiep`);
-      toast.success("Đã tạo xong Top Tiên Hiệp!");
-    },
-  },
-  "huyen-huyen": {
-    label: "Huyền Huyễn",
-    type: "huyen-huyen",
-    category: "huyen-huyen",
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=tien-hiep`);
+  //     toast.success("Đã tạo xong Top Tiên Hiệp!");
+  //   },
+  // },
+  // "huyen-huyen": {
+  //   label: "Huyền Huyễn",
+  //   type: "huyen-huyen",
+  //   category: "huyen-huyen",
 
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=huyen-huyen`);
-      toast.success("Đã tạo xong Top Huyền Huyễn!");
-    },
-  },
-  "do-thi": {
-    label: "Đô Thị",
-    type: "do-thi",
-    category: "do-thi",
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=huyen-huyen`);
+  //     toast.success("Đã tạo xong Top Huyền Huyễn!");
+  //   },
+  // },
+  // "do-thi": {
+  //   label: "Đô Thị",
+  //   type: "do-thi",
+  //   category: "do-thi",
 
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=do-thi`);
-      toast.success("Đã tạo xong Top Đô Thị!");
-    },
-  },
-  "linh-di": {
-    label: "Linh Dị",
-    type: "linh-di",
-    category: "linh-di",
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=do-thi`);
+  //     toast.success("Đã tạo xong Top Đô Thị!");
+  //   },
+  // },
+  // "linh-di": {
+  //   label: "Linh Dị",
+  //   type: "linh-di",
+  //   category: "linh-di",
 
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=linh-di`);
-      toast.success("Đã tạo xong Top Linh Dị!");
-    },
-  },
-  "trinh-tham": {
-    label: "Trinh Thám",
-    type: "trinh-tham",
-    category: "trinh-tham",
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=linh-di`);
+  //     toast.success("Đã tạo xong Top Linh Dị!");
+  //   },
+  // },
+  // "trinh-tham": {
+  //   label: "Trinh Thám",
+  //   type: "trinh-tham",
+  //   category: "trinh-tham",
 
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=trinh-tham`);
-      toast.success("Đã tạo xong Top Trinh Thám!");
-    },
-  },
-  "he-thong": {
-    label: "Hệ Thống",
-    type: "he-thong",
-    category: "he-thong",
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=trinh-tham`);
+  //     toast.success("Đã tạo xong Top Trinh Thám!");
+  //   },
+  // },
+  // "he-thong": {
+  //   label: "Hệ Thống",
+  //   type: "he-thong",
+  //   category: "he-thong",
 
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=he-thong`);
-      toast.success("Đã tạo xong Top Hệ Thống!");
-    },
-  },
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=he-thong`);
+  //     toast.success("Đã tạo xong Top Hệ Thống!");
+  //   },
+  // },
 
-  "di-gioi": {
-    label: "Top Dị Giới",
-    type: "di-gioi",
-    category: "di-gioi",
+  // "di-gioi": {
+  //   label: "Top Dị Giới",
+  //   type: "di-gioi",
+  //   category: "di-gioi",
 
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=di-gioi`);
-      toast.success("Đã tạo xong Top Dị Giới!");
-    },
-  },
-  "co-tri": {
-    label: "Top Cơ Trí",
-    type: "co-tri",
-    category: "co-tri",
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=di-gioi`);
+  //     toast.success("Đã tạo xong Top Dị Giới!");
+  //   },
+  // },
+  // "co-tri": {
+  //   label: "Top Cơ Trí",
+  //   type: "co-tri",
+  //   category: "co-tri",
 
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=co-tri`);
-      toast.success("Đã tạo xong Top Cơ Trí!");
-    },
-  },
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=co-tri`);
+  //     toast.success("Đã tạo xong Top Cơ Trí!");
+  //   },
+  // },
 
-  "trong-sinh": {
-    label: "Trọng Sinh",
-    type: "trong-sinh",
-    category: "trong-sinh",
+  // "trong-sinh": {
+  //   label: "Trọng Sinh",
+  //   type: "trong-sinh",
+  //   category: "trong-sinh",
 
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=trong-sinh`);
-      toast.success("Đã tạo xong Top Trọng Sinh!");
-    },
-  },
-  "hai-huoc": {
-    label: "Hài Hước",
-    type: "hai-huoc",
-    category: "trong-sinh",
-    generate: async () => {
-      await api.get(`/admin/generate-trending?category=hai-huoc`);
-      toast.success("Đã tạo xong Top Hài Hước!");
-    },
-  },
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=trong-sinh`);
+  //     toast.success("Đã tạo xong Top Trọng Sinh!");
+  //   },
+  // },
+  // "hai-huoc": {
+  //   label: "Hài Hước",
+  //   type: "hai-huoc",
+  //   category: "trong-sinh",
+  //   generate: async () => {
+  //     await api.get(`/admin/generate-trending?category=hai-huoc`);
+  //     toast.success("Đã tạo xong Top Hài Hước!");
+  //   },
+  // },
 };
 
-export default function LeaderBoard() {
+export default function LeaderBoardAudio() {
   const [books, setBooks] = useState<Book[]>([]);
   const [activeTab, setActiveTab] = useState<string>(getTabFromHash());
   const [loadingOverlay, setLoadingOverlay] = useState(false);
+  
+  console.log('books', books)
 
   useEffect(() => {
     fetchAllBookSlugs((data: Book[]) => setBooks(data));
@@ -264,11 +266,11 @@ export default function LeaderBoard() {
 
   const filteredBook = useMemo(() => {
     if (!currentTab?.category) {
-      return books;
+      return books.filter((b) => b.currentAudioChapter!);
     }
     return books.filter((item) =>
       item?.categories?.includes(currentTab?.category as any)
-    );
+    ).filter(b => b.currentAudioChapter!);
   }, [currentTab?.category, books]);
 
   return (

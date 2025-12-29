@@ -19,7 +19,6 @@ import { categories } from "../../constants/category";
 import { getBannerURL } from "../../utils/getBannerURL";
 import { api } from "../../../apis";
 import { BannerNgang } from "./BannerNgang";
-import { toggleSeedComment } from "../../../apis/comments";
 
 export default function EditBookInfo() {
   const params = useParams<{ slug: string }>();
@@ -29,7 +28,13 @@ export default function EditBookInfo() {
   const [originalBook, setOriginalBook] = useState<Book | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
-  const [isHidden, setIsHidden] = useState(book?.isHidden || false);
+  const [isHidden, setIsHidden] = useState(false);
+
+  useEffect(() => {
+    if (book) {
+      setIsHidden(book.isHidden || false);
+    }
+  }, [book]);
 
   const [bannerSet, setBannerSet] = useState<{
     small?: string;
@@ -80,7 +85,7 @@ export default function EditBookInfo() {
       setIsHidden(nextValue);
       await updateBook(book?.slug as any, { isHidden: nextValue }, book as any);
       await handleSyncBook()
-      toast.success(nextValue ? "Đã Ẩn Sách " : "Đã tắt Ẩn Sách");  
+      toast.success(nextValue ? "Đã Ẩn Sách " : "Đã tắt Ẩn Sách");
     } catch (e) {
       console.error(e);
       setIsHidden(!nextValue); // rollback UI
@@ -334,6 +339,7 @@ export default function EditBookInfo() {
                 />
               </div>
 
+
               <div>
                 <label className="block text-sm font-medium">Tác giả</label>
                 <input
@@ -343,7 +349,15 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
                 />
               </div>
-
+              <div>
+                <label className="block text-sm font-medium">Audio tới chương</label>
+                <input
+                  type="number"
+                  value={book.currentAudioChapter ?? 0}
+                  onChange={(e) => onChange("currentAudioChapter", e.target.value)}
+                  className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
+                />
+              </div>
               <div>
                 <label className="block text-sm font-medium">Dịch giả</label>
                 <input
@@ -353,6 +367,7 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
                 />
               </div>
+
 
 
               <div>
@@ -377,7 +392,10 @@ export default function EditBookInfo() {
               </div>
 
 
+
+
             </div>
+
 
             <div className="mb-4">
               <label className="block text-sm font-medium">Mô tả</label>

@@ -154,8 +154,8 @@ export default function UploadAudioModel({
               formData.append(k, v as string)
             );
 
-            formData.set("key", `free/${bookSlug}/${ch.fileName}`);
-            formData.append("Content-Type", "audio/opus");
+            formData.set("key", `audio-free/${bookSlug}/${ch.fileName}`);
+            // formData.append("Content-Type", "audio/opus");
             formData.append("file", ch.file);
 
             const res = await fetch(url, {
@@ -185,10 +185,10 @@ export default function UploadAudioModel({
               formData.append(k, v as string)
             );
 
-            formData.set("key", `${bookSlug}/${ch.fileName}`);
+            formData.set("key", `audio/${bookSlug}/${ch.fileName}`);
             if (!fields.acl) formData.append("acl", "private");
 
-            formData.append("Content-Type", "audio/opus");
+            // formData.append("Content-Type", "audio/opus");
             formData.append("file", ch.file);
 
             const res = await fetch(url, {

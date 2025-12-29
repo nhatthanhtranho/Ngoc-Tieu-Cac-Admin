@@ -211,7 +211,7 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
           <option value="">💬 Bình luận gốc</option>
           {comments.map((c) => (
             <option key={c._id} value={c._id}>
-              ↳ Reply: {c.username.slice(0, 20)}
+              ↳ Reply: {c?.username?.slice(0, 20)}
             </option>
           ))}
         </select>

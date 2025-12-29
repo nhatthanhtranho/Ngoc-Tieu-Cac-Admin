@@ -6,7 +6,7 @@ thap-nien-60-quan-tau-dua-vao-nuoi-con-di-len-dinh-cao-nhan-sinh: "[Dịch] Th�
 thap-nien-90-huong-giang-don-gian-mot-que-nhan-toi-den-toi: "[Dịch] Thập Niên 90 Hương Giang: Đơn Giản Một Quẻ, Nhận Tội Đền Tội"
 sau-khi-bi-gat-tan-thuoc-dap-vao-dau-nu-phu-mat-the-thuc-tinh-roi: "[Dịch] Sau Khi Bị Gạt Tàn Thuốc Đập Vào Đầu, Nữ Phụ Mạt Thế Thức Tỉnh Rồi!"
 thien-kim-that-chan-trau-o-tinh-te: "[Dịch] Thiên Kim Thật Chăn Trâu Ở Tinh Tế"
-ngoc-boi-thai-tu-gia: "[Dịch] Ngọc Bội Thái Tử Gia"
+ngoc-boi-thai-tu-gia: Ngọc Bội Thái Tử Gia
 vo-quan-nhan-thap-nien-1960-co-chut-cay-si-quan-doc-mieng-ba-dao-cung-chieu: "[Dịch] Vợ quân nhân thập niên 1960 có chút “cay”: Sĩ quan độc miệng bá đạo cưng chiều"
 thap-nien-70-cung-ban-than-xuyen-sach-ga-cho-thao-han-cau-ly-hon-minh-cung-ly-hon: "[Dịch] Thập Niên 70: Cùng Bạn Thân Xuyên Sách Gả Cho Thao Hán! Cậu Ly Hôn, Mình Cũng Ly Hôn"
 xuyen-khong-toan-tong-mon-o-mat-the-mo-quan-tro: "[Dịch] Xuyên Không: Toàn Tông Môn Ở Mạt Thế Mở Quán Trọ"
@@ -30,9 +30,9 @@ tan-the-ta-che-tao-vo-han-doan-tau: "[Dịch] Tận Thế: Ta Chế Tạo Vô H�
 su-phu-ngay-nao-cung-cau-xin-ta-dung-dot-pha-nua: "[Dịch] Sư Phụ Ngày Nào Cũng Cầu Xin Ta Đừng Đột Phá Nữa"
 xuyen-ve-co-dai-tiem-buffet-ta-mo-khien-thien-ha-dien-cuong: "[Dịch] Xuyên Về Cổ Đại, Tiệm Buffet Ta Mở Khiến Thiên Hạ Điên Cuồng"
 nao-co-to-tong-gi-deu-la-ta-bia: "[Dịch] Nào Có Tổ Tông Gì, Đều Là Ta Bịa"
-nghich-menh-van-the-ta-danh-no-tien-de: "[Dịch] Nghịch Mệnh Vạn Thế, Ta Đánh Nổ Tiên Đế"
-tien-dao-phan-cuoi: "[Dịch] Tiên Đạo Phần Cuối"
-dinh-cap-gian-thuong-bat-dau-vo-dich-tu-buon-ban-vu-khi-dan-duoc: "[Dịch] Đỉnh Cấp Gian Thương: Bắt Đầu Vô Địch Từ Buôn Bán Vũ Khí Đạn Dược"
+nghich-menh-van-the-ta-danh-no-tien-de: Nghịch Mệnh Vạn Thế, Ta Đánh Nổ Tiên Đế [VOZ]
+tien-dao-phan-cuoi: Tiên Đạo Phần Cuối [VOZ]
+dinh-cap-gian-thuong-bat-dau-vo-dich-tu-buon-ban-vu-khi-dan-duoc: Đỉnh Cấp Gian Thương: Bắt Đầu Vô Địch Từ Buôn Bán Vũ Khí Đạn Dược [VOZ]
 long-tang: "[Dịch] Long Tàng"
 han-mon-quat-khoi: "[Dịch] Hàn Môn Quật Khởi"
 than-o-cam-y-ve-bat-dau-them-diem-to-truyen-than-cong: "[Dịch] Thân ở Cẩm Y Vệ, Bắt Đầu Thêm Điểm Tổ truyền Thần Công"
@@ -133,7 +133,7 @@ tu-tien-ta-tung-du-hoc-o-thoi-hien-dai: "Tu Tiên: Ta Từng Du Học Ở Thời
 tu-tien-bat-bai-chia-deu-van-vat: "Tu Tiên Bất Bại, Chia Đều Vạn Vật"
 tro-choi-suy-dien: "Trò Chơi Suy Diễn"
 toi-trong-trot-o-tan-the: "Tôi Trồng Trọt Ở Tận Thế"
-thinh-tien-sinh-cuu-ta: "Thỉnh Tiên Sinh Cứu Ta"
+thinh-tien-sinh-cuu-ta: Thỉnh Tiên Sinh Cứu Ta [DONE]
 thien-ha-de-nhat-tru-hang: "Thiên Hạ Đệ Nhất Trữ Hàng"
 ta-xay-gia-vien-tren-lung-huyen-vu: "Ta Xây Gia Viên Trên Lưng Huyền Vũ"
 ta-vung-vang-kim-o-chi-muon-cuoi-vo-sinh-hoat: "Ta, Vững Vàng Kim Ô, Chỉ Muốn Cưới Vợ Sinh Hoạt!"

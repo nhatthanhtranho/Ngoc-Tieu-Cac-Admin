@@ -21,7 +21,6 @@ livestream-xem-boi-bong-choc-thanh-sao-hang-a: "[Dịch] Livestream Xem Bói: B�
 thap-nien-60-sau-khi-bi-ca-nha-ghet-bo-toi-duoc-quoc-gia-cung-chieu: "[Dịch] Thập Niên 60: Sau Khi Bị Cả Nhà Ghét Bỏ, Tôi Được Quốc Gia Cưng Chiều"
 nghe-bao-la-doi-vo-dung-co-ma-sao-toan-la-nguoi-hung-han-the-nay: "[Dịch] Nghe Bảo Là Đội Vô Dụng Cơ Mà, Sao Toàn Là Người Hung Hãn Thế Này?"
 kinh-di-tro-choi-ta-co-ta-than-code-goc: "[Dịch] Kinh Dị Trò Chơi: Ta Có Tà Thần Code Gốc"
-ma-tien-tot: Mã Tiền Tốt [DONE]
 nguoi-cang-tin-ta-cang-that: "[Dịch] Ngươi Càng Tin Ta Càng Thật"
 quy-dao-than-thoai: "[Dịch] Quỷ Đạo Thần Thoại"
 du-hoc-sinh-long-ha-tai-hoc-vien-co-giap: "[Dịch] Du Học Sinh Long Hạ Tại Học Viện Cơ Giáp"
@@ -133,7 +132,6 @@ tu-tien-ta-tung-du-hoc-o-thoi-hien-dai: "Tu Tiên: Ta Từng Du Học Ở Thời
 tu-tien-bat-bai-chia-deu-van-vat: "Tu Tiên Bất Bại, Chia Đều Vạn Vật"
 tro-choi-suy-dien: "Trò Chơi Suy Diễn"
 toi-trong-trot-o-tan-the: "Tôi Trồng Trọt Ở Tận Thế"
-thinh-tien-sinh-cuu-ta: Thỉnh Tiên Sinh Cứu Ta [DONE]
 thien-ha-de-nhat-tru-hang: "Thiên Hạ Đệ Nhất Trữ Hàng"
 ta-xay-gia-vien-tren-lung-huyen-vu: "Ta Xây Gia Viên Trên Lưng Huyền Vũ"
 ta-vung-vang-kim-o-chi-muon-cuoi-vo-sinh-hoat: "Ta, Vững Vàng Kim Ô, Chỉ Muốn Cưới Vợ Sinh Hoạt!"
@@ -240,7 +238,6 @@ nguoi-den-tuoi-gia-tuyet-my-ma-nu-lay-ta-lam-lo-dinh: "Người Đến Tuổi Gi
 nguoi-choi-so-4: "Người Chơi Số 4 (Dịch)"
 nan-doi-vat-pham-cua-ta-co-the-thang-cap: "Nạn Đói, Vật Phẩm Của Ta Có Thể Thăng Cấp"
 muon-kiem: "[Dịch] Mượn Kiếm"
-muon-am-tho: "Mượn Âm Thọ"
 mot-long-muon-lam-vai-ac-ta-lai-dem-tat-ca-moi-nguoi-chua-khoi-lam-sao-bay-gio: "Một Lòng Muốn Làm Vai Ác, Ta Lại Đem Tất Cả Mọi Người Chữa Khỏi Làm Sao Bây Giờ"
 moi-thang-co-the-uoc-nguyen-dao-tong-thanh-nu-luan-ham: "Mỗi Tháng Có Thể Ước Nguyện, Đạo Tông Thánh Nữ Luân Hãm"
 ma-y-than-te: "Ma Y Thần Tế (Dịch)"
@@ -256,42 +253,49 @@ huyen-hoc-trung-y-bat-mach-doan-menh-livestream: "Huyền Học Trung Y, Bắt M
 hong-hoang-khuyen-to-long-quy-an-ta-bi-truc-xuat-long-toc: "Hồng Hoang: Khuyên Tổ Long Quy Ẩn, Ta Bị Trục Xuất Long Tộc"
 he-thong-than-thoai-cua-toi-khong-giong-cac-nguoi: "Hệ Thống Thần Thoại Của Ta Không Giống Các Người"
 he-thong-thanh-tai-cua-thien-kim-o-am-ty: "Hệ Thống Thành Tài Của Thiên Kim Ở Âm Ty"
-he-thong-cua-hang-o-di-gioi: "Hệ Thống Cửa Hàng Ở Dị Giới"
-giet-dich-tang-tu-vi-cong-luc-ngap-troi: "Giết Địch Tăng Tu Vi, Công Lực Ngập Trời!"
-gia-toc-tu-tien-ta-lay-dong-doi-thanh-tien: "Gia Tộc Tu Tiên: Ta Lấy Dòng Dõi Thành Tiên"
+giet-dich-tang-tu-vi-cong-luc-ngap-troi: "Giết Địch Tăng Tu Vi, Công Lực Ngập Trời!" [MUA]
+gia-toc-tu-tien-ta-lay-dong-doi-thanh-tien: "Gia Tộc Tu Tiên: Ta Lấy Dòng Dõi Thành Tiên" [MUA]
 gia-toc-quat-khoi-bat-dau-voi-tin-tinh-bao-moi-ngay: "[Dịch] Gia Tộc Quật Khởi: Bắt Đầu Với Tin Tình Báo Mỗi Ngày"
-giao-dich-cong-duc-toi-thanh-top-1-server-dia-phu: "Giao Dịch Công Đức, Tôi Thành Top 1 Server Địa Phủ (Dịch)"
-doi-tuong-hen-ho-la-than-minh-chi-nu: "Đối Tượng Hẹn Hò Là Thần Minh Chi Nữ"
+giao-dich-cong-duc-toi-thanh-top-1-server-dia-phu: "Giao Dịch Công Đức, Tôi Thành Top 1 Server Địa Phủ (Dịch)" [NT]
 doan-tau-cau-sinh-tat-ca-nang-luc-ta-deu-thang-hoa: "Đoàn Tàu Cầu Sinh, Tất Cả Năng Lực Ta Đều Thăng Hoa!"
 dien-roi-di-ta-vua-tien-thien-han-thi-tien-de: "Điên Rồi Đi? Ta Vừa Tiên Thiên Hắn Thì Tiên Đế!"
 dia-nguc-muoi-tam-tang-o-day-cam-noi-doi: "Địa Ngục Mười Tám Tầng : Ở Đây Cấm Nói Dối (Dịch)"
-de-nhat-noi-ung-tai-nam-tong: "Đệ Nhất Nội Ứng Tại Nam Tống (Dịch)"
 dao-lu-hung-manh-cua-ta-cung-trung-sinh: "Đạo Lữ Hung Mãnh Của Ta Cũng Trùng Sinh (Dịch)"
 dai-phung-bai-gia-tu: "Đại Phụng Bại Gia Tử"
 dai-lao-y-tu-trung-sinh-doat-lai-khi-van: "Đại Lão Y Tu Trùng Sinh Đoạt Lại Khí Vận"
 dai-lao-tro-ve-khong-dien-vai-thien-kim-gia-nua: "Đại Lão Trở Về, Không Diễn Vai Thiên Kim Giả Nữa (Dịch)"
-dai-can-truong-sinh: "Đại Càn Trường Sinh (Dịch)"
-dai-boss-tan-thu-thon: "Đại Boss Tân Thủ Thôn (Dịch)"[DONE]
+dai-can-truong-sinh: "Đại Càn Trường Sinh (Dịch)" [BANQUYEN?]
 cuu-vot-luc-gioi-bat-dau-tu-yeu-duong: "Cứu Vớt Lục Giới Bắt Đầu Từ Yêu Đương (Dịch)"
-chuong-mon-su-thuc-khong-phai-pham-nhan: "[Dịch] Chưởng Môn Sư Thúc Không Phải Phàm Nhân"
-chi-muon-nam-thi-ta-bi-ep-tu-tien: "Chỉ Muốn Nằm Thi Ta Bị Ép Tu Tiên (Dịch)" [K có]
-chang-re-manh-nhat-lich-su: "Chàng Rể Mạnh Nhất Lịch Sử (Dịch)" [DONE]
-cay-tai-tan-the-them-diem-thang-cap: "Cày Tại Tận Thế Thêm Điểm Thăng Cấp (Dịch)" [DONE]
+chuong-mon-su-thuc-khong-phai-pham-nhan: "[Dịch] Chưởng Môn Sư Thúc Không Phải Phàm Nhân" [MUA]
+chi-muon-nam-thi-ta-bi-ep-tu-tien: "Chỉ Muốn Nằm Thi Ta Bị Ép Tu Tiên (Dịch)" [MUA]
+
 bi-mang-la-ngoi-sao-choi-u-toan-thon-khoc-chit-chit-cau-ta-dan-theo-lam-giau: "Bị Mắng Là Ngôi Sao Chổi Ư? Toàn Thôn Khóc Chít Chít Cầu Ta Dẫn Theo Làm Giàu (Dịch)" [KC]
 bat-ngo-xuyen-ve-thap-nien-60-co-gai-so-huu-nong-truong-thong-van-gioi: "Bất Ngờ Xuyên Về Thập Niên 60, Cô Gái Sở Hữu Nông Trường Thông Vạn Giới (Dịch)" [KC]
 bat-dau-truong-sinh-van-co-cau-den-thien-hoang-dia-lao: "Bắt Đầu Trường Sinh Vạn Cổ, Cẩu Đến Thiên Hoang Địa Lão (Dịch)" [KHÔNG CÓ]
 bat-dau-mot-than-vo-dich-dai-chieu: "Bắt Đầu Một Thân Vô Địch Đại Chiêu (Dịch)" [KHÔNG CÓ]
 bat-dao-hanh: "Bát Đao Hành (Dịch)" [KHÔNG CÓ]
-bao-tang-son-hai: "Bảo Tàng Sơn Hải (Dịch)" [DONE]
+truong-luc-kim-than-tran-yeu-ma-ta-than-thong-vo-thuong-han: "Trượng Lục Kim Thân Trấn Yêu Ma, Ta Thần Thông Vô Thượng Hạng" 
 ban-ton-cau-den-vo-dich-vo-han-phan-than-che-ba-tien-gioi: "Bản Tôn Cẩu Đến Vô Địch, Vô Hạn Phân Thân Chế Bá Tiên Giới (Dịch)"
 ba-co-ba-tuoi-ruoi-tay-om-binh-sua-tay-doan-menh: "Bà Cô Ba Tuổi Rưỡi: Tay Ôm Bình Sữa, Tay Đoán Mệnh! (Dịch)"
 ba-chu-tiem-quan-tai: "Bà Chủ Tiệm Quan Tài (Dịch)" [KHÔNG CÓ]
 bach-nien-tu-tien-ta-sap-chet-ban-tay-vang-moi-den: "Bách Niên Tu Tiên, Ta Sắp Chết Bàn Tay Vàng Mới Đến (Dịch)" [KHÔNG CÓ]
-bac-am-dai-thanh: "Bắc Âm Đại Thánh (Dịch)" [DONE]
-ac-mong-kinh-tap: "Ác Mộng Kinh Tập (Dịch)" [DONE]
+
 khong-phai-chu-ban-gai-ao-cua-ta-sao-lai-tu-thanh-kiem-tien-roi: "[Dịch] Không Phải Chứ, Bạn Gái Ảo Của Ta Sao Lại Tu Thành Kiếm Tiên Rồi?" [KHONG THAY]
+
+
 di-thu-me-thanh: "[Dịch] Dị Thú Mê Thành" [DONE]
-tu-phe-linh-can-bat-dau-van-ma-tu-hanh: "Từ Phế Linh Căn Bắt Đầu Vấn Ma Tu Hành" [DONE]
 thuoc-tinh-tu-hanh-nhan-sinh-cua-ta: "Thuộc Tính Tu Hành Nhân Sinh Của Ta" [DONE]
 quy-xa: "[Dịch] Quỷ Xá" [DONE]
-truong-luc-kim-than-tran-yeu-ma-ta-than-thong-vo-thuong-han: "Trượng Lục Kim Thân Trấn Yêu Ma, Ta Thần Thông Vô Thượng Hạng"
+de-nhat-noi-ung-tai-nam-tong: "Đệ Nhất Nội Ứng Tại Nam Tống (Dịch)" [DONE]
+bao-tang-son-hai: "Bảo Tàng Sơn Hải (Dịch)" [DONE]
+dai-boss-tan-thu-thon: "Đại Boss Tân Thủ Thôn (Dịch)"[DONE]
+tu-phe-linh-can-bat-dau-van-ma-tu-hanh: "Từ Phế Linh Căn Bắt Đầu Vấn Ma Tu Hành" [DONE]
+bac-am-dai-thanh: "Bắc Âm Đại Thánh (Dịch)" [DONE]
+ac-mong-kinh-tap: "Ác Mộng Kinh Tập (Dịch)" [DONE]
+chang-re-manh-nhat-lich-su: "Chàng Rể Mạnh Nhất Lịch Sử (Dịch)" [DONE]
+cay-tai-tan-the-them-diem-thang-cap: "Cày Tại Tận Thế Thêm Điểm Thăng Cấp (Dịch)" [DONE]
+thinh-tien-sinh-cuu-ta: Thỉnh Tiên Sinh Cứu Ta [DONE]
+ma-tien-tot: Mã Tiền Tốt [DONE]
+muon-am-tho: "Mượn Âm Thọ" [DONE]
+doi-tuong-hen-ho-la-than-minh-chi-nu: "Đối Tượng Hẹn Hò Là Thần Minh Chi Nữ" [DONE]
+he-thong-cua-hang-o-di-gioi: "Hệ Thống Cửa Hàng Ở Dị Giới" [DONE]

@@ -64,7 +64,6 @@ sieu-nang-luc-ta-co-mot-chiec-guong-sao-chep: "[Dịch] Siêu Năng Lực: Ta C�
 kinh-doanh-cua-hang-xuyen-vi-dien: "[Dịch] Kinh Doanh Cửa Hàng Xuyên Vị Diện"
 toi-kiem-tien-nho-an-dua-o-gioi-hao-mon: "[Dịch] Tôi Kiếm Tiền Nhờ Ăn Dưa Ở Giới Hào Môn"
 dai-tan-tu-chien-truong-bat-dau-nhat-thuoc-tinh: "[Dịch] Đại Tần: Từ Chiến Trường Bắt Đầu Nhặt Thuộc Tính"
-luc-dia-kien-tien: "[Dịch] Lục Địa Kiện Tiên"
 doc-co-ma-tien: "[Dịch] Độc Cổ Ma Tiên"
 chuong-mon-khiem-ton-chut: "[Dịch] Chưởng Môn Khiêm Tốn Chút"
 khong-gian-don-hoa-o-mat-the-gian-nan-cau-sinh: "[Dịch] Không Gian Độn Hóa: Ở Mạt Thế Gian Nan Cầu Sinh"
@@ -284,14 +283,12 @@ hoanh-tao-hoang-vu: "[Dịch] Hoành Tảo Hoang Vũ" [DONE]
 ta-thieu-duoc-vuong: "[Dịch] Tà Thiếu Dược Vương" [DONE]
 tien-quoc-dai-de: "[Dịch] Tiên Quốc Đại Đế" [DONE]
 thuo-xua-co-ngon-nui-linh-kiem: "[Dịch] Thuở Xưa Có Ngọn Núi Linh Kiếm" [DONE]
-hoc-sinh-chi-tu-chan-cuong-long: "Học Sinh Chi Tu Chân Cuồng Long" [DONE]
-ta-that-su-khong-yeu-nha: "Ta Thật Sự Không Yếu Nha!" [DONE]
-
+luc-dia-kien-tien: "[Dịch] Lục Địa Kiện Tiên" [PROGRESS]
 tien-phu-truong-sinh: "Tiên Phủ Trường Sinh" [PROGRESS]
 dai-de-cam-khu: "[Dịch] Đại Đế Cấm Khu" [PROGRESS]
 kiem-vuong-trieu: "[Dịch] Kiếm Vương Triều" [PROGRESS]
-nguoi-choi-so-4: "Người Chơi Số 4 (Dịch)" [PROGRESS]
-ngu-thu-ta-co-the-vo-han-tien-hoa: "[Dịch] Ngự Thú: Ta Có Thể Vô Hạn Tiến Hóa" [PROGRESS]
+nguoi-choi-so-4: "Người Chơi Số 4 (Dịch)" [DONE]
+ngu-thu-ta-co-the-vo-han-tien-hoa: "[Dịch] Ngự Thú: Ta Có Thể Vô Hạn Tiến Hóa" [DONE]
 quy-di-khoi-phuc-ta-co-the-bien-than-dai-yeu: "Quỷ Dị Khôi Phục: Ta Có Thể Biến Thân Đại Yêu! (Dịch)" [PROGRESS]
 muon-kiem: "[Dịch] Mượn Kiếm" [VOZ] [PROGRESS]
 thien-uyen: "Thiên Uyên" [VOZ] [PROGRESS]

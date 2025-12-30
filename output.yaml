@@ -149,18 +149,17 @@ cau-tai-yeu-vo-loan-the-tu-tien: "[Dịch] Cẩu Tại Yêu Võ Loạn Thế Tu 
 cau-tai-vo-dao-the-gioi-thanh-thanh: "[Dịch] Cẩu Tại Võ Đạo Thế Giới Thành Thánh "
 cai-gi-ta-phap-ta-day-la-duong-duong-chinh-chinh-chinh-phap: "Cái Gì Tà Pháp? Ta Đây Là Đường Đường Chính Chính Chính Pháp"
 be-cung-yeu-duoi-duoc-lao-dai-mat-the-nuong-chieu: "Bé Cưng Yếu Đuối Được Lão Đại Mạt Thế Nuông Chiều"
-ba-vo: "Bá Võ"
 bat-lay-ma-tu-kia: "Bắt Lấy Ma Tu Kia"
 bat-dau-trieu-hoan-ly-nho-cung-hoang-trung: "[Dịch] Bắt Đầu Triệu Hoán Lý Nho Cùng Hoàng Trung"
 bach-yeu-pho: "Bách Yêu Phổ (Dịch)"
 ai-noi-ta-luyen-sai-cong-phap: "Ai Nói Ta Luyện Sai Công Pháp (Dịch)"
 vung-kiem-ve-phia-nu-ma-dau-tuong-lai: "Vung Kiếm Về Phía Nữ Ma Đầu Tương Lai (Dịch)"
-tuyet-canh-hac-da: "[Dịch] Tuyệt Cảnh Hắc Dạ " [DONE]
 tu-tien-ta-co-the-xuyen-qua-the-gioi-khac: "Tu Tiên, Ta Có Thể Xuyên Qua Thế Giới Khác (Dịch)"
-tu-tien-on-dinh-ca-tu-tien-gioi-deu-la-nha-ta: "Tu Tiên Ổn Định, Cả Tu Tiên Giới Đều Là Nhà Ta (Dịch)" [DONE]
+
+
+
 tu-tien-chinh-la-cuop-tien: "Tu Tiên Chính Là Cướp Tiền (Dịch)"
 tu-gia-toc-bao-thu-cau-thanh-van-co-the-gia: "[Dịch] Từ Gia Tộc Bảo Thụ Cẩu Thành Vạn Cổ Thế Gia"
-truong-sinh-luyen-khi-su: "Trường Sinh Luyện Khí Sư (Dịch)" [DONE]
 truong-sinh-bat-dau-tu-thang-cap-kien-truc: "[Dịch] Trường Sinh Bắt Đầu Từ Thăng Cấp Kiến Trúc (Dịch)"
 truong-sinh-bat-dau-tu-tap-dich-nuoi-ga: "Trường Sinh, Bắt Đầu Từ Tạp Dịch Nuôi Gà"
 trong-sinh-chi-toi-cuong-kiem-than: "Trọng Sinh Chi Tối Cường Kiếm Thần"
@@ -288,8 +287,14 @@ nguoi-choi-so-4: "Người Chơi Số 4 (Dịch)" [DONE]
 ngu-thu-ta-co-the-vo-han-tien-hoa: "[Dịch] Ngự Thú: Ta Có Thể Vô Hạn Tiến Hóa" [DONE]
 quy-di-khoi-phuc-ta-co-the-bien-than-dai-yeu: "Quỷ Dị Khôi Phục: Ta Có Thể Biến Thân Đại Yêu! (Dịch)" [DONE]
 toan-cau-ma-vuong-bat-dau-lua-chon-tham-uyen-cu-long: "Toàn Cầu Ma Vương Bắt Đầu Lựa Chọn Thâm Uyên Cự Long [DONE]
+ba-vo: "Bá Võ" [DONE]
+tu-tien-on-dinh-ca-tu-tien-gioi-deu-la-nha-ta: "Tu Tiên Ổn Định, Cả Tu Tiên Giới Đều Là Nhà Ta (Dịch)" [DONE]
+truong-sinh-luyen-khi-su: "Trường Sinh Luyện Khí Sư (Dịch)" [DONE]
 
+tuyet-canh-hac-da: "[Dịch] Tuyệt Cảnh Hắc Dạ " [VOZ]
 vong-du-chi-menh-luan-chi-chu: "Võng Du Chi Mệnh Luân Chi Chủ (Dịch)" [PROGRESS]
+
+
 
 bat-dau-truong-sinh-van-co-cau-den-thien-hoang-dia-lao: "Bắt Đầu Trường Sinh Vạn Cổ, Cẩu Đến Thiên Hoang Địa Lão (Dịch)" [KHÔNG CÓ]
 bat-dau-mot-than-vo-dich-dai-chieu: "Bắt Đầu Một Thân Vô Địch Đại Chiêu (Dịch)" [KHÔNG CÓ]

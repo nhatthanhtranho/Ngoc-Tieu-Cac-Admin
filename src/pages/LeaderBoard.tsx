@@ -198,7 +198,7 @@ export default function LeaderBoard() {
   const [loadingOverlay, setLoadingOverlay] = useState(false);
 
   useEffect(() => {
-    fetchAllBookSlugs((data: Book[]) => setBooks(data));
+    fetchAllBookSlugs((data: Book[]) => setBooks(data), false);
     document.title = "Bảng Xếp Hạng";
   }, []);
 

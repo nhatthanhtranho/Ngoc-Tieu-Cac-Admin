@@ -151,8 +151,7 @@ ta-dien-cuong-tim-duong-chet-con-bi-nang-vi-tu-tien-dien-hinh: "Ta Điên Cuồn
 
 
 
-bat-dau-lam-tong-chu-quy-tac-cua-ta-co-chut-la: "[Dịch] Bắt Đầu Làm Tông Chủ: Quy Tắc Của Ta Có Chút Lạ"
-nu-phu-ac-doc-dua-vao-huyen-hoc-phan-kich: "Nữ Phụ Ác Độc, Dựa Vào Huyền Học Phản Kích"
+nu-phu-ac-doc-dua-vao-huyen-hoc-phan-kich: "Nữ Phụ Ác Độc, Dựa Vào Huyền Học Phản Kích" [NT]
 
 nhan-vat-phan-dien-khong-theo-kich-ban-ra-bai-bat-dau-tu-hon-nu-chinh: "Nhân Vật Phản Diện: Không Theo Kịch Bản Ra Bài, Bắt Đầu Từ Hôn Nữ Chính"
 
@@ -160,9 +159,9 @@ nan-doi-vat-pham-cua-ta-co-the-thang-cap: "Nạn Đói, Vật Phẩm Của Ta C�
 mot-long-muon-lam-vai-ac-ta-lai-dem-tat-ca-moi-nguoi-chua-khoi-lam-sao-bay-gio: "Một Lòng Muốn Làm Vai Ác, Ta Lại Đem Tất Cả Mọi Người Chữa Khỏi Làm Sao Bây Giờ"
 moi-thang-co-the-uoc-nguyen-dao-tong-thanh-nu-luan-ham: "Mỗi Tháng Có Thể Ước Nguyện, Đạo Tông Thánh Nữ Luân Hãm"
 lam-ruong-nuoi-yeu-tu-tien-cau-truong-sinh: "Làm Ruộng Nuôi Yêu, Tu Tiên Cầu Trường Sinh"
-huyen-hoc-trung-y-bat-mach-doan-menh-livestream: "Huyền Học Trung Y, Bắt Mạch Đoán Mệnh Livestream"
-he-thong-than-thoai-cua-toi-khong-giong-cac-nguoi: "Hệ Thống Thần Thoại Của Ta Không Giống Các Người"
-he-thong-thanh-tai-cua-thien-kim-o-am-ty: "Hệ Thống Thành Tài Của Thiên Kim Ở Âm Ty"
+huyen-hoc-trung-y-bat-mach-doan-menh-livestream: "Huyền Học Trung Y, Bắt Mạch Đoán Mệnh Livestream" [NT]
+he-thong-than-thoai-cua-toi-khong-giong-cac-nguoi: "Hệ Thống Thần Thoại Của Ta Không Giống Các Người" [không có]
+he-thong-thanh-tai-cua-thien-kim-o-am-ty: "Hệ Thống Thành Tài Của Thiên Kim Ở Âm Ty" [NT]
 giet-dich-tang-tu-vi-cong-luc-ngap-troi: "Giết Địch Tăng Tu Vi, Công Lực Ngập Trời!" [MUA]
 gia-toc-tu-tien-ta-lay-dong-doi-thanh-tien: "Gia Tộc Tu Tiên: Ta Lấy Dòng Dõi Thành Tiên" [MUA]
 gia-toc-quat-khoi-bat-dau-voi-tin-tinh-bao-moi-ngay: "[Dịch] Gia Tộc Quật Khởi: Bắt Đầu Với Tin Tình Báo Mỗi Ngày"
@@ -254,6 +253,7 @@ doc-co-ma-tien: "[Dịch] Độc Cổ Ma Tiên" [progress]
 trong-sinh-chi-toi-cuong-kiem-than: "Trọng Sinh Chi Tối Cường Kiếm Thần" [PROGRESS]
 luc-dia-kien-tien: "[Dịch] Lục Địa Kiện Tiên" [PROGRESS]
 toan-dan-vong-du-bat-dau-vo-han-diem-ky-nang: "[Dịch] Toàn Dân Võng Du: Bắt Đầu Vô Hạn Điểm Kỹ Năng" [PROGRESS]
+bat-dau-lam-tong-chu-quy-tac-cua-ta-co-chut-la: "[Dịch] Bắt Đầu Làm Tông Chủ: Quy Tắc Của Ta Có Chút Lạ" [PROGRESS] [VOZ]
 tuyet-canh-hac-da: "[Dịch] Tuyệt Cảnh Hắc Dạ " [VOZ]
 nghich-menh-van-the-ta-danh-no-tien-de: Nghịch Mệnh Vạn Thế, Ta Đánh Nổ Tiên Đế [VOZ]
 

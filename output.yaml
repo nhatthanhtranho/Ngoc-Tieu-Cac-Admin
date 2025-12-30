@@ -86,7 +86,6 @@ xuyen-sach-tro-thanh-me-ke-cua-hotboy-vuon-truong: "[Dịch] Xuyên Sách Trở 
 nghe-thay-tieng-long-cua-ta-toan-tong-phao-hoi-tao-phan-roi: "Nghe Thấy Tiếng Lòng Của Ta, Toàn Tông Pháo Hôi Tạo Phản Rồi"
 ba-xa-ngoan-mem-nuoi-ran-o-mat-the: "[Dịch] Bà Xã Ngoan Mềm, Nuôi Rắn Ở Mạt Thế"
 thap-nien-60-an-com-ga-chong-nuoi-con: "[Dịch] Thập Niên 60: Ăn Cơm Gả Chồng Nuôi Con"
-thuo-xua-co-ngon-nui-linh-kiem: "[Dịch] Thuở Xưa Có Ngọn Núi Linh Kiếm" [DONE]
 mang-theo-di-dong-chay-nan-ta-bi-thao-han-trong-sinh-kieu-duong: "[Dịch] Mang Theo Di Động Chạy Nạn, Ta Bị Tháo Hán Trọng Sinh Kiều Dưỡng"
 vua-chia-tay-lien-cung-nu-minh-tinh-vao-khach-san: "[Dịch] Vừa Chia Tay Liền Cùng Nữ Minh Tinh Vào Khách Sạn"
 ta-mo-quan-ruou-thoi-mat-the: "[Dịch] Ta Mở Quán Rượu Thời Mạt Thế"
@@ -271,15 +270,9 @@ khong-de-ta-chet-nua-ta-vo-dich-that-day: "Không Để Ta Chết Nữa, Ta Vô 
 dong-den-de-tu-cua-ta-nguoi-nghi-ta-chi-biet-day-hoc: "Động Đến Đệ Tử Của Ta, Ngươi Nghĩ Ta Chỉ Biết Dạy Học?" [DONE]
 ta-don-ngo-hon-don-the: "Ta Đốn Ngộ Hỗn Độn Thể" [DONE]
 dinh-cap-gian-thuong-bat-dau-vo-dich-tu-buon-ban-vu-khi-dan-duoc: "Đỉnh Cấp Gian Thương: Bắt Đầu Vô Địch Từ Buôn Bán Vũ Khí Đạn Dược" [DONE]
-tien-phu-truong-sinh: "Tiên Phủ Trường Sinh" [PROGRESS]
-dai-de-cam-khu: "[Dịch] Đại Đế Cấm Khu" [PROGRESS]
 khong-khoa-hoc-ngu-thu: "Không Khoa Học Ngự Thú" [DONE]
 lao-ba-ta-la-thanh-nu: "Lão Bà Ta Là Thánh Nữ" [DONE]
 muon-kiem: "[Dịch] Mượn Kiếm" [VOZ]
-nguoi-choi-so-4: "Người Chơi Số 4 (Dịch)" [PROGRESS]
-quy-di-khoi-phuc-ta-co-the-bien-than-dai-yeu: "Quỷ Dị Khôi Phục: Ta Có Thể Biến Thân Đại Yêu! (Dịch)" [PROGRESS]
-kiem-vuong-trieu: "[Dịch] Kiếm Vương Triều" [PROGRESS]
-ngu-thu-ta-co-the-vo-han-tien-hoa: "[Dịch] Ngự Thú: Ta Có Thể Vô Hạn Tiến Hóa" [PROGRESS]
 thien-uyen: "Thiên Uyên" [VOZ]
 ma-y-than-te: "Ma Y Thần Tế (Dịch)" [DONE]
 dao-lu-hung-manh-cua-ta-cung-trung-sinh: "Đạo Lữ Hung Mãnh Của Ta Cũng Trùng Sinh (Dịch)" [DONE]
@@ -295,7 +288,13 @@ ta-thieu-duoc-vuong: "[Dịch] Tà Thiếu Dược Vương" [DONE]
 tien-quoc-dai-de: "[Dịch] Tiên Quốc Đại Đế" [DONE]
 tien-ma-bien: "[Dịch] Tiên Ma Biến" [KHÓ ÁC]
 
-
+thuo-xua-co-ngon-nui-linh-kiem: "[Dịch] Thuở Xưa Có Ngọn Núi Linh Kiếm" [DONE]
+tien-phu-truong-sinh: "Tiên Phủ Trường Sinh" [PROGRESS]
+dai-de-cam-khu: "[Dịch] Đại Đế Cấm Khu" [PROGRESS]
+kiem-vuong-trieu: "[Dịch] Kiếm Vương Triều" [PROGRESS]
+nguoi-choi-so-4: "Người Chơi Số 4 (Dịch)" [PROGRESS]
+ngu-thu-ta-co-the-vo-han-tien-hoa: "[Dịch] Ngự Thú: Ta Có Thể Vô Hạn Tiến Hóa" [PROGRESS]
+quy-di-khoi-phuc-ta-co-the-bien-than-dai-yeu: "Quỷ Dị Khôi Phục: Ta Có Thể Biến Thân Đại Yêu! (Dịch)" [PROGRESS]
 
 
 bat-dau-truong-sinh-van-co-cau-den-thien-hoang-dia-lao: "Bắt Đầu Trường Sinh Vạn Cổ, Cẩu Đến Thiên Hoang Địa Lão (Dịch)" [KHÔNG CÓ]

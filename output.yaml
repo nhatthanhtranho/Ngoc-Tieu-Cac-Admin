@@ -22,7 +22,7 @@ thap-nien-60-sau-khi-bi-ca-nha-ghet-bo-toi-duoc-quoc-gia-cung-chieu: "[Dịch] T
 nghe-bao-la-doi-vo-dung-co-ma-sao-toan-la-nguoi-hung-han-the-nay: "[Dịch] Nghe Bảo Là Đội Vô Dụng Cơ Mà, Sao Toàn Là Người Hung Hãn Thế Này?"
 kinh-di-tro-choi-ta-co-ta-than-code-goc: "[Dịch] Kinh Dị Trò Chơi: Ta Có Tà Thần Code Gốc"
 nguoi-cang-tin-ta-cang-that: "[Dịch] Ngươi Càng Tin Ta Càng Thật"
-quy-dao-than-thoai: "[Dịch] Quỷ Đạo Thần Thoại"
+quy-dao-than-thoai: "[Dịch] Quỷ Đạo Thần Thoại" [không có]
 du-hoc-sinh-long-ha-tai-hoc-vien-co-giap: "[Dịch] Du Học Sinh Long Hạ Tại Học Viện Cơ Giáp"
 minh-lan-nhuoc: "[Dịch] Minh Lan Nhược"
 tan-the-ta-che-tao-vo-han-doan-tau: "[Dịch] Tận Thế: Ta Chế Tạo Vô Hạn Đoàn Tàu"
@@ -33,8 +33,8 @@ nghich-menh-van-the-ta-danh-no-tien-de: Nghịch Mệnh Vạn Thế, Ta Đánh N
 tien-dao-phan-cuoi: Tiên Đạo Phần Cuối [không có]
 long-tang: "[Dịch] Long Tàng"
 han-mon-quat-khoi: "[Dịch] Hàn Môn Quật Khởi" [không có]
-than-o-cam-y-ve-bat-dau-them-diem-to-truyen-than-cong: "[Dịch] Thân ở Cẩm Y Vệ, Bắt Đầu Thêm Điểm Tổ truyền Thần Công"
-vi-phu-chi-muon-lang-lang-nhin-xem-nguoi-truong-sinh: "[Dịch] Vi Phụ Chỉ Muốn Lẳng Lặng Nhìn Xem Ngươi Trường Sinh"
+than-o-cam-y-ve-bat-dau-them-diem-to-truyen-than-cong: "[Dịch] Thân ở Cẩm Y Vệ, Bắt Đầu Thêm Điểm Tổ truyền Thần Công" [không có]
+vi-phu-chi-muon-lang-lang-nhin-xem-nguoi-truong-sinh: "[Dịch] Vi Phụ Chỉ Muốn Lẳng Lặng Nhìn Xem Ngươi Trường Sinh" [không có]
 ngo-o-y: "[Dịch] Ngõ Ô Y" [https://gacsach.org/ngo-o-y_diem-linh.full]
 thap-nien-60-thao-han-sung-the-nhu-bao-vat: "[Dịch] Thập Niên 60: Tháo Hán Sủng Thê Như Bảo Vật"
 cung-ngay-ly-hon-queo-vao-cuc-dan-chinh-voi-chu-ut-cua-chong-cu: "[Dịch] Cùng Ngày Ly Hôn, Quẹo Vào Cục Dân Chính Với Chú Út Của Chồng Cũ"
@@ -43,7 +43,6 @@ thap-nien-70-thinh-vuong: "[Dịch] Thập niên 70 thịnh vượng"
 phan-phai-kiem-tra-kich-ban-tu-nuoi-thanh-nu-de-bat-dau: "[Dịch] Phản Phái: Kiểm Tra Kịch Bản, Từ Nuôi Thành Nữ Đế Bắt Đầu"
 ta-lam-ke-mau-cua-chong-truoc: "Ta Làm Kế Mẫu Của Chồng Trước"
 vu-vuong: "[Dịch] Vũ Vương"
-trieu-hoan-than-binh: "[Dịch] Triệu Hoán Thần Binh"
 doan-tau-sinh-ton-cuop-lay-than-phan-nguoi-choi: "Đoàn Tàu Sinh Tồn, Cướp Lấy Thân Phận Người Chơi"
 
 
@@ -290,6 +289,7 @@ toan-cau-ma-vuong-bat-dau-lua-chon-tham-uyen-cu-long: "Toàn Cầu Ma Vương B�
 
 vong-du-chi-menh-luan-chi-chu: "Võng Du Chi Mệnh Luân Chi Chủ (Dịch)" [PROGRESS]
 dau-pha-chi-dich-bao-he-thong: "Đấu Phá Chi Dịch Bảo Hệ Thống" [PROGRESS]
+trieu-hoan-than-binh: "[Dịch] Triệu Hoán Thần Binh" [PROGRESS]
 
 bat-dau-truong-sinh-van-co-cau-den-thien-hoang-dia-lao: "Bắt Đầu Trường Sinh Vạn Cổ, Cẩu Đến Thiên Hoang Địa Lão (Dịch)" [KHÔNG CÓ]
 bat-dau-mot-than-vo-dich-dai-chieu: "Bắt Đầu Một Thân Vô Địch Đại Chiêu (Dịch)" [KHÔNG CÓ]

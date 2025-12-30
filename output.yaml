@@ -30,8 +30,7 @@ su-phu-ngay-nao-cung-cau-xin-ta-dung-dot-pha-nua: "[Dịch] Sư Phụ Ngày Nào
 xuyen-ve-co-dai-tiem-buffet-ta-mo-khien-thien-ha-dien-cuong: "[Dịch] Xuyên Về Cổ Đại, Tiệm Buffet Ta Mở Khiến Thiên Hạ Điên Cuồng"
 nao-co-to-tong-gi-deu-la-ta-bia: "[Dịch] Nào Có Tổ Tông Gì, Đều Là Ta Bịa"
 nghich-menh-van-the-ta-danh-no-tien-de: Nghịch Mệnh Vạn Thế, Ta Đánh Nổ Tiên Đế [VOZ]
-tien-dao-phan-cuoi: Tiên Đạo Phần Cuối [VOZ]
-dinh-cap-gian-thuong-bat-dau-vo-dich-tu-buon-ban-vu-khi-dan-duoc: Đỉnh Cấp Gian Thương: Bắt Đầu Vô Địch Từ Buôn Bán Vũ Khí Đạn Dược [VOZ]
+tien-dao-phan-cuoi: Tiên Đạo Phần Cuối [không có]
 long-tang: "[Dịch] Long Tàng"
 han-mon-quat-khoi: "[Dịch] Hàn Môn Quật Khởi"
 than-o-cam-y-ve-bat-dau-them-diem-to-truyen-than-cong: "[Dịch] Thân ở Cẩm Y Vệ, Bắt Đầu Thêm Điểm Tổ truyền Thần Công"
@@ -290,12 +289,13 @@ bac-am-dai-thanh: "Bắc Âm Đại Thánh (Dịch)" [DONE]
 ac-mong-kinh-tap: "Ác Mộng Kinh Tập (Dịch)" [DONE]
 chang-re-manh-nhat-lich-su: "Chàng Rể Mạnh Nhất Lịch Sử (Dịch)" [DONE]
 cay-tai-tan-the-them-diem-thang-cap: "Cày Tại Tận Thế Thêm Điểm Thăng Cấp (Dịch)" [DONE]
-thinh-tien-sinh-cuu-ta: Thỉnh Tiên Sinh Cứu Ta [DONE]
-ma-tien-tot: Mã Tiền Tốt [DONE]
+thinh-tien-sinh-cuu-ta: "Thỉnh Tiên Sinh Cứu Ta" [DONE]
+ma-tien-tot: "Mã Tiền Tốt" [DONE]
 muon-am-tho: "Mượn Âm Thọ" [DONE]
 doi-tuong-hen-ho-la-than-minh-chi-nu: "Đối Tượng Hẹn Hò Là Thần Minh Chi Nữ" [DONE]
 he-thong-cua-hang-o-di-gioi: "Hệ Thống Cửa Hàng Ở Dị Giới" [DONE]
-noi-bua-cong-phap-do-nhi-nguoi-that-luyen-thanh: "Nói Bừa Công Pháp, Đồ Nhi Ngươi Thật Luyện Thành?" [PROGRESS]
+noi-bua-cong-phap-do-nhi-nguoi-that-luyen-thanh: "Nói Bừa Công Pháp, Đồ Nhi Ngươi Thật Luyện Thành?" [DONE]
 khong-de-ta-chet-nua-ta-vo-dich-that-day: "Không Để Ta Chết Nữa, Ta Vô Địch Thật Đấy" [PROGRESS]
 dong-den-de-tu-cua-ta-nguoi-nghi-ta-chi-biet-day-hoc: "Động Đến Đệ Tử Của Ta, Ngươi Nghĩ Ta Chỉ Biết Dạy Học?" [PROGRESS]
 ta-don-ngo-hon-don-the: "Ta Đốn Ngộ Hỗn Độn Thể" [PROGRESS]
+dinh-cap-gian-thuong-bat-dau-vo-dich-tu-buon-ban-vu-khi-dan-duoc: Đỉnh Cấp Gian Thương: Bắt Đầu Vô Địch Từ Buôn Bán Vũ Khí Đạn Dược [DONE]

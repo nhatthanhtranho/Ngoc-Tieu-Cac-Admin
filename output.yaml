@@ -151,11 +151,10 @@ nguoi-choi-he-sinh-hoat-toan-nang: "Người Chơi Hệ Sinh Hoạt Toàn Năng"
 mang-theo-wechat-lam-than-con: "Mang Theo Wechat Làm Thần Côn" [không có]
 kho-tu-18-nam-nguoi-noi-ta-la-thien-menh-dai-phan-phai: "Khổ Tu 18 Năm: Ngươi Nói Ta Là Thiên Mệnh Đại Phản Phái" [không có]
 giang-ho-nay-vi-ta-ma-tro-nen-ki-quai: "Giang Hồ Này Vì Ta Mà Trở Nên Kì Quái" [không có]
-deu-trung-sinh-ai-thi-cong-chuc-a: "Đều Trùng Sinh Ai Thi Công Chức A"
-dau-tu-thien-menh-toc-nhan-thuc-luc-cua-ta-la-toan-toc-tong-cong: "Đầu Tư Thiên Mệnh Tộc Nhân, Thực Lực Của Ta Là Toàn Tộc Tổng Cộng"
+deu-trung-sinh-ai-thi-cong-chuc-a: "Đều Trùng Sinh Ai Thi Công Chức A" [không có]
+dau-tu-thien-menh-toc-nhan-thuc-luc-cua-ta-la-toan-toc-tong-cong: "Đầu Tư Thiên Mệnh Tộc Nhân, Thực Lực Của Ta Là Toàn Tộc Tổng Cộng" [không có]
 bao-cao-danh-chuong-tram-nam-ta-thanh-tong-mon-lao-to: "[Dịch] Đánh Chuông Trăm Năm, Ta Thành Tông Môn Lão Tổ"
-dai-tan-tu-chien-truong-nhat-thuoc-tinh-bat-dau-manh-len-truong-sinh: "[Dịch] Đại Tần: Từ Chiến Trường Nhặt Thuộc Tính Bắt Đầu Mạnh Lên Trường Sinh"
-dai-de-cam-khu: "[Dịch] Đại Đế Cấm Khu"
+dai-tan-tu-chien-truong-nhat-thuoc-tinh-bat-dau-manh-len-truong-sinh: "[Dịch] Đại Tần: Từ Chiến Trường Nhặt Thuộc Tính Bắt Đầu Mạnh Lên Trường Sinh" [không có]
 chang-le-that-su-co-nguoi-cam-thay-su-ton-la-pham-nhan-sao: "[Dịch] Chẳng Lẽ Thật Sự Có Người Cảm Thấy Sư Tôn Là Phàm Nhân Sao"
 cau-tai-yeu-vo-loan-the-tu-tien: "[Dịch] Cẩu Tại Yêu Võ Loạn Thế Tu Tiên"
 cau-tai-vo-dao-the-gioi-thanh-thanh: "[Dịch] Cẩu Tại Võ Đạo Thế Giới Thành Thánh "
@@ -181,10 +180,9 @@ tro-choi-van-menh-tuyet-doi: "Trò Chơi Vận Mệnh Tuyệt Đối"
 tran-thu-tang-kinh-cac-tram-nam-dau-tu-vi-dien-chi-tu: "Trấn Thủ Tàng Kinh Các Trăm Năm, Đầu Tư Vị Diện Chi Tử! (Dịch)"
 toi-thu-thap-2-ty-vat-tu-am-tham-song-sot: "Tôi Thu Thập 2 Tỷ Vật Tư Âm Thầm Sống Sót"
 toan-dan-tu-tien-bat-dau-tu-thuat-phap-thue-bien: "Toàn Dân Tu Tiên, Bắt Đầu Từ Thuật Pháp Thuế Biến (Dịch)"
-toan-dan-ngu-thu-ta-co-the-chung-kien-tin-tuc-an-giau: "Toàn Dân Ngự Thú: Ta Có Thể Chứng Kiến Tin Tức Ẩn Giấu"
+toan-dan-ngu-thu-ta-co-the-chung-kien-tin-tuc-an-giau: "Toàn Dân Ngự Thú: Ta Có Thể Chứng Kiến Tin Tức Ẩn Giấu" [không có]
 toan-chuc-kiem-tu: "Toàn Chức Kiếm Tu"
 toan-cau-ma-vuong-bat-dau-lua-chon-tham-uyen-cu-long: "Toàn Cầu Ma Vương Bắt Đầu Lựa Chọn Thâm Uyên Cự Long"
-tien-phu-truong-sinh: "Tiên Phủ Trường Sinh"
 tien-lieu: "Tiên Liêu"
 thu-tu-thien-tai-nguoi-tai-cao-vo-tro-choi-thanh-than: "Thứ Tư Thiên Tai Người Tại Cao Võ, Trò Chơi Thành Thần"
 thu-tu-bao-quan: "Thủ Tự Bạo Quân"
@@ -299,3 +297,5 @@ khong-de-ta-chet-nua-ta-vo-dich-that-day: "Không Để Ta Chết Nữa, Ta Vô 
 dong-den-de-tu-cua-ta-nguoi-nghi-ta-chi-biet-day-hoc: "Động Đến Đệ Tử Của Ta, Ngươi Nghĩ Ta Chỉ Biết Dạy Học?" [DONE]
 ta-don-ngo-hon-don-the: "Ta Đốn Ngộ Hỗn Độn Thể" [DONE]
 dinh-cap-gian-thuong-bat-dau-vo-dich-tu-buon-ban-vu-khi-dan-duoc: "Đỉnh Cấp Gian Thương: Bắt Đầu Vô Địch Từ Buôn Bán Vũ Khí Đạn Dược" [DONE]
+tien-phu-truong-sinh: "Tiên Phủ Trường Sinh" [PROGRESS]
+dai-de-cam-khu: "[Dịch] Đại Đế Cấm Khu" [PROGRESS]

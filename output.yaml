@@ -227,7 +227,6 @@ nguoi-den-tuoi-gia-tuyet-my-ma-nu-lay-ta-lam-lo-dinh: "Người Đến Tuổi Gi
 nan-doi-vat-pham-cua-ta-co-the-thang-cap: "Nạn Đói, Vật Phẩm Của Ta Có Thể Thăng Cấp"
 mot-long-muon-lam-vai-ac-ta-lai-dem-tat-ca-moi-nguoi-chua-khoi-lam-sao-bay-gio: "Một Lòng Muốn Làm Vai Ác, Ta Lại Đem Tất Cả Mọi Người Chữa Khỏi Làm Sao Bây Giờ"
 moi-thang-co-the-uoc-nguyen-dao-tong-thanh-nu-luan-ham: "Mỗi Tháng Có Thể Ước Nguyện, Đạo Tông Thánh Nữ Luân Hãm"
-ma-y-than-te: "Ma Y Thần Tế (Dịch)"
 mang-theo-khong-gian-ta-tro-thanh-phu-tro-than-cap-thoi-tan-the: "Mang Theo Không Gian, Ta Trở Thành Phụ Trợ Thần Cấp Thời Tận Thế" [không có]
 luyen-sai-ta-cong-phap-tuong-thien-dia: "[Dịch] Luyện Sai Tà Công, Pháp Tượng Thiên Địa" [không có]
 lanh-chua-ta-toan-server-duy-nhat-nap-tien-nguoi-choi: "[Dịch] Lãnh Chúa: Ta, Toàn Server Duy Nhất Nạp Tiền Người Chơi" [không có]
@@ -245,10 +244,9 @@ giao-dich-cong-duc-toi-thanh-top-1-server-dia-phu: "Giao Dịch Công Đức, T�
 doan-tau-cau-sinh-tat-ca-nang-luc-ta-deu-thang-hoa: "Đoàn Tàu Cầu Sinh, Tất Cả Năng Lực Ta Đều Thăng Hoa!"
 dien-roi-di-ta-vua-tien-thien-han-thi-tien-de: "Điên Rồi Đi? Ta Vừa Tiên Thiên Hắn Thì Tiên Đế!"
 dia-nguc-muoi-tam-tang-o-day-cam-noi-doi: "Địa Ngục Mười Tám Tầng : Ở Đây Cấm Nói Dối (Dịch)"
-dao-lu-hung-manh-cua-ta-cung-trung-sinh: "Đạo Lữ Hung Mãnh Của Ta Cũng Trùng Sinh (Dịch)"
-dai-phung-bai-gia-tu: "Đại Phụng Bại Gia Tử" [không có]
-dai-lao-y-tu-trung-sinh-doat-lai-khi-van: "Đại Lão Y Tu Trùng Sinh Đoạt Lại Khí Vận"
-dai-lao-tro-ve-khong-dien-vai-thien-kim-gia-nua: "Đại Lão Trở Về, Không Diễn Vai Thiên Kim Giả Nữa (Dịch)"
+dai-phung-bai-gia-tu: "Đại Phụng Bại Gia Tử" [MUA]
+dai-lao-y-tu-trung-sinh-doat-lai-khi-van: "Đại Lão Y Tu Trùng Sinh Đoạt Lại Khí Vận" [NT]
+dai-lao-tro-ve-khong-dien-vai-thien-kim-gia-nua: "Đại Lão Trở Về, Không Diễn Vai Thiên Kim Giả Nữa (Dịch)" [NT]
 dai-can-truong-sinh: "Đại Càn Trường Sinh (Dịch)" [BANQUYEN?]
 cuu-vot-luc-gioi-bat-dau-tu-yeu-duong: "Cứu Vớt Lục Giới Bắt Đầu Từ Yêu Đương (Dịch)"
 chuong-mon-su-thuc-khong-phai-pham-nhan: "[Dịch] Chưởng Môn Sư Thúc Không Phải Phàm Nhân" [MUA]
@@ -291,11 +289,13 @@ ta-don-ngo-hon-don-the: "Ta Đốn Ngộ Hỗn Độn Thể" [DONE]
 dinh-cap-gian-thuong-bat-dau-vo-dich-tu-buon-ban-vu-khi-dan-duoc: "Đỉnh Cấp Gian Thương: Bắt Đầu Vô Địch Từ Buôn Bán Vũ Khí Đạn Dược" [DONE]
 tien-phu-truong-sinh: "Tiên Phủ Trường Sinh" [PROGRESS]
 dai-de-cam-khu: "[Dịch] Đại Đế Cấm Khu" [PROGRESS]
-khong-khoa-hoc-ngu-thu: "Không Khoa Học Ngự Thú" [PROGRESS]
-lao-ba-ta-la-thanh-nu: "Lão Bà Ta Là Thánh Nữ" [PROCESS]
+khong-khoa-hoc-ngu-thu: "Không Khoa Học Ngự Thú" [DONE]
+lao-ba-ta-la-thanh-nu: "Lão Bà Ta Là Thánh Nữ" [DONE]
 muon-kiem: "[Dịch] Mượn Kiếm" [VOZ]
 nguoi-choi-so-4: "Người Chơi Số 4 (Dịch)" [PROGRESS]
 quy-di-khoi-phuc-ta-co-the-bien-than-dai-yeu: "Quỷ Dị Khôi Phục: Ta Có Thể Biến Thân Đại Yêu! (Dịch)" [PROGRESS]
 kiem-vuong-trieu: "[Dịch] Kiếm Vương Triều" [PROGRESS]
 ngu-thu-ta-co-the-vo-han-tien-hoa: "[Dịch] Ngự Thú: Ta Có Thể Vô Hạn Tiến Hóa" [PROGRESS]
 thien-uyen: "Thiên Uyên" [VOZ]
+ma-y-than-te: "Ma Y Thần Tế (Dịch)" [DONE]
+dao-lu-hung-manh-cua-ta-cung-trung-sinh: "Đạo Lữ Hung Mãnh Của Ta Cũng Trùng Sinh (Dịch)" [DONE]

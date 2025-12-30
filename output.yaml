@@ -38,9 +38,7 @@ sau-khi-xung-hi-dai-lao-huyen-hoc-o-hao-mon-tram-quy: "Sau Khi Xung Hỉ, Đại
 thap-nien-90-lang-nghe-tieng-long-cua-dong-vat-pha-an: "[Dịch] Thập Niên 90: Lắng Nghe Tiếng Lòng Của Động Vật [Phá Án]"
 linh-chu: "[Dịch] Linh Chu"
 thap-nien-70-dan-dat-ca-nha-lam-giau: "[Dịch] Thập Niên 70: Dẫn Dắt Cả Nhà Làm Giàu"
-de-quan: "[Dịch] Đế Quân"
-tao-than: "[Dịch] Tạo Thần"
-vo-dich-kiem-vuc: "[Dịch] Vô Địch Kiếm Vực"
+
 thien-tai-don-dap-mat-the-chua-bao-gio-la-chuyen-dua: "[Dịch] Thiên Tai Dồn Dập, Mạt Thế Chưa Bao Giờ Là Chuyện Đùa"
 dau-pha-thuong-khung: "[Dịch] Đấu Phá Thương Khung"
 xuyen-qua-thanh-chinh-the-kho-bi-bo: "Xuyên Qua Thành Chính Thê Khó Bị Bỏ"
@@ -167,7 +165,6 @@ cua-hang-kinh-doanh-o-di-gioi-phan-2: "Cửa Hàng Kinh Doanh Ở Dị Giới - 
 cua-hang-kinh-doanh-o-di-gioi: "Cửa Hàng Kinh Doanh Ở Dị Giới"
 cau-tai-tu-tien-gioi-vien-co-cu-hung: "Cẩu Tại Tu Tiên Giới Viễn Cổ Cự Hùng"
 bat-dau-lam-tong-chu-quy-tac-cua-ta-co-chut-la: "[Dịch] Bắt Đầu Làm Tông Chủ: Quy Tắc Của Ta Có Chút Lạ"
-quy-dao-tu-tien-ta-co-the-mien-tru-dai-gioi: "Quỷ Đạo Tu Tiên: Ta Có Thể Miễn Trừ Đại Giới" [PROGRESS]
 nu-phu-ac-doc-dua-vao-huyen-hoc-phan-kich: "Nữ Phụ Ác Độc, Dựa Vào Huyền Học Phản Kích"
 
 nhan-vat-phan-dien-khong-theo-kich-ban-ra-bai-bat-dau-tu-hon-nu-chinh: "Nhân Vật Phản Diện: Không Theo Kịch Bản Ra Bài, Bắt Đầu Từ Hôn Nữ Chính"
@@ -256,9 +253,12 @@ trieu-hoan-than-binh: "[Dịch] Triệu Hoán Thần Binh" [DONE]
 truong-sinh-luyen-khi-su: "Trường Sinh Luyện Khí Sư (Dịch)" [DONE]
 bat-dau-muoi-lan-rut-sau-do-vo-dich: "Bắt Đầu Mười Lần Rút Sau Đó Vô Địch" [DONE]
 tien-dao-phan-cuoi: Tiên Đạo Phần Cuối [DONE]
-vu-vuong: "[Dịch] Vũ Vương" [PROGRESS]
-kiem-dong-cuu-thien: "[Dịch] Kiếm Động Cửu Thiên" [PROGRESS]
-
+quy-dao-tu-tien-ta-co-the-mien-tru-dai-gioi: "Quỷ Đạo Tu Tiên: Ta Có Thể Miễn Trừ Đại Giới" [DONE]
+vu-vuong: "[Dịch] Vũ Vương" [DONE]
+kiem-dong-cuu-thien: "[Dịch] Kiếm Động Cửu Thiên" [DONE]
+de-quan: "[Dịch] Đế Quân" [PROGRESS]
+tao-than: "[Dịch] Tạo Thần" [PROGRESS]
+vo-dich-kiem-vuc: "[Dịch] Vô Địch Kiếm Vực" [PROGRESS]
 tuyet-canh-hac-da: "[Dịch] Tuyệt Cảnh Hắc Dạ " [VOZ]
 nghich-menh-van-the-ta-danh-no-tien-de: Nghịch Mệnh Vạn Thế, Ta Đánh Nổ Tiên Đế [VOZ]
 

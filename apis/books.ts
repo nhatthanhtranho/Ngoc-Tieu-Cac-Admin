@@ -8,7 +8,7 @@ import { decompressText, JsonBuffer } from "../src/utils/compress";
 
 export interface Book {
   currentAudioChapter?: number;
-  isHidden?:boolean;
+  isHidden?: boolean;
   isSeed?: boolean;
   _id?: string;
   title: string;
@@ -36,13 +36,8 @@ export async function createBook(newBook: Book): Promise<Book> {
   return res.data;
 }
 
-export async function toggleHiddenBook(
-  bookSlug: string,
-  seed: boolean
-) {
-  const res = await api.get(
-    `/admin/comments/${bookSlug}?seed=${seed}`
-  );
+export async function toggleHiddenBook(bookSlug: string, seed: boolean) {
+  const res = await api.get(`/admin/comments/${bookSlug}?seed=${seed}`);
   return res.data;
 }
 
@@ -58,21 +53,26 @@ export async function fetchBookBySlug(
 }
 
 export async function fetchAllBookSlugs(
-  setBookSlugs: (bookSlugs: Array<{ slug: string; title: string, categories: string[], currentAudioChapter: string | null }>) => void,
-  status?: string[]
+  setBookSlugs: (
+    bookSlugs: Array<{
+      slug: string;
+      title: string;
+      categories: string[];
+      currentAudioChapter: string | null;
+    }>
+  ) => void,
+  isAll: boolean = true
 ): Promise<Array<{ slug: string; title: string }>> {
-  const validStatuses = ["hoan-thanh", "dang-ra"];
+  const query = isAll ? `?status=true` : "";
 
-  const shouldSetStatus =
-    Array.isArray(status) &&
-    status.length === 1 &&
-    validStatuses?.includes(status[0]);
-
-  const query = shouldSetStatus ? `?status=${status[0]}` : "";
-
-  const res = await axios.get<Array<{ slug: string; title: string, categories: string[], currentAudioChapter: string | null }>>(
-    getEndpoint(`books/slugs${query}`)
-  );
+  const res = await axios.get<
+    Array<{
+      slug: string;
+      title: string;
+      categories: string[];
+      currentAudioChapter: string | null;
+    }>
+  >(getEndpoint(`books/slugs${query}`));
 
   setBookSlugs(res.data);
   return res.data;

@@ -252,8 +252,9 @@ tien-ma-bien: "[Dịch] Tiên Ma Biến" [KHÓ ÁC]
 
 trong-sinh-chi-toi-cuong-kiem-than: "Trọng Sinh Chi Tối Cường Kiếm Thần" [PROGRESS]
 nan-doi-vat-pham-cua-ta-co-the-thang-cap: "Nạn Đói, Vật Phẩm Của Ta Có Thể Thăng Cấp" [PROGRESS]
-cau-tai-yeu-vo-loan-the-tu-tien: "[Dịch] Cẩu Tại Yêu Võ Loạn Thế Tu Tiên" [PROGRESS]
-ta-xay-gia-vien-tren-lung-huyen-vu: "Ta Xây Gia Viên Trên Lưng Huyền Vũ" [PROGRESS]
+cau-tai-yeu-vo-loan-the-tu-tien: "[Dịch] Cẩu Tại Yêu Võ Loạn Thế Tu Tiên" [DONE]
+ta-xay-gia-vien-tren-lung-huyen-vu: "Ta Xây Gia Viên Trên Lưng Huyền Vũ" [DONE]
+tien-lieu: "Tiên Liêu" [PROGRESS]
 nhan-vat-phan-dien-khong-theo-kich-ban-ra-bai-bat-dau-tu-hon-nu-chinh: "Nhân Vật Phản Diện: Không Theo Kịch Bản Ra Bài, Bắt Đầu Từ Hôn Nữ Chính" [PROGRESS]: Thiên Mệnh Phản Phái: Ta, Cự Tuyệt Từ Hôn!
 
 tro-choi-van-menh-tuyet-doi: "Trò Chơi Vận Mệnh Tuyệt Đối" [VOZ]
@@ -276,7 +277,6 @@ ta-tai-trong-nui-lap-tuc-thanh-tien: "Ta Tại Trong Núi Lập Tức Thành Ti�
 ta-tai-tran-ma-ti-co-the-vo-han-them-diem: "Ta Tại Trấn Ma Ti Có Thể Vô Hạn Thêm Điểm" [khong co]
 toan-dan-ngu-thu-ta-co-the-chung-kien-tin-tuc-an-giau: "Toàn Dân Ngự Thú: Ta Có Thể Chứng Kiến Tin Tức Ẩn Giấu" [không có]
 toan-chuc-kiem-tu: "Toàn Chức Kiếm Tu" [khong co]
-tien-lieu: "Tiên Liêu" [không có]
 phan-phai-ta-la-chu-thien-chi-chu-tai-ach-chi-nguyen: "Phản Phái: Ta Là Chư Thiên Chi Chủ, Tai Ách Chi Nguyên" [khong co]
 ta-tai-nha-tre-gia-vo-tu-tien: "Ta Tại Nhà Trẻ Giả Vờ Tu Tiên" [khong co]
 thien-lao-ba-nam-the-tu-ra-tu: "Thiên Lao Ba Năm, Thế Tử Ra Tù" [khong co]
@@ -317,3 +317,7 @@ dai-su-huynh-chung-ta-lan-sau-doat-tong-mon-nao: "Đại Sư Huynh, Chúng Ta L�
 cua-hang-kinh-doanh-o-di-gioi-phan-2: "Cửa Hàng Kinh Doanh Ở Dị Giới - Phần 2" [không có]
 cua-hang-kinh-doanh-o-di-gioi: "Cửa Hàng Kinh Doanh Ở Dị Giới" [không có]
 cau-tai-tu-tien-gioi-vien-co-cu-hung: "Cẩu Tại Tu Tiên Giới Viễn Cổ Cự Hùng" [không có]
+
+ta-tai-tan-the-thang-cap-vat-tu: [DONE]
+tien-nhan-bien-mat-ve-sau: [DONE]
+bat-dao-hanh: [DONE]

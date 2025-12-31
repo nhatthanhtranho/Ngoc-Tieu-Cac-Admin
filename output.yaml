@@ -318,12 +318,13 @@ cua-hang-kinh-doanh-o-di-gioi-phan-2: "Cửa Hàng Kinh Doanh Ở Dị Giới - 
 cua-hang-kinh-doanh-o-di-gioi: "Cửa Hàng Kinh Doanh Ở Dị Giới" [không có]
 cau-tai-tu-tien-gioi-vien-co-cu-hung: "Cẩu Tại Tu Tiên Giới Viễn Cổ Cự Hùng" [không có]
 
-long-tang [DONE]
+long-tang: [DONE]
 ta-tai-tan-the-thang-cap-vat-tu: [DONE]
 tien-nhan-bien-mat-ve-sau: [DONE]
 bat-dao-hanh: [DONE]
 cau-tai-vo-dao-the-gioi-thanh-thanh: [DONE]
 tien-tu-xin-nghe-ta-giai-thich: [DONE]
+----------------
 toan-chuc-kiem-tu
 thien-dao-do-thu-quan
 ta-tai-benh-vien-tam-than-hoc-tram-than
@@ -333,7 +334,7 @@ mo-tu-tu
 tien-nghich
 menh-danh-thuat-cua-dem
 tien-vo-de-ton-dich
-
+--------------------
 tuyet-the-than-hoang
 long-than-van-tuong-chi-long-hon
 dau-chien-thien-ha

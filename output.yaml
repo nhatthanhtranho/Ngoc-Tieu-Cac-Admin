@@ -325,14 +325,14 @@ bat-dao-hanh: [DONE]
 cau-tai-vo-dao-the-gioi-thanh-thanh: [DONE]
 tien-tu-xin-nghe-ta-giai-thich: [DONE]
 ----------------
-toan-chuc-kiem-tu
-thien-dao-do-thu-quan
+toan-chuc-kiem-tu: [DONE]
+thien-dao-do-thu-quan: [DONE]
 ta-tai-benh-vien-tam-than-hoc-tram-than
 thap-nhat-chung-yen
 luyen-khi-10-van-nam
 mo-tu-tu
 tien-nghich
-menh-danh-thuat-cua-dem
+menh-danh-thuat-cua-dem: [DONE]
 tien-vo-de-ton-dich
 --------------------
 tuyet-the-than-hoang [DONE]

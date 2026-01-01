@@ -389,8 +389,7 @@ ta-se-mai-tang-chung-than
 cuc-pham-thien-su
 dao-mo-but-ky-trung-khoi-2
 vo-thuong-than-de
-khong-khoa-hoc-ngu-thu
-de-nhat-danh-sach
+
 than-y-tro-lai-ngo-binh
 cuc-dao-kiem-ton
 khanh-du-nien
@@ -409,9 +408,9 @@ ta-thanh-tam-ma-cua-nu-ma-dau
 cau-tha-tai-nu-ma-dau-ben-nguoi-vung-trom-tu-luyen
 thien-khuynh-chi-hau
 hoan-nghenh-di-vao-dia-nguc-cua-ta
-ngu-thu-bat-dau-tu-con-so-0
+
 da-noi-the-nghiem-nhan-sinh-tien-tu-nguoi-the-nao-thanh-su-that
-vo-tan-han-dong-doanh-dia-cua-ta-thang-cap-vo-han
+
 thien-uyen
 
 he-thong-rat-truu-tuong-may-ma-ta-cung-la
@@ -419,5 +418,13 @@ trong-rau-kho-lau-di-vuc-khai-hoang
 huyen-tran-dao-do
 de-quoc-bong-toi
 thanh-lien-chi-dinh'
-ta-khong-phai-hi-than
+
 theo-mon-phai-vo-lam-den-truong-sinh-tien-mon
+-------------------------------
+vo-tan-han-dong-doanh-dia-cua-ta-thang-cap-vo-han: [PROGRESS]
+ta-khong-phai-hi-than: [PROGRESS]
+ngu-thu-bat-dau-tu-con-so-0: [PROGRESS]
+tuyet-doi-van-menh-tro-choi: [PROGRESS]
+sieu-than-co-gioi-su: [PROGRESS]
+khong-khoa-hoc-ngu-thu: [PROGRESS]
+de-nhat-danh-sach: [PROGRESS]

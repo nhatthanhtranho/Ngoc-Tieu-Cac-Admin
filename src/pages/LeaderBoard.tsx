@@ -31,6 +31,18 @@ const TAB_CONFIG: Record<
     generate?: () => Promise<void>;
   }
 > = {
+  latest: {
+    label: "Truyện Mới",
+    type: "latest",
+    generate: async () => {
+      await api.get(`/admin/generate-trending-latest`);
+      toast.success("Đã tạo xong Top Truyện Mới!");
+    },
+  },
+  "latest-chapters": {
+    label: "Truyện Hot",
+    type: "latest-chapter",
+  },
   banners: { label: "Banners", type: "banners" },
   recommended: {
     label: "Đề Cử",
@@ -53,20 +65,6 @@ const TAB_CONFIG: Record<
       toast.success("Đã tạo xong Top Tiên Hiệp!");
     },
   },
-
-  latest: {
-    label: "Truyện Mới",
-    type: "latest",
-    generate: async () => {
-      await api.get(`/admin/generate-trending-latest`);
-      toast.success("Đã tạo xong Top Truyện Mới!");
-    },
-  },
-  "latest-chapters": {
-    label: "Truyện Hot",
-    type: "latest-chapter",
-  },
-
   "mien-phi": {
     label: "Miễn Phí",
     type: "mien-phi",
@@ -237,6 +235,7 @@ export default function LeaderBoard() {
   const handleGenerateTop = async () => {
     try {
       setLoadingOverlay(true);
+      await api.get(`/admin/reset-trendings`);
 
       // Lọc các tab có hàm generate
       const tabsWithGenerate = Object.values(TAB_CONFIG).filter(

@@ -1,0 +1,1 @@
+aws s3 sync s3://ngoc-tieu-cac-public ./ngoc-tieu-cac-public --profile ngoc-tieu-cac

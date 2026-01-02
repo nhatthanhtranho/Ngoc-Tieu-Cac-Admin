@@ -346,15 +346,7 @@ ta-co-mot-son-trai
 tien-ton-lac-vo-cuc
 ---------------------------------
 chung-cuc-dau-la
-cuu-long-keo-quan
-vo-dich-thien-menh
-sai-the
-do-thi-co-tien-y
-am-gian-thuong-nhan
-than-dao-de-ton
-than-nong-dao-quan
-dai-dao-trieu-thien
-tai-sinh-vo-han-trong-the-gioi-quy-di
+
 nghich-menh-van-the-ta-danh-no-tien-de
 phu-do-duyen-truyen-chu
 bach-luyen-thanh-tien
@@ -396,7 +388,6 @@ khanh-du-nien
 hoi-quy-tu-tien-truyen
 sau-khi-khong-ngung-tim-duong-chet-ta-tro-thanh-de-ton-van-nguoi-me
 tien-cong-khai-vat
-tan-the-ta-che-tao-vo-han-doan-tau
 deu-trong-sinh-nguoi-nao-noi-yeu-thuong-a
 dao-gioi-thien-ha
 thuong-nguyen-do
@@ -406,17 +397,26 @@ tham-hai-du-tan
 ta-thanh-tam-ma-cua-nu-ma-dau
 cau-tha-tai-nu-ma-dau-ben-nguoi-vung-trom-tu-luyen
 thien-khuynh-chi-hau
-hoan-nghenh-di-vao-dia-nguc-cua-ta
 da-noi-the-nghiem-nhan-sinh-tien-tu-nguoi-the-nao-thanh-su-that
-thien-uyen
-
+-----------------------------
 he-thong-rat-truu-tuong-may-ma-ta-cung-la
+thien-uyen
+hoan-nghenh-di-vao-dia-nguc-cua-ta
 trong-rau-kho-lau-di-vuc-khai-hoang
 huyen-tran-dao-do
 de-quoc-bong-toi
-thanh-lien-chi-dinh'
-
+thanh-lien-chi-dinh
 theo-mon-phai-vo-lam-den-truong-sinh-tien-mon
+tan-the-ta-che-tao-vo-han-doan-tau
+cuu-long-keo-quan
+vo-dich-thien-menh
+sai-the
+do-thi-co-tien-y
+am-gian-thuong-nhan
+than-dao-de-ton
+than-nong-dao-quan
+dai-dao-trieu-thien
+tai-sinh-vo-han-trong-the-gioi-quy-di
 -------------------------------
 vo-tan-han-dong-doanh-dia-cua-ta-thang-cap-vo-han: [DONE]
 ta-khong-phai-hi-than: [DONE]

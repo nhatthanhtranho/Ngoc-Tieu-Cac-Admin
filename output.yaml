@@ -304,7 +304,6 @@ bach-nien-tu-tien-ta-sap-chet-ban-tay-vang-moi-den: "Bách Niên Tu Tiên, Ta S�
 ban-ton-cau-den-vo-dich-vo-han-phan-than-che-ba-tien-gioi: "Bản Tôn Cẩu Đến Vô Địch, Vô Hạn Phân Thân Chế Bá Tiên Giới (Dịch)"  [KHÔNG CÓ]
 nguoi-cang-tin-ta-cang-that: "[Dịch] Ngươi Càng Tin Ta Càng Thật" [k có]
 minh-lan-nhuoc: "[Dịch] Minh Lan Nhược" [k có]
-tan-the-ta-che-tao-vo-han-doan-tau: "[Dịch] Tận Thế: Ta Chế Tạo Vô Hạn Đoàn Tàu" [k có]
 xuyen-ve-co-dai-tiem-buffet-ta-mo-khien-thien-ha-dien-cuong: "[Dịch] Xuyên Về Cổ Đại, Tiệm Buffet Ta Mở Khiến Thiên Hạ Điên Cuồng" [k có]
 nao-co-to-tong-gi-deu-la-ta-bia: "[Dịch] Nào Có Tổ Tông Gì, Đều Là Ta Bịa" [k có]
 du-hoc-sinh-long-ha-tai-hoc-vien-co-giap: "[Dịch] Du Học Sinh Long Hạ Tại Học Viện Cơ Giáp" [k có]
@@ -361,20 +360,12 @@ su-huynh-a-su-huynh-dich
 vo-than-chua-te
 ----------------------------------------------------
 chung-cuc-dau-la
-<<<<<<< HEAD
-cuu-long-keo-quan
+cuu-long-keo-quan: [DONE]
 vo-dich-thien-menh
 sai-the
-do-thi-co-tien-y
 bat-dau-tro-thanh-thu-toa-danh-dau-cuc-dao-de-binh
-am-gian-thuong-nhan
 than-dao-de-ton
-than-nong-dao-quan
-dai-dao-trieu-thien
-tai-sinh-vo-han-trong-the-gioi-quy-di
-=======
 
->>>>>>> c4f063e634268cb85d83fdcb5003d6d6a489d01c
 nghich-menh-van-the-ta-danh-no-tien-de
 phu-do-duyen-truyen-chu
 bach-luyen-thanh-tien
@@ -416,10 +407,7 @@ khanh-du-nien
 hoi-quy-tu-tien-truyen
 sau-khi-khong-ngung-tim-duong-chet-ta-tro-thanh-de-ton-van-nguoi-me
 tien-cong-khai-vat
-<<<<<<< HEAD
 tan-the-ta-che-tao-vo-han-doan-tau [DONE]
-=======
->>>>>>> c4f063e634268cb85d83fdcb5003d6d6a489d01c
 deu-trong-sinh-nguoi-nao-noi-yeu-thuong-a
 dao-gioi-thien-ha
 thuong-nguyen-do
@@ -431,14 +419,13 @@ cau-tha-tai-nu-ma-dau-ben-nguoi-vung-trom-tu-luyen
 thien-khuynh-chi-hau
 da-noi-the-nghiem-nhan-sinh-tien-tu-nguoi-the-nao-thanh-su-that
 -----------------------------
-he-thong-rat-truu-tuong-may-ma-ta-cung-la
-thien-uyen
-hoan-nghenh-di-vao-dia-nguc-cua-ta
-trong-rau-kho-lau-di-vuc-khai-hoang
-huyen-tran-dao-do
-de-quoc-bong-toi
-thanh-lien-chi-dinh
-<<<<<<< HEAD
+he-thong-rat-truu-tuong-may-ma-ta-cung-la: [DONE]
+thien-uyen: [DONE]
+hoan-nghenh-di-vao-dia-nguc-cua-ta: [DONE]
+trong-rau-kho-lau-di-vuc-khai-hoang: [DONE]
+huyen-tran-dao-do: [DONE]
+de-quoc-bong-toi: [DONE]
+thanh-lien-chi-dinh: [DONE]
 tu-xuyen
 thien-tuong
 van-tuong-chi-vuong
@@ -452,19 +439,15 @@ lan-kha-ky-duyen
 mon-no-bat-tan
 vo-toai-tinh-ha
 
-=======
->>>>>>> c4f063e634268cb85d83fdcb5003d6d6a489d01c
-theo-mon-phai-vo-lam-den-truong-sinh-tien-mon
-tan-the-ta-che-tao-vo-han-doan-tau
-cuu-long-keo-quan
-vo-dich-thien-menh
-sai-the
-do-thi-co-tien-y
-am-gian-thuong-nhan
-than-dao-de-ton
-than-nong-dao-quan
-dai-dao-trieu-thien
-tai-sinh-vo-han-trong-the-gioi-quy-di
+theo-mon-phai-vo-lam-den-truong-sinh-tien-mon: [DONE]
+vo-dich-thien-menh: [DONE]
+sai-the: [DONE]
+do-thi-co-tien-y: [DONE]
+am-gian-thuong-nhan: [DONE]
+than-dao-de-ton: [DONE]
+than-nong-dao-quan: [DONE]
+dai-dao-trieu-thien: [DONE]
+tai-sinh-vo-han-trong-the-gioi-quy-di: [DONE]
 -------------------------------
 vo-tan-han-dong-doanh-dia-cua-ta-thang-cap-vo-han: [DONE]
 ta-khong-phai-hi-than: [DONE]

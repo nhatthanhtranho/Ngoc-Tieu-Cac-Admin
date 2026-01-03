@@ -235,7 +235,7 @@ export default function LeaderBoard() {
   const handleGenerateTop = async () => {
     try {
       setLoadingOverlay(true);
-      await api.get(`/admin/reset-trendings`);
+      await api.get(`/admin/reset-trending`);
 
       // Lọc các tab có hàm generate
       const tabsWithGenerate = Object.values(TAB_CONFIG).filter(

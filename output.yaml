@@ -334,22 +334,38 @@ mo-tu-tu: [DONE]
 tien-nghich: [DONE]
 menh-danh-thuat-cua-dem: [DONE]
 tien-vo-de-ton-dich: [DONE]
+muon-kiem: [DONE]
 --------------------
 tuyet-the-than-hoang [DONE]
 ngao-the-cuu-trong-thien [DONE]
 thon-thien-ky [DONE]
 de-ton [DONE]
 ------------------
-van-co-chi-ton
-vinh-hang-chi-mon
-ta-co-mot-son-trai
-tien-ton-lac-vo-cuc
+van-co-chi-ton: [DONE]
+vinh-hang-chi-mon: [DONE]
+ta-co-mot-son-trai: [DONE]
+lang-thien-doc-ton: [DONE]
+tien-ton-lac-vo-cuc: [DONE]
+giet-dich-bao-tu-vi-ta-cong-luc-ngap-troi: [DONE]
 ---------------------------------
+ta-tai-tu-tien-gioi-sieu-nghiem-tuc-doi-gach: [DONE]
+tan-the-nhac-vien: [DONE]
+cam-nguyet-nhu-ca: [DONE]
+xam-nhiem-gia: [DONE]
+tu-tien-chinh-la-nhu-vay [DONE]
+van-co-de-nhat-than [DONE]
+nhat-niem-vinh-hang [DONE]
+o-re-chue-te [DONE]
+thai-hu-chi-ton
+su-huynh-a-su-huynh-dich
+vo-than-chua-te
+----------------------------------------------------
 chung-cuc-dau-la
 cuu-long-keo-quan
 vo-dich-thien-menh
 sai-the
 do-thi-co-tien-y
+bat-dau-tro-thanh-thu-toa-danh-dau-cuc-dao-de-binh
 am-gian-thuong-nhan
 than-dao-de-ton
 than-nong-dao-quan
@@ -396,7 +412,7 @@ khanh-du-nien
 hoi-quy-tu-tien-truyen
 sau-khi-khong-ngung-tim-duong-chet-ta-tro-thanh-de-ton-van-nguoi-me
 tien-cong-khai-vat
-tan-the-ta-che-tao-vo-han-doan-tau
+tan-the-ta-che-tao-vo-han-doan-tau [DONE]
 deu-trong-sinh-nguoi-nao-noi-yeu-thuong-a
 dao-gioi-thien-ha
 thuong-nguyen-do
@@ -417,7 +433,19 @@ he-thong-rat-truu-tuong-may-ma-ta-cung-la
 trong-rau-kho-lau-di-vuc-khai-hoang
 huyen-tran-dao-do
 de-quoc-bong-toi
-thanh-lien-chi-dinh'
+thanh-lien-chi-dinh
+tu-xuyen
+thien-tuong
+van-tuong-chi-vuong
+quan-huu-van
+nhat-the-doc-ton
+than-quoc-chi-thuong
+thon-phe-tinh-khong-2-dich
+su-huynh-cua-ta-qua-manh
+nghich-thien-ta-than-chung-cuc-chi-chien
+lan-kha-ky-duyen
+mon-no-bat-tan
+vo-toai-tinh-ha
 
 theo-mon-phai-vo-lam-den-truong-sinh-tien-mon
 -------------------------------

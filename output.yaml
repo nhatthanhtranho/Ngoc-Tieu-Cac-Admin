@@ -356,36 +356,24 @@ tu-tien-chinh-la-nhu-vay [DONE]
 van-co-de-nhat-than [DONE]
 nhat-niem-vinh-hang [DONE]
 o-re-chue-te [DONE]
-thai-hu-chi-ton
-su-huynh-a-su-huynh-dich
-vo-than-chua-te
+thai-hu-chi-ton [done]
+su-huynh-a-su-huynh-dich [DINE]
+vo-than-chua-te [DONE]
 ----------------------------------------------------
-chung-cuc-dau-la
-<<<<<<< HEAD
-cuu-long-keo-quan
-vo-dich-thien-menh
-sai-the
-do-thi-co-tien-y
-bat-dau-tro-thanh-thu-toa-danh-dau-cuc-dao-de-binh
-am-gian-thuong-nhan
-than-dao-de-ton
-than-nong-dao-quan
-dai-dao-trieu-thien
-tai-sinh-vo-han-trong-the-gioi-quy-di
-=======
-
->>>>>>> c4f063e634268cb85d83fdcb5003d6d6a489d01c
-nghich-menh-van-the-ta-danh-no-tien-de
-phu-do-duyen-truyen-chu
-bach-luyen-thanh-tien
-tu-bao-tien-bon
-ta-chi-muon-an-tinh-lam-cau-dao-ben-trong-nguoi
-van-co-toi-cuong-tong
-vong-du-tu-vong-vo-hiep
-cam-nguyet-nhu-ca
+chung-cuc-dau-la [DONE]
+nghich-menh-van-the-ta-danh-no-tien-de [DONE]
+phu-do-duyen-truyen-chu [DONE]
+khung-bo-song-lai [DONE]
+bach-luyen-thanh-tien [DONE]
+tu-bao-tien-bon [DONE]
+ta-chi-muon-an-tinh-lam-cau-dao-ben-trong-nguoi [DONE]
+van-co-toi-cuong-tong [DONE]
+vong-du-tu-vong-vo-hiep [DONE]
+cam-nguyet-nhu-ca [DONE]
 vinh-hang-thanh-vuong
 am-phu-than-tham
 toan-chuc-phap-su
+ta-hop-phap-tu-tien-dua-vao-cai-gi-goi-ta-ma-dau
 luc-dia-linh-vo
 tru-tien
 toan-cau-cao-vo
@@ -416,10 +404,6 @@ khanh-du-nien
 hoi-quy-tu-tien-truyen
 sau-khi-khong-ngung-tim-duong-chet-ta-tro-thanh-de-ton-van-nguoi-me
 tien-cong-khai-vat
-<<<<<<< HEAD
-tan-the-ta-che-tao-vo-han-doan-tau [DONE]
-=======
->>>>>>> c4f063e634268cb85d83fdcb5003d6d6a489d01c
 deu-trong-sinh-nguoi-nao-noi-yeu-thuong-a
 dao-gioi-thien-ha
 thuong-nguyen-do
@@ -438,22 +422,6 @@ trong-rau-kho-lau-di-vuc-khai-hoang
 huyen-tran-dao-do
 de-quoc-bong-toi
 thanh-lien-chi-dinh
-<<<<<<< HEAD
-tu-xuyen
-thien-tuong
-van-tuong-chi-vuong
-quan-huu-van
-nhat-the-doc-ton
-than-quoc-chi-thuong
-thon-phe-tinh-khong-2-dich
-su-huynh-cua-ta-qua-manh
-nghich-thien-ta-than-chung-cuc-chi-chien
-lan-kha-ky-duyen
-mon-no-bat-tan
-vo-toai-tinh-ha
-
-=======
->>>>>>> c4f063e634268cb85d83fdcb5003d6d6a489d01c
 theo-mon-phai-vo-lam-den-truong-sinh-tien-mon
 tan-the-ta-che-tao-vo-han-doan-tau
 cuu-long-keo-quan

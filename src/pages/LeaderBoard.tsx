@@ -55,7 +55,6 @@ const TAB_CONFIG: Record<
   discover: { label: "Khám phá", type: "discover" },
 
   top_view: { label: "Xem Nhiều", type: "top_view" },
-  trending_now: { label: "Truyện Hot", type: "trending_now" },
 
   hoan_thanh: {
     label: "Hoàn Thành",
@@ -75,7 +74,7 @@ const TAB_CONFIG: Record<
       toast.success("Đã tạo xong Top Miễn Phí!");
     },
   },
-  "premium": {
+  premium: {
     label: "Premium mỗi tuần",
     type: "premium",
     category: "premium",
@@ -188,6 +187,24 @@ const TAB_CONFIG: Record<
       toast.success("Đã tạo xong Top Hài Hước!");
     },
   },
+  "ngon-tinh": {
+    label: "Ngôn Tình",
+    type: "ngon-tinh",
+    category: "ngon-tinh",
+    generate: async () => {
+      await api.get(`/admin/generate-trending?category=ngon-tinh`);
+      toast.success("Đã tạo xong Top Ngôn Tình!");
+    },
+  },
+  "nu-cuong": {
+    label: "Nữ Cường",
+    type: "nu-cuong",
+    category: "nu-cuong",
+    generate: async () => {
+      await api.get(`/admin/generate-trending?category=nu-cuong`);
+      toast.success("Đã tạo xong Top Nữ Cường!");
+    },
+  },
 };
 
 export default function LeaderBoard() {
@@ -283,9 +300,10 @@ export default function LeaderBoard() {
           onClick={handleGenerateTop}
           disabled={loadingOverlay}
           className={`px-4 py-2 rounded shadow cursor-pointer flex items-center gap-2 text-white 
-            ${loadingOverlay
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600"
+            ${
+              loadingOverlay
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600"
             }
           `}
         >
@@ -301,9 +319,10 @@ export default function LeaderBoard() {
           onClick={handleGenerateHomeData}
           disabled={loadingOverlay}
           className={`px-4 py-2 rounded shadow cursor-pointer flex items-center gap-2 text-white 
-            ${loadingOverlay
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-emerald-500 hover:bg-emerald-600"
+            ${
+              loadingOverlay
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-emerald-500 hover:bg-emerald-600"
             }
           `}
         >
@@ -320,10 +339,11 @@ export default function LeaderBoard() {
           <button
             key={key}
             onClick={() => handleChangeTab(key)}
-            className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${activeTab === key
+            className={`px-6 py-2 text-sm font-semibold rounded-t-lg transition-all ${
+              activeTab === key
                 ? "bg-blue-600 text-white shadow-md"
                 : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
-              }`}
+            }`}
           >
             {cfg.label}
           </button>

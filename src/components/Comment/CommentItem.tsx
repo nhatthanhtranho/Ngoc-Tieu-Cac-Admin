@@ -1,7 +1,8 @@
 "use client";
-
+import { Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Comment } from "./CommentList";
+import { api } from "../../../apis";
 
 interface CommentItemProps {
   comment: Comment;
@@ -9,6 +10,14 @@ interface CommentItemProps {
 }
 
 export default function CommentItem({ comment, depth = 0 }: CommentItemProps) {
+  async function handleDeleteComment(commentId: string) {
+    try {
+      await api.post("/admin/comments/delete", { commentId });
+      window.location.reload()
+    } catch (err) {
+      console.error("Delete comment failed", err);
+    }
+  }
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -41,6 +50,15 @@ export default function CommentItem({ comment, depth = 0 }: CommentItemProps) {
               </div>
             </div>
           </div>
+
+          {/* Delete button */}
+          <button
+            onClick={async () => await handleDeleteComment(comment._id)}
+            className="p-2 rounded-full text-slate-500 hover:text-red-500 hover:bg-red-500/10 transition cursor-pointer"
+            title="Xóa bình luận"
+          >
+            <Trash2 size={16} />
+          </button>
         </div>
 
         {/* Nội dung */}

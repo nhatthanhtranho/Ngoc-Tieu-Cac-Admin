@@ -11,6 +11,7 @@ interface CommentItemProps {
 
 export default function CommentItem({ comment, depth = 0 }: CommentItemProps) {
   async function handleDeleteComment(commentId: string) {
+    console.log("Deleting comment", commentId);
     try {
       await api.post("/admin/comments/delete", { commentId });
       window.location.reload()
@@ -53,7 +54,7 @@ export default function CommentItem({ comment, depth = 0 }: CommentItemProps) {
 
           {/* Delete button */}
           <button
-            onClick={async () => await handleDeleteComment(comment._id)}
+            onClick={() => handleDeleteComment(comment._id)}
             className="p-2 rounded-full text-slate-500 hover:text-red-500 hover:bg-red-500/10 transition cursor-pointer"
             title="Xóa bình luận"
           >

@@ -1,4 +1,4 @@
-const STORAGE = "https://ngoc-tieu-cac-public.s3.ap-southeast-1.amazonaws.com";
+const STORAGE = "https://s3.ap-southeast-1.amazonaws.com/assets.itruyenchu.com";
 
 export function getBannerURL(storySlug: string, type?: string): string {
   if(type === "ngang") return `${STORAGE}/book-cover/${storySlug}/banner-ngang.webp`;

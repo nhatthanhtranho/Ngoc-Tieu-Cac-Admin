@@ -6,7 +6,7 @@ import { api } from ".";
 // ============================
 
 const S3_REGION = "ap-southeast-1";
-export const PUBLIC_BUCKET = "ngoc-tieu-cac-public";
+export const PUBLIC_BUCKET = "assets.itruyenchu.com";
 export const PRIVATE_BUCKET = "ngoc-tieu-cac";
 const STORAGE_KEY = "s3_credentials";
 

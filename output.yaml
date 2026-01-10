@@ -317,6 +317,112 @@ cua-hang-kinh-doanh-o-di-gioi-phan-2: "Cửa Hàng Kinh Doanh Ở Dị Giới - 
 cua-hang-kinh-doanh-o-di-gioi: "Cửa Hàng Kinh Doanh Ở Dị Giới" [không có]
 cau-tai-tu-tien-gioi-vien-co-cu-hung: "Cẩu Tại Tu Tiên Giới Viễn Cổ Cự Hùng" [không có]
 
+
+bat-dau-tro-thanh-thu-toa-danh-dau-cuc-dao-de-binh
+vinh-hang-thanh-vuong
+am-phu-than-tham
+toan-chuc-phap-su
+ta-hop-phap-tu-tien-dua-vao-cai-gi-goi-ta-ma-dau
+luc-dia-linh-vo
+tru-tien
+toan-cau-cao-vo
+loan-the-thu
+ngao-the-dan-than
+quai-vat-toi-roi
+di-the-ta-quan
+trong-tong-mon-tru-ta-ra-tat-ca-deu-la-gian-diep
+ta-co-the-giac-ngo-vo-han
+vo-luyen-dinh-phong
+nhat-the-chi-ton
+vo-dao-doc-ton
+ta-yeu-ga-nhung-bi-chinh-dao-coi-la-vo-thuong-thanh-ma
+ta-tai-quy-dem-tram-than-ma
+bat-dao-hanh
+do-de-cua-ta-deu-la-dai-phan-phai
+tam-tuyen-luan-hoi
+van-dao-truong-do
+tuyet-the-chien-hon
+ta-se-mai-tang-chung-than
+cuc-pham-thien-su
+dao-mo-but-ky-trung-khoi-2
+vo-thuong-than-de
+
+than-y-tro-lai-ngo-binh
+cuc-dao-kiem-ton
+khanh-du-nien
+hoi-quy-tu-tien-truyen
+sau-khi-khong-ngung-tim-duong-chet-ta-tro-thanh-de-ton-van-nguoi-me
+tien-cong-khai-vat
+deu-trong-sinh-nguoi-nao-noi-yeu-thuong-a
+dao-gioi-thien-ha
+thuong-nguyen-do
+tu-chan-tu-van-nien
+tuyet-the-duong-mon
+tham-hai-du-tan
+ta-thanh-tam-ma-cua-nu-ma-dau
+cau-tha-tai-nu-ma-dau-ben-nguoi-vung-trom-tu-luyen
+thien-khuynh-chi-hau
+da-noi-the-nghiem-nhan-sinh-tien-tu-nguoi-the-nao-thanh-su-that
+-----------------------------
+he-thong-rat-truu-tuong-may-ma-ta-cung-la
+thien-uyen
+hoan-nghenh-di-vao-dia-nguc-cua-ta
+trong-rau-kho-lau-di-vuc-khai-hoang
+huyen-tran-dao-do
+de-quoc-bong-toi
+thanh-lien-chi-dinh
+theo-mon-phai-vo-lam-den-truong-sinh-tien-mon
+tan-the-ta-che-tao-vo-han-doan-tau
+cuu-long-keo-quan
+vo-dich-thien-menh
+sai-the
+do-thi-co-tien-y
+am-gian-thuong-nhan
+than-dao-de-ton
+than-nong-dao-quan
+dai-dao-trieu-thien
+
+tu-xuyen
+thien-tuong
+van-tuong-chi-vuong
+quan-huu-van
+nhat-the-doc-ton
+than-quoc-chi-thuong
+thon-phe-tinh-khong-2-dich
+su-huynh-cua-ta-qua-manh
+nghich-thien-ta-than-chung-cuc-chi-chien
+lan-kha-ky-duyen
+mon-no-bat-tan
+vo-toai-tinh-ha
+
+theo-mon-phai-vo-lam-den-truong-sinh-tien-mon: [DONE]
+vo-dich-thien-menh: [DONE]
+sai-the: [DONE]
+do-thi-co-tien-y: [DONE]
+am-gian-thuong-nhan: [DONE]
+than-dao-de-ton: [DONE]
+than-nong-dao-quan: [DONE]
+dai-dao-trieu-thien: [DONE]
+tai-sinh-vo-han-trong-the-gioi-quy-di: [DONE]
+-------------------------------
+vo-tan-han-dong-doanh-dia-cua-ta-thang-cap-vo-han: [DONE]
+ta-khong-phai-hi-than: [DONE]
+ngu-thu-bat-dau-tu-con-so-0: [DONE]
+tuyet-doi-van-menh-tro-choi: [DONE]
+sieu-than-co-gioi-su: [DONE]
+khong-khoa-hoc-ngu-thu: [DONE]
+de-nhat-danh-sach: [DONE]
+
+tai-sinh-vo-han-trong-the-gioi-quy-di [DONE]
+tan-the-ta-che-tao-vo-han-doan-tau [DONE]
+he-thong-rat-truu-tuong-may-ma-ta-cung-la: [DONE]
+thien-uyen: [DONE]
+hoan-nghenh-di-vao-dia-nguc-cua-ta: [DONE]
+trong-rau-kho-lau-di-vuc-khai-hoang: [DONE]
+huyen-tran-dao-do: [DONE]
+de-quoc-bong-toi: [DONE]
+thanh-lien-chi-dinh: [DONE]
+
 long-tang: [DONE]
 ta-tai-tan-the-thang-cap-vat-tu: [DONE]
 tien-nhan-bien-mat-ve-sau: [DONE]
@@ -369,119 +475,16 @@ ta-chi-muon-an-tinh-lam-cau-dao-ben-trong-nguoi [DONE]
 van-co-toi-cuong-tong [DONE]
 vong-du-tu-vong-vo-hiep [DONE]
 cam-nguyet-nhu-ca [DONE]
-chung-cuc-dau-la
+chung-cuc-dau-la [DONE]
 cuu-long-keo-quan: [DONE]
-vo-dich-thien-menh
-sai-the
-bat-dau-tro-thanh-thu-toa-danh-dau-cuc-dao-de-binh
-than-dao-de-ton
-
-nghich-menh-van-the-ta-danh-no-tien-de
-phu-do-duyen-truyen-chu
-bach-luyen-thanh-tien
-tu-bao-tien-bon
-ta-chi-muon-an-tinh-lam-cau-dao-ben-trong-nguoi
-van-co-toi-cuong-tong
-vong-du-tu-vong-vo-hiep
-cam-nguyet-nhu-ca
-vinh-hang-thanh-vuong
-am-phu-than-tham
-toan-chuc-phap-su
-ta-hop-phap-tu-tien-dua-vao-cai-gi-goi-ta-ma-dau
-luc-dia-linh-vo
-tru-tien
-toan-cau-cao-vo
-loan-the-thu
-ngao-the-dan-than
-quai-vat-toi-roi
-di-the-ta-quan
-trong-tong-mon-tru-ta-ra-tat-ca-deu-la-gian-diep
-ta-co-the-giac-ngo-vo-han
-vo-luyen-dinh-phong
-nhat-the-chi-ton
-vo-dao-doc-ton
-ta-yeu-ga-nhung-bi-chinh-dao-coi-la-vo-thuong-thanh-ma
-ta-tai-quy-dem-tram-than-ma
-bat-dao-hanh
-do-de-cua-ta-deu-la-dai-phan-phai
-tam-tuyen-luan-hoi
-van-dao-truong-do
-tuyet-the-chien-hon
-ta-se-mai-tang-chung-than
-cuc-pham-thien-su
-dao-mo-but-ky-trung-khoi-2
-vo-thuong-than-de
-
-than-y-tro-lai-ngo-binh
-cuc-dao-kiem-ton
-khanh-du-nien
-hoi-quy-tu-tien-truyen
-sau-khi-khong-ngung-tim-duong-chet-ta-tro-thanh-de-ton-van-nguoi-me
-tien-cong-khai-vat
-tan-the-ta-che-tao-vo-han-doan-tau [DONE]
-deu-trong-sinh-nguoi-nao-noi-yeu-thuong-a
-dao-gioi-thien-ha
-thuong-nguyen-do
-tu-chan-tu-van-nien
-tuyet-the-duong-mon
-tham-hai-du-tan
-ta-thanh-tam-ma-cua-nu-ma-dau
-cau-tha-tai-nu-ma-dau-ben-nguoi-vung-trom-tu-luyen
-thien-khuynh-chi-hau
-da-noi-the-nghiem-nhan-sinh-tien-tu-nguoi-the-nao-thanh-su-that
------------------------------
-he-thong-rat-truu-tuong-may-ma-ta-cung-la
-thien-uyen
-hoan-nghenh-di-vao-dia-nguc-cua-ta
-trong-rau-kho-lau-di-vuc-khai-hoang
-huyen-tran-dao-do
-de-quoc-bong-toi
-thanh-lien-chi-dinh
-theo-mon-phai-vo-lam-den-truong-sinh-tien-mon
-tan-the-ta-che-tao-vo-han-doan-tau
-cuu-long-keo-quan
-vo-dich-thien-menh
-sai-the
-do-thi-co-tien-y
-am-gian-thuong-nhan
-than-dao-de-ton
-than-nong-dao-quan
-dai-dao-trieu-thien
-tai-sinh-vo-han-trong-the-gioi-quy-di
-he-thong-rat-truu-tuong-may-ma-ta-cung-la: [DONE]
-thien-uyen: [DONE]
-hoan-nghenh-di-vao-dia-nguc-cua-ta: [DONE]
-trong-rau-kho-lau-di-vuc-khai-hoang: [DONE]
-huyen-tran-dao-do: [DONE]
-de-quoc-bong-toi: [DONE]
-thanh-lien-chi-dinh: [DONE]
-tu-xuyen
-thien-tuong
-van-tuong-chi-vuong
-quan-huu-van
-nhat-the-doc-ton
-than-quoc-chi-thuong
-thon-phe-tinh-khong-2-dich
-su-huynh-cua-ta-qua-manh
-nghich-thien-ta-than-chung-cuc-chi-chien
-lan-kha-ky-duyen
-mon-no-bat-tan
-vo-toai-tinh-ha
-
-theo-mon-phai-vo-lam-den-truong-sinh-tien-mon: [DONE]
-vo-dich-thien-menh: [DONE]
-sai-the: [DONE]
-do-thi-co-tien-y: [DONE]
-am-gian-thuong-nhan: [DONE]
-than-dao-de-ton: [DONE]
-than-nong-dao-quan: [DONE]
-dai-dao-trieu-thien: [DONE]
-tai-sinh-vo-han-trong-the-gioi-quy-di: [DONE]
--------------------------------
-vo-tan-han-dong-doanh-dia-cua-ta-thang-cap-vo-han: [DONE]
-ta-khong-phai-hi-than: [DONE]
-ngu-thu-bat-dau-tu-con-so-0: [DONE]
-tuyet-doi-van-menh-tro-choi: [DONE]
-sieu-than-co-gioi-su: [DONE]
-khong-khoa-hoc-ngu-thu: [DONE]
-de-nhat-danh-sach: [DONE]
+vo-dich-thien-menh [DONE]
+sai-the [DONE]
+than-dao-de-ton [DONE]
+nghich-menh-van-the-ta-danh-no-tien-de [done]
+phu-do-duyen-truyen-chu [done]
+bach-luyen-thanh-tien [DONE]
+tu-bao-tien-bon [DONE]
+ta-chi-muon-an-tinh-lam-cau-dao-ben-trong-nguoi [DONE]
+van-co-toi-cuong-tong [DONE]
+vong-du-tu-vong-vo-hiep [DONE]
+cam-nguyet-nhu-ca [DONE]

@@ -35,7 +35,7 @@ function App() {
       }
 
       // Fetch ngay theo giá trị mới
-      fetchAllBookSlugs(setBookSlugs, newStatus);
+      fetchAllBookSlugs(setBookSlugs, newStatus as any);
       setCurrentPage(1);
 
       return newStatus;

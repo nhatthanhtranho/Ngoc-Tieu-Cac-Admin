@@ -55,6 +55,20 @@ function App() {
     setLoading(false)
   }
 
+  const handleSyncCategory = async () => {
+    setLoading(true)
+    const books = (await api.get('/admin/generate-category-page-data')).data
+    const slugs = books.map((book: any) => book.slug)
+
+    for (const slug of slugs) {
+      await syncBookData(slug)
+      console.log('done', slug)
+      await new Promise(r => setTimeout(r, 500))
+    }
+    setLoading(false)
+  }
+
+
   const generateRelativeBook = async () => {
     setLoading(true)
     await api.get('/admin/gemnerateRelativeBook')
@@ -147,6 +161,13 @@ function App() {
             Danh Sách Truyện
           </h1>
           <div className="flex flex-row gap-4">
+            <button
+              onClick={() => handleSyncCategory()}
+              className="px-4 py-2 bg-red-400 text-white rounded-lg font-semibold hover:bg-yellow-500 transition-colors"
+            >
+              Category
+            </button>
+
             <button
               onClick={() => setIsCreateModalOpen(true)}
               className="px-4 py-2 bg-yellow-400 text-white rounded-lg font-semibold hover:bg-yellow-500 transition-colors"

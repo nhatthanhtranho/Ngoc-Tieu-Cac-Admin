@@ -42,10 +42,12 @@ const base64ToBlob = (base64: string) => {
 const resizeToBase64 = (
   file: File,
   width: number,
-  height: number
+  height: number,
+  quality = 0.78,
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
+    const url = URL.createObjectURL(file);
 
     img.onload = () => {
       const canvas = document.createElement("canvas");
@@ -55,7 +57,7 @@ const resizeToBase64 = (
       const ctx = canvas.getContext("2d");
       if (!ctx) return reject();
 
-      // object-cover (crop center)
+      // object-cover crop center
       const scale = Math.max(width / img.width, height / img.height);
       const sw = img.width * scale;
       const sh = img.height * scale;
@@ -63,11 +65,14 @@ const resizeToBase64 = (
       const dy = (height - sh) / 2;
 
       ctx.drawImage(img, dx, dy, sw, sh);
-      resolve(canvas.toDataURL("image/webp", 0.9));
+
+      const base64 = canvas.toDataURL("image/webp", quality);
+      URL.revokeObjectURL(url); // tránh leak memory
+      resolve(base64);
     };
 
     img.onerror = reject;
-    img.src = URL.createObjectURL(file);
+    img.src = url;
   });
 };
 
@@ -76,64 +81,62 @@ const resizeToBase64 = (
 ====================== */
 
 export const BannerNgang = ({ book, fallbackBanner }: BannerNgangProps) => {
-  const file5to1Ref = useRef<HTMLInputElement>(null);
-  const fileSmallRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const [banner5to1, setBanner5to1] = useState<BannerItem>({
+  // Banner desktop tối ưu (max hiển thị ~1500px)
+  const [bannerLarge, setBannerLarge] = useState<BannerItem>({
     base64: null,
-    width: 1500,
-    height: 300,
+    width: 1440,
+    height: 617, // 21:9
   });
 
+  // Banner tablet / mobile nhẹ
   const [bannerSmall, setBannerSmall] = useState<BannerItem>({
     base64: null,
-    width: 768,
-    height: 364,
+    width: 720,
+    height: 309, // 21:9
   });
 
   /* ======================
-     HANDLE SELECT
+     HANDLE SELECT (1 ảnh → tạo 2 bản)
   ====================== */
 
-  const handleSelect =
-    (type: "5to1" | "small") =>
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
+  const handleSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-      const banner = type === "5to1" ? banner5to1 : bannerSmall;
-      const setBanner = type === "5to1" ? setBanner5to1 : setBannerSmall;
+    try {
+      const [largeBase64, smallBase64] = await Promise.all([
+        resizeToBase64(file, bannerLarge.width, bannerLarge.height, 0.82),
+        resizeToBase64(file, bannerSmall.width, bannerSmall.height, 0.7),
+      ]);
 
-      try {
-        const base64 = await resizeToBase64(
-          file,
-          banner.width,
-          banner.height
-        );
-        setBanner({ ...banner, base64 });
-      } catch (err) {
-        console.error(err);
-        alert("❌ Không xử lý được ảnh");
-      } finally {
-        e.target.value = "";
-      }
-    };
+      setBannerLarge({ ...bannerLarge, base64: largeBase64 });
+      setBannerSmall({ ...bannerSmall, base64: smallBase64 });
+    } catch (err) {
+      console.error(err);
+      alert("❌ Không xử lý được ảnh");
+    } finally {
+      e.target.value = "";
+    }
+  };
 
   /* ======================
      UPLOAD
   ====================== */
 
-  const uploadBanners = async () => {
-    if (!banner5to1.base64 || !bannerSmall.base64) return;
+  const uploadBanner = async () => {
+    if (!bannerLarge.base64 || !bannerSmall.base64) return;
 
     try {
+      // API backend trả về 2 presigned url
       const { defaultUrl, smallUrl } =
         await getUploadBookBannerNgangUrl(book.slug);
 
       await Promise.all([
         fetch(defaultUrl, {
           method: "PUT",
-          body: base64ToBlob(banner5to1.base64),
+          body: base64ToBlob(bannerLarge.base64),
           headers: { "Content-Type": "image/webp" },
         }),
         fetch(smallUrl, {
@@ -143,7 +146,7 @@ export const BannerNgang = ({ book, fallbackBanner }: BannerNgangProps) => {
         }),
       ]);
 
-      alert("✅ Upload banner thành công");
+      alert("✅ Upload banner large + small thành công");
     } catch (err) {
       console.error(err);
       alert("❌ Upload thất bại");
@@ -154,8 +157,8 @@ export const BannerNgang = ({ book, fallbackBanner }: BannerNgangProps) => {
      PREVIEW
   ====================== */
 
-  const preview5to1 =
-    banner5to1.base64 ||
+  const previewLarge =
+    bannerLarge.base64 ||
     getBannerURL(book.slug, "ngang") ||
     fallbackBanner;
 
@@ -169,85 +172,73 @@ export const BannerNgang = ({ book, fallbackBanner }: BannerNgangProps) => {
   ====================== */
 
   return (
-    <div className="flex flex-col gap-8 mt-6">
-      {/* ========== 5:1 BANNER ========== */}
+    <div className="flex flex-col gap-10 mt-6">
+      {/* ========== BANNER LARGE 1440x617 ========== */}
       <div className="flex flex-col items-center gap-3">
-        <div
-          className="relative rounded-xl overflow-hidden border"
-          style={{ width: 1500, height: 300 }}
-        >
-          <img
-            src={preview5to1}
-            className="w-full h-full object-cover"
-            alt="Banner 5:1"
-          />
-          <div className="absolute bottom-0 inset-x-0 bg-black/40 text-white text-xs text-center py-1">
-            Banner 5:1 (1500×300)
+        <div className="w-full max-w-4xl">
+          <div
+            className="relative rounded-xl overflow-hidden border w-full"
+            style={{ aspectRatio: "21 / 9" }}
+          >
+            <img
+              src={previewLarge}
+              className="absolute inset-0 w-full h-full object-cover"
+              alt="Banner 21:9 Large"
+            />
+            <div className="absolute bottom-0 inset-x-0 bg-black/40 text-white text-xs text-center py-1">
+              Banner desktop 21:9 (1440 × 617)
+            </div>
           </div>
         </div>
-
-        <input
-          ref={file5to1Ref}
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={handleSelect("5to1")}
-        />
-
-        <button
-          type="button"
-          onClick={() => file5to1Ref.current?.click()}
-          className="px-4 py-2 bg-red-500 text-white rounded-lg"
-        >
-          Chọn ảnh 5:1
-        </button>
       </div>
 
-      {/* ========== SMALL BANNER ========== */}
+      {/* ========== BANNER SMALL 720x309 ========== */}
       <div className="flex flex-col items-center gap-3">
-        <div
-          className="relative rounded-xl overflow-hidden border"
-          style={{ width: 768, height: 364 }}
-        >
-          <img
-            src={previewSmall}
-            className="w-full h-full object-cover"
-            alt="Banner small"
-          />
-          <div className="absolute bottom-0 inset-x-0 bg-black/40 text-white text-xs text-center py-1">
-            Banner 2x1
+        <div className="w-full max-w-2xl">
+          <div
+            className="relative rounded-xl overflow-hidden border w-full"
+            style={{ aspectRatio: "21 / 9" }}
+          >
+            <img
+              src={previewSmall}
+              className="absolute inset-0 w-full h-full object-cover"
+              alt="Banner 21:9 Small"
+            />
+            <div className="absolute bottom-0 inset-x-0 bg-black/40 text-white text-xs text-center py-1">
+              Banner tablet nhẹ (720 × 309)
+            </div>
           </div>
         </div>
-
-        <input
-          ref={fileSmallRef}
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={handleSelect("small")}
-        />
-
-        <button
-          type="button"
-          onClick={() => fileSmallRef.current?.click()}
-          className="px-4 py-2 bg-red-500 text-white rounded-lg"
-        >
-          Chọn ảnh 2:1
-        </button>
       </div>
 
-      {/* ========== UPLOAD ========== */}
-      {banner5to1.base64 && bannerSmall.base64 && (
-        <div className="flex justify-center">
+      {/* ========== INPUT ========== */}
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={handleSelect}
+      />
+
+      <div className="flex justify-center gap-4">
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="px-5 py-2 bg-red-500 text-white rounded-lg"
+        >
+          Chọn ảnh (tạo 2 bản 21:9)
+        </button>
+
+        {bannerLarge.base64 && bannerSmall.base64 && (
           <button
             type="button"
-            onClick={uploadBanners}
-            className="px-6 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600"
+            onClick={uploadBanner}
+            className="px-6 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600"
           >
             ☁️ Upload cả 2 banner
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

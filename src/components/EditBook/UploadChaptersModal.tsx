@@ -1,6 +1,10 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { createChapters, getChapterUploadLink } from "../../../apis/chapters";
+import {
+  createChapters,
+  getChapterUploadLink,
+  getChapterPreviewUploadLink,
+} from "../../../apis/chapters";
 import { compressText } from "../../utils/compress";
 import { useNavigate } from "react-router-dom";
 
@@ -19,20 +23,36 @@ interface UploadChaptersModalProps {
 
 const CHAPTER_BATCH_SIZE = 100;
 const CONCURRENCY = 5;
+const MAX_WORDS = 700;
 
 /* ================= helpers ================= */
 
-/** Lấy N WORD đầu tiên (chuẩn cho tiếng Việt) */
-const takeFirstWords = (text: string, maxWords = 700) =>
-  text
-    .replace(/\s+/g, " ")
-    .trim()
-    .split(" ")
-    .slice(0, maxWords)
-    .join(" ");
+/** Cắt 700 words nhưng GIỮ NGUYÊN XUỐNG DÒNG */
+function takeFirstWordsKeepLines(text: string, maxWords = MAX_WORDS) {
+  const lines = text.split(/\r?\n/);
+  let count = 0;
+  const result: string[] = [];
+
+  for (const line of lines) {
+    const words = line.trim().split(/\s+/).filter(Boolean);
+
+    if (count + words.length <= maxWords) {
+      result.push(line);
+      count += words.length;
+    } else {
+      const remain = maxWords - count;
+      if (remain > 0) {
+        result.push(words.slice(0, remain).join(" "));
+      }
+      break;
+    }
+  }
+
+  return result.join("\n");
+}
 
 const buildVipPreviewContent = (text: string) => `
-${takeFirstWords(text, 700)}
+${takeFirstWordsKeepLines(text, 700)}
 
 ────────────────────
 🔒 Nội dung đầy đủ chỉ dành cho thành viên VIP
@@ -143,7 +163,7 @@ export default function UploadChaptersModal({
       setTotalUploads(total);
       setProgress(0);
 
-      /* 2️⃣ upload FREE (full) */
+      /* 2️⃣ upload FREE (full public) */
       if (freeChapters.length) {
         const { url, fields } = await getChapterUploadLink(bookSlug, true);
 
@@ -167,17 +187,19 @@ export default function UploadChaptersModal({
         });
       }
 
-      /* 3️⃣ upload VIP preview (public – 700 word) */
+      /* 3️⃣ upload VIP preview (public – 700 words) */
       if (vipChapters.length) {
-        const { url, fields } = await getChapterUploadLink(bookSlug, true);
+        const { url, fields } = await getChapterPreviewUploadLink(bookSlug);
 
         await uploadWithConcurrency(vipChapters, async (ch) => {
           const text = await ch.file.text();
           const preview = buildVipPreviewContent(text);
 
+          const previewName = `chuong-${ch.chapterNumber}-preview.txt`;
+
           const file = new File(
             [compressText(preview)],
-            ch.fileName,
+            previewName,
             { type: "application/octet-stream" }
           );
 
@@ -185,7 +207,7 @@ export default function UploadChaptersModal({
           Object.entries(fields).forEach(([k, v]) =>
             fd.append(k, v as string)
           );
-          fd.set("key", `free/${bookSlug}/${file.name}`);
+          fd.set("key", `preview/${bookSlug}/${previewName}`);
           fd.append("file", file);
 
           const res = await fetch(url, { method: "POST", body: fd });

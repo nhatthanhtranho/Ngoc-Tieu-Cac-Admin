@@ -114,6 +114,17 @@ export async function getChapterUploadLink(
   return res.data;
 }
 
+
+export async function getChapterPreviewUploadLink(
+  bookSlug: string,
+): Promise<{ url: string; fields: Record<string, string> }> {
+  const res = await api.get(
+    `/chapters/${bookSlug}/upload-preview`
+  );
+  return res.data;
+}
+
+
 export async function deleteAllChapters(
   bookSlug: string
 ): Promise<{ url: string; fields: Record<string, string> }> {

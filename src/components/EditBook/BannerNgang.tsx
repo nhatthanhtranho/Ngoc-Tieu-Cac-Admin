@@ -43,9 +43,11 @@ const resizeToBase64 = (
   file: File,
   width: number,
   height: number,
+  quality = 0.78,
 ): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
+    const url = URL.createObjectURL(file);
 
     img.onload = () => {
       const canvas = document.createElement("canvas");
@@ -63,11 +65,14 @@ const resizeToBase64 = (
       const dy = (height - sh) / 2;
 
       ctx.drawImage(img, dx, dy, sw, sh);
-      resolve(canvas.toDataURL("image/webp", 0.9));
+
+      const base64 = canvas.toDataURL("image/webp", quality);
+      URL.revokeObjectURL(url); // tránh leak memory
+      resolve(base64);
     };
 
     img.onerror = reject;
-    img.src = URL.createObjectURL(file);
+    img.src = url;
   });
 };
 
@@ -78,18 +83,18 @@ const resizeToBase64 = (
 export const BannerNgang = ({ book, fallbackBanner }: BannerNgangProps) => {
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Banner lớn 21:9 (desktop)
+  // Banner desktop tối ưu (max hiển thị ~1500px)
   const [bannerLarge, setBannerLarge] = useState<BannerItem>({
     base64: null,
-    width: 1680,
-    height: 720,
+    width: 1440,
+    height: 617, // 21:9
   });
 
-  // Banner nhỏ 21:9 (tablet – nhẹ)
+  // Banner tablet / mobile nhẹ
   const [bannerSmall, setBannerSmall] = useState<BannerItem>({
     base64: null,
-    width: 768,
-    height: 329, // 768 / 2.33 ≈ 329
+    width: 720,
+    height: 309, // 21:9
   });
 
   /* ======================
@@ -102,8 +107,8 @@ export const BannerNgang = ({ book, fallbackBanner }: BannerNgangProps) => {
 
     try {
       const [largeBase64, smallBase64] = await Promise.all([
-        resizeToBase64(file, bannerLarge.width, bannerLarge.height),
-        resizeToBase64(file, bannerSmall.width, bannerSmall.height),
+        resizeToBase64(file, bannerLarge.width, bannerLarge.height, 0.82),
+        resizeToBase64(file, bannerSmall.width, bannerSmall.height, 0.7),
       ]);
 
       setBannerLarge({ ...bannerLarge, base64: largeBase64 });
@@ -124,9 +129,7 @@ export const BannerNgang = ({ book, fallbackBanner }: BannerNgangProps) => {
     if (!bannerLarge.base64 || !bannerSmall.base64) return;
 
     try {
-      // API nên trả về 2 url: banner lớn + banner small
-      // Ví dụ backend:
-      // { defaultUrl, smallUrl }
+      // API backend trả về 2 presigned url
       const { defaultUrl, smallUrl } =
         await getUploadBookBannerNgangUrl(book.slug);
 
@@ -170,7 +173,7 @@ export const BannerNgang = ({ book, fallbackBanner }: BannerNgangProps) => {
 
   return (
     <div className="flex flex-col gap-10 mt-6">
-      {/* ========== BANNER LARGE 1680x720 ========== */}
+      {/* ========== BANNER LARGE 1440x617 ========== */}
       <div className="flex flex-col items-center gap-3">
         <div className="w-full max-w-4xl">
           <div
@@ -183,13 +186,13 @@ export const BannerNgang = ({ book, fallbackBanner }: BannerNgangProps) => {
               alt="Banner 21:9 Large"
             />
             <div className="absolute bottom-0 inset-x-0 bg-black/40 text-white text-xs text-center py-1">
-              Banner lớn 21:9 (1680 × 720)
+              Banner desktop 21:9 (1440 × 617)
             </div>
           </div>
         </div>
       </div>
 
-      {/* ========== BANNER SMALL 768x329 ========== */}
+      {/* ========== BANNER SMALL 720x309 ========== */}
       <div className="flex flex-col items-center gap-3">
         <div className="w-full max-w-2xl">
           <div
@@ -202,7 +205,7 @@ export const BannerNgang = ({ book, fallbackBanner }: BannerNgangProps) => {
               alt="Banner 21:9 Small"
             />
             <div className="absolute bottom-0 inset-x-0 bg-black/40 text-white text-xs text-center py-1">
-              Banner tablet nhẹ (768 × 329)
+              Banner tablet nhẹ (720 × 309)
             </div>
           </div>
         </div>

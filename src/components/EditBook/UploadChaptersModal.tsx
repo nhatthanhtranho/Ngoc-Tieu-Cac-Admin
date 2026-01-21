@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { createChapters, getChapterUploadLink } from "../../../apis/chapters";
 import { compressText } from "../../utils/compress";
@@ -8,6 +8,7 @@ export interface ParsedChapter {
   chapterNumber: number;
   title: string;
   fileName: string;
+  file: File;
 }
 
 interface UploadChaptersModalProps {
@@ -16,9 +17,30 @@ interface UploadChaptersModalProps {
   onUploaded: () => void;
 }
 
-const CHAPTER_BATCH_SIZE = 100; // create chapters per batch
-const FILE_BATCH_SIZE = 100; // upload files per batch
-const CONCURRENCY = 5; // parallel uploads
+const CHAPTER_BATCH_SIZE = 100;
+const CONCURRENCY = 5;
+
+/* ================= helpers ================= */
+
+/** Lấy N WORD đầu tiên (chuẩn cho tiếng Việt) */
+const takeFirstWords = (text: string, maxWords = 700) =>
+  text
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .slice(0, maxWords)
+    .join(" ");
+
+const buildVipPreviewContent = (text: string) => `
+${takeFirstWords(text, 700)}
+
+────────────────────
+🔒 Nội dung đầy đủ chỉ dành cho thành viên VIP
+Vui lòng nâng cấp tài khoản để đọc trọn vẹn chương này.
+────────────────────
+`.trim();
+
+/* ================= component ================= */
 
 export default function UploadChaptersModal({
   bookSlug,
@@ -26,26 +48,20 @@ export default function UploadChaptersModal({
   onUploaded,
 }: UploadChaptersModalProps) {
   const navigate = useNavigate();
+
   const [parsedChapters, setParsedChapters] = useState<ParsedChapter[]>([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [currentBatch, setCurrentBatch] = useState(0);
+  const [totalUploads, setTotalUploads] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
   const abortRef = useRef<AbortController | null>(null);
 
-  // extract first line as chapter title
   const extractTitle = async (file: File, chapterNumber: number) => {
     const text = await file.text();
     const firstLine = text.split("\n")[0].trim();
-
-    // Kiểm tra xem dòng đầu có format Chương X: title không
     const match = firstLine.match(/^Chương\s*\d+\s*[:\-–]?\s*(.*)$/i);
-    if (match && match[1].trim()) {
-      return match[1].trim(); // trả về title nếu có
-    }
-
-    // Nếu không có title, fallback về "Chương <chapterNumber>"
-    return `Chương ${chapterNumber}`;
+    return match?.[1]?.trim() || `Chương ${chapterNumber}`;
   };
 
   const handleChooseFolder = () => {
@@ -53,325 +69,211 @@ export default function UploadChaptersModal({
     input.type = "file";
     input.multiple = true;
     input.accept = ".txt";
+
     input.onchange = async (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      if (!target.files) return;
-
-      const files = Array.from(target.files).filter((f) =>
-        f.name.endsWith(".txt")
-      );
-      if (files.length === 0) return;
-
+      const files = Array.from((e.target as HTMLInputElement).files || []);
       const parsed = await Promise.all(
-        files.map(async (file) => {
-          const match = file.name.match(/chuong-(\d+)/i);
-          const chapterNumber = match ? Number(match[1]) : NaN;
-          const title = await extractTitle(file, chapterNumber);
-          return { chapterNumber, title, fileName: file.name, file };
-        })
+        files
+          .filter((f) => f.name.endsWith(".txt"))
+          .map(async (file) => {
+            const match = file.name.match(/chuong-(\d+)/i);
+            const chapterNumber = match ? Number(match[1]) : NaN;
+            const title = await extractTitle(file, chapterNumber);
+            return { chapterNumber, title, fileName: file.name, file };
+          })
       );
 
       setParsedChapters(
         parsed
-          .filter((ch) => !isNaN(ch.chapterNumber))
+          .filter((c) => !isNaN(c.chapterNumber))
           .sort((a, b) => a.chapterNumber - b.chapterNumber)
       );
     };
+
     input.click();
   };
 
-  const uploadBatchWithConcurrency = async <T,>(
+  const uploadWithConcurrency = async <T,>(
     items: T[],
-    concurrency: number,
-    worker: (item: T) => Promise<void>,
-    onItemDone?: () => void
+    worker: (item: T) => Promise<void>
   ) => {
-    const queue = items.slice();
-    const runners: Promise<void>[] = [];
-
-    for (let i = 0; i < concurrency; i++) {
-      const run = (async () => {
-        while (queue.length > 0) {
-          const item = queue.shift()!;
-          if (abortRef.current?.signal.aborted) throw new Error("aborted");
-          await worker(item);
-          onItemDone?.();
-        }
-      })();
-      runners.push(run);
-    }
-
+    const queue = [...items];
+    const runners = Array.from({ length: CONCURRENCY }).map(async () => {
+      while (queue.length) {
+        if (abortRef.current?.signal.aborted) throw new Error("aborted");
+        const item = queue.shift()!;
+        await worker(item);
+        setProgress((p) => p + 1);
+      }
+    });
     await Promise.all(runners);
   };
 
   const handleUpload = async () => {
-    if (parsedChapters.length === 0) {
-      alert("Chưa chọn file!");
-      return;
-    }
+    if (!parsedChapters.length) return alert("Chưa chọn file");
 
-    setError(null);
     setUploading(true);
     setProgress(0);
-    setCurrentBatch(0);
+    setError(null);
     abortRef.current = new AbortController();
 
     try {
-      // 1️⃣ Create all chapters
+      /* 1️⃣ create chapters */
       for (let i = 0; i < parsedChapters.length; i += CHAPTER_BATCH_SIZE) {
         const batch = parsedChapters.slice(i, i + CHAPTER_BATCH_SIZE);
         await createChapters(
           bookSlug,
-          batch.map((item) => ({
-            chapterNumber: item.chapterNumber,
-            title: item.title,
+          batch.map((c) => ({
+            chapterNumber: c.chapterNumber,
+            title: c.title,
           }))
         );
       }
 
-      // 2️⃣ Split free / vip
       const freeChapters = parsedChapters.filter(
-        (ch) => ch.chapterNumber <= 50
+        (c) => c.chapterNumber <= 50
       );
       const vipChapters = parsedChapters.filter(
-        (ch) => ch.chapterNumber > 50
+        (c) => c.chapterNumber > 50
       );
 
-      const totalFiles = parsedChapters.length;
-      let uploadedCount = 0;
-      const onSingleDone = () => {
-        uploadedCount++;
-        setProgress((uploadedCount / totalFiles) * 100);
-      };
+      const total =
+        freeChapters.length + vipChapters.length * 2;
 
-      // 3️⃣ Upload FREE chapters (1–50)
-      if (freeChapters.length > 0) {
+      setTotalUploads(total);
+      setProgress(0);
+
+      /* 2️⃣ upload FREE (full) */
+      if (freeChapters.length) {
         const { url, fields } = await getChapterUploadLink(bookSlug, true);
 
-        const freeFiles = await Promise.all(
-          freeChapters.map(async (ch) => {
-            const text = await (ch as any).file.text();
-            const compressed = compressText(text);
-            return new File(
-              [new Blob([compressed])],
-              ch.fileName,
-              { type: "application/octet-stream" }
-            );
-          })
-        );
+        await uploadWithConcurrency(freeChapters, async (ch) => {
+          const text = await ch.file.text();
+          const file = new File(
+            [compressText(text)],
+            ch.fileName,
+            { type: "application/octet-stream" }
+          );
 
-        await uploadBatchWithConcurrency(
-          freeFiles,
-          CONCURRENCY,
-          async (file) => {
-            const formData = new FormData();
-            Object.entries(fields).forEach(([k, v]) =>
-              formData.append(k, v as string)
-            );
-            formData.set("key", `free/${bookSlug}/${file.name}`);
-            formData.append("file", file);
+          const fd = new FormData();
+          Object.entries(fields).forEach(([k, v]) =>
+            fd.append(k, v as string)
+          );
+          fd.set("key", `free/${bookSlug}/${file.name}`);
+          fd.append("file", file);
 
-            const res = await fetch(url, {
-              method: "POST",
-              body: formData,
-              signal: abortRef.current?.signal,
-            });
-            if (!res.ok) throw new Error(`Upload free failed: ${file.name}`);
-            onSingleDone();
-          }
-        );
+          const res = await fetch(url, { method: "POST", body: fd });
+          if (!res.ok) throw new Error(`Upload free failed: ${file.name}`);
+        });
       }
 
-      // 4️⃣ Upload VIP chapters (51+)
-      if (vipChapters.length > 0) {
+      /* 3️⃣ upload VIP preview (public – 700 word) */
+      if (vipChapters.length) {
+        const { url, fields } = await getChapterUploadLink(bookSlug, true);
+
+        await uploadWithConcurrency(vipChapters, async (ch) => {
+          const text = await ch.file.text();
+          const preview = buildVipPreviewContent(text);
+
+          const file = new File(
+            [compressText(preview)],
+            ch.fileName,
+            { type: "application/octet-stream" }
+          );
+
+          const fd = new FormData();
+          Object.entries(fields).forEach(([k, v]) =>
+            fd.append(k, v as string)
+          );
+          fd.set("key", `free/${bookSlug}/${file.name}`);
+          fd.append("file", file);
+
+          const res = await fetch(url, { method: "POST", body: fd });
+          if (!res.ok) throw new Error("Upload vip preview failed");
+        });
+      }
+
+      /* 4️⃣ upload VIP full (private) */
+      if (vipChapters.length) {
         const { url, fields } = await getChapterUploadLink(bookSlug);
 
-        const vipFiles = await Promise.all(
-          vipChapters.map(async (ch) => {
-            const text = await (ch as any).file.text();
-            const compressed = compressText(text);
-            return new File(
-              [new Blob([compressed])],
-              ch.fileName,
-              { type: "application/octet-stream" }
-            );
-          })
-        );
+        await uploadWithConcurrency(vipChapters, async (ch) => {
+          const text = await ch.file.text();
 
-        await uploadBatchWithConcurrency(
-          vipFiles,
-          CONCURRENCY,
-          async (file) => {
-            const formData = new FormData();
-            Object.entries(fields).forEach(([k, v]) =>
-              formData.append(k, v as string)
-            );
-            formData.set("key", `${bookSlug}/${file.name}`);
-            if (!fields.acl) formData.append("acl", "private");
-            formData.append("file", file);
+          const file = new File(
+            [compressText(text)],
+            ch.fileName,
+            { type: "application/octet-stream" }
+          );
 
-            const res = await fetch(url, {
-              method: "POST",
-              body: formData,
-              signal: abortRef.current?.signal,
-            });
-            if (!res.ok) throw new Error(`Upload vip failed: ${file.name}`);
-            onSingleDone();
-          }
-        );
+          const fd = new FormData();
+          Object.entries(fields).forEach(([k, v]) =>
+            fd.append(k, v as string)
+          );
+          fd.set("key", `${bookSlug}/${file.name}`);
+          if (!fields.acl) fd.append("acl", "private");
+          fd.append("file", file);
+
+          const res = await fetch(url, { method: "POST", body: fd });
+          if (!res.ok) throw new Error("Upload vip full failed");
+        });
       }
 
-      setProgress(100);
-      setUploading(false);
       onUploaded();
-      handleReset();
-    } catch (err: any) {
-      if (err?.message === "aborted")
-        setError("Upload đã bị hủy bởi người dùng.");
-      else setError(err?.message ?? "Upload thất bại");
+      navigate(0);
+    } catch (e: any) {
+      setError(e.message || "Upload thất bại");
+    } finally {
       setUploading(false);
     }
   };
 
-
-  const handleCancel = () => abortRef.current?.abort();
-  const handleReset = () => {
-    setParsedChapters([]);
-    setProgress(0);
-    setCurrentBatch(0);
-    setError(null);
-    abortRef.current = null;
-    // do here
-    navigate(0);
-  };
-
   return (
-    <motion.div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      <motion.div
-        className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg w-[700px] max-h-[80vh] flex flex-col"
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.9, opacity: 0 }}
-      >
-        <div className="p-4 flex justify-between items-center">
-          <h3 className="font-semibold text-gray-800 dark:text-gray-100">
-            Upload chương
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-red-600 cursor-pointer"
-          >
-            ✕
-          </button>
+    <motion.div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <motion.div className="bg-white rounded-2xl w-[700px] max-h-[80vh] flex flex-col">
+        <div className="p-4 flex justify-between">
+          <h3 className="font-semibold">Upload chương</h3>
+          <button onClick={onClose}>✕</button>
         </div>
 
         {parsedChapters.length === 0 && (
-          <div className="m-4 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center text-gray-500 hover:border-green-400 transition">
+          <div className="m-4 border-2 border-dashed p-6 text-center">
             Chọn folder{" "}
             <button
               onClick={handleChooseFolder}
-              className="text-green-600 underline"
+              className="underline text-green-600"
             >
               từ máy
             </button>
           </div>
         )}
 
-        {parsedChapters.length > 0 && (
-          <div className="flex-1 overflow-y-auto p-4">
-            <table className="w-full text-sm border-collapse border-gray-200">
-              <thead className="bg-gray-100 dark:bg-gray-700">
-                <tr>
-                  <th className="px-3 py-2 text-left">Chương</th>
-                  <th className="px-3 py-2 text-left">Tiêu đề</th>
-                  <th className="px-3 py-2 text-left">Tên file</th>
-                </tr>
-              </thead>
-              <tbody>
-                {parsedChapters.slice(0, 10).map((ch, i) => (
-                  <tr
-                    key={i}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                  >
-                    <td className="p-3 border-y border-gray-100">
-                      {ch.chapterNumber}
-                    </td>
-                    <td className="p-3 border-y border-gray-100">{ch.title}</td>
-                    <td className="p-3 border-y border-gray-100 text-gray-500">
-                      {ch.fileName}
-                    </td>
-                  </tr>
-                ))}
-                {parsedChapters.length > 10 && (
-                  <tr className="text-center text-gray-500">
-                    <td colSpan={3} className="p-3 italic">
-                      ...và {parsedChapters.length - 10} chương nữa
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-
-            <div className="mt-3 flex gap-3">
-              <button
-                onClick={handleReset}
-                className="text-sm text-blue-600 underline hover:text-blue-800"
-              >
-                ↩️ Chọn lại folder khác
-              </button>
-              <button
-                onClick={handleChooseFolder}
-                className="text-sm text-gray-600 underline"
-              >
-                Thêm file
-              </button>
-            </div>
-          </div>
-        )}
-
-        {uploading && (
-          <div className="px-4 mb-2">
-            <div className="w-full bg-gray-200 rounded-full h-2">
+        {uploading && totalUploads > 0 && (
+          <div className="px-4">
+            <div className="h-2 bg-gray-200 rounded">
               <div
-                className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
+                className="h-2 bg-green-600 rounded"
+                style={{
+                  width: `${Math.min(
+                    (progress / totalUploads) * 100,
+                    100
+                  )}%`,
+                }}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1 text-right">
-              {" "}
-              {progress.toFixed(1)}% — batch {currentBatch}{" "}
-            </p>
+            <div className="mt-2 text-sm text-gray-600 text-right">
+              {progress} / {totalUploads} file
+            </div>
           </div>
         )}
 
-        {error && <div className="px-4 text-sm text-red-600">{error}</div>}
+        {error && <div className="p-4 text-red-600">{error}</div>}
 
         <div className="p-4 border-t flex justify-end gap-3">
-          <button onClick={onClose} className="px-4 py-2 rounded-md border">
-            Hủy
+          <button onClick={onClose}>Hủy</button>
+          <button onClick={handleUpload} disabled={uploading}>
+            Tải lên
           </button>
-          {!uploading && (
-            <button
-              onClick={handleUpload}
-              disabled={parsedChapters.length === 0}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
-            >
-              Tải lên
-            </button>
-          )}
-          {uploading && (
-            <button
-              onClick={handleCancel}
-              className="px-4 py-2 rounded-md border"
-            >
-              Hủy upload
-            </button>
-          )}
         </div>
       </motion.div>
     </motion.div>

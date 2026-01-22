@@ -24,10 +24,10 @@ interface UploadChaptersModalProps {
 const CHAPTER_BATCH_SIZE = 100;
 const CONCURRENCY = 5;
 const MAX_WORDS = 700;
+const PREVIEW_LIMIT = 10;
 
 /* ================= helpers ================= */
 
-/** Cắt 700 words nhưng GIỮ NGUYÊN XUỐNG DÒNG */
 function takeFirstWordsKeepLines(text: string, maxWords = MAX_WORDS) {
   const lines = text.split(/\r?\n/);
   let count = 0;
@@ -84,6 +84,8 @@ export default function UploadChaptersModal({
     return match?.[1]?.trim() || `Chương ${chapterNumber}`;
   };
 
+  /* ================= chọn folder ================= */
+
   const handleChooseFolder = () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -113,6 +115,8 @@ export default function UploadChaptersModal({
     input.click();
   };
 
+  /* ================= upload helpers ================= */
+
   const uploadWithConcurrency = async <T,>(
     items: T[],
     worker: (item: T) => Promise<void>
@@ -128,6 +132,8 @@ export default function UploadChaptersModal({
     });
     await Promise.all(runners);
   };
+
+  /* ================= upload ================= */
 
   const handleUpload = async () => {
     if (!parsedChapters.length) return alert("Chưa chọn file");
@@ -150,35 +156,25 @@ export default function UploadChaptersModal({
         );
       }
 
-      const freeChapters = parsedChapters.filter(
-        (c) => c.chapterNumber <= 50
-      );
-      const vipChapters = parsedChapters.filter(
-        (c) => c.chapterNumber > 50
-      );
+      const freeChapters = parsedChapters.filter((c) => c.chapterNumber <= 50);
+      const vipChapters = parsedChapters.filter((c) => c.chapterNumber > 50);
 
-      const total =
-        freeChapters.length + vipChapters.length * 2;
-
+      const total = freeChapters.length + vipChapters.length * 2;
       setTotalUploads(total);
       setProgress(0);
 
-      /* 2️⃣ upload FREE (full public) */
+      /* 2️⃣ upload FREE */
       if (freeChapters.length) {
         const { url, fields } = await getChapterUploadLink(bookSlug, true);
 
         await uploadWithConcurrency(freeChapters, async (ch) => {
           const text = await ch.file.text();
-          const file = new File(
-            [compressText(text)],
-            ch.fileName,
-            { type: "application/octet-stream" }
-          );
+          const file = new File([compressText(text)], ch.fileName, {
+            type: "application/octet-stream",
+          });
 
           const fd = new FormData();
-          Object.entries(fields).forEach(([k, v]) =>
-            fd.append(k, v as string)
-          );
+          Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
           fd.set("key", `free/${bookSlug}/${file.name}`);
           fd.append("file", file);
 
@@ -187,26 +183,21 @@ export default function UploadChaptersModal({
         });
       }
 
-      /* 3️⃣ upload VIP preview (public – 700 words) */
+      /* 3️⃣ upload VIP preview */
       if (vipChapters.length) {
         const { url, fields } = await getChapterPreviewUploadLink(bookSlug);
 
         await uploadWithConcurrency(vipChapters, async (ch) => {
           const text = await ch.file.text();
           const preview = buildVipPreviewContent(text);
-
           const previewName = `chuong-${ch.chapterNumber}-preview.txt`;
 
-          const file = new File(
-            [compressText(preview)],
-            previewName,
-            { type: "application/octet-stream" }
-          );
+          const file = new File([compressText(preview)], previewName, {
+            type: "application/octet-stream",
+          });
 
           const fd = new FormData();
-          Object.entries(fields).forEach(([k, v]) =>
-            fd.append(k, v as string)
-          );
+          Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
           fd.set("key", `preview/${bookSlug}/${previewName}`);
           fd.append("file", file);
 
@@ -215,23 +206,18 @@ export default function UploadChaptersModal({
         });
       }
 
-      /* 4️⃣ upload VIP full (private) */
+      /* 4️⃣ upload VIP full */
       if (vipChapters.length) {
         const { url, fields } = await getChapterUploadLink(bookSlug);
 
         await uploadWithConcurrency(vipChapters, async (ch) => {
           const text = await ch.file.text();
-
-          const file = new File(
-            [compressText(text)],
-            ch.fileName,
-            { type: "application/octet-stream" }
-          );
+          const file = new File([compressText(text)], ch.fileName, {
+            type: "application/octet-stream",
+          });
 
           const fd = new FormData();
-          Object.entries(fields).forEach(([k, v]) =>
-            fd.append(k, v as string)
-          );
+          Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
           fd.set("key", `${bookSlug}/${file.name}`);
           if (!fields.acl) fd.append("acl", "private");
           fd.append("file", file);
@@ -250,16 +236,24 @@ export default function UploadChaptersModal({
     }
   };
 
+  /* ================= UI ================= */
+
+  const freeCount = parsedChapters.filter((c) => c.chapterNumber <= 50).length;
+  const vipCount = parsedChapters.filter((c) => c.chapterNumber > 50).length;
+
+  const previewChapters = parsedChapters.slice(0, PREVIEW_LIMIT);
+  const hasMore = parsedChapters.length > PREVIEW_LIMIT;
+
   return (
     <motion.div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <motion.div className="bg-white rounded-2xl w-[700px] max-h-[80vh] flex flex-col">
-        <div className="p-4 flex justify-between">
+      <motion.div className="bg-white rounded-2xl w-[800px] max-h-[80vh] flex flex-col">
+        <div className="p-4 flex justify-between border-b">
           <h3 className="font-semibold">Upload chương</h3>
           <button onClick={onClose}>✕</button>
         </div>
 
         {parsedChapters.length === 0 && (
-          <div className="m-4 border-2 border-dashed p-6 text-center">
+          <div className="m-6 border-2 border-dashed p-8 text-center">
             Chọn folder{" "}
             <button
               onClick={handleChooseFolder}
@@ -270,16 +264,72 @@ export default function UploadChaptersModal({
           </div>
         )}
 
+        {parsedChapters.length > 0 && !uploading && (
+          <div className="flex flex-col flex-1">
+            <div className="px-4 py-2 text-sm text-gray-600 flex justify-between">
+              <span>
+                Tổng: <b>{parsedChapters.length}</b> chương
+              </span>
+              <span>
+                Free: <b className="text-green-600">{freeCount}</b> | VIP:{" "}
+                <b className="text-purple-600">{vipCount}</b>
+              </span>
+            </div>
+
+            <div className="overflow-auto border-t">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-gray-100">
+                  <tr>
+                    <th className="p-2 w-16 text-left">#</th>
+                    <th className="p-2 text-left">Tiêu đề</th>
+                    <th className="p-2 text-left">File</th>
+                    <th className="p-2 w-20">Loại</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {previewChapters.map((c) => (
+                    <tr key={c.fileName} className="border-t hover:bg-gray-50">
+                      <td className="p-2 font-mono">{c.chapterNumber}</td>
+                      <td className="p-2">{c.title}</td>
+                      <td className="p-2 text-gray-500">{c.fileName}</td>
+                      <td className="p-2 text-center">
+                        {c.chapterNumber <= 50 ? (
+                          <span className="text-green-600">Free</span>
+                        ) : (
+                          <span className="text-purple-600">VIP</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                {hasMore && (
+                  <tfoot>
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="p-3 text-center text-sm text-gray-500 bg-gray-50"
+                      >
+                        … còn <b>{parsedChapters.length - PREVIEW_LIMIT}</b>{" "}
+                        chương nữa{" "}
+                        <span className="ml-2 text-gray-400">
+                          (chỉ hiển thị 10 chương đầu)
+                        </span>
+                      </td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+          </div>
+        )}
+
         {uploading && totalUploads > 0 && (
-          <div className="px-4">
+          <div className="px-4 py-4">
             <div className="h-2 bg-gray-200 rounded">
               <div
                 className="h-2 bg-green-600 rounded"
                 style={{
-                  width: `${Math.min(
-                    (progress / totalUploads) * 100,
-                    100
-                  )}%`,
+                  width: `${Math.min((progress / totalUploads) * 100, 100)}%`,
                 }}
               />
             </div>
@@ -293,7 +343,11 @@ export default function UploadChaptersModal({
 
         <div className="p-4 border-t flex justify-end gap-3">
           <button onClick={onClose}>Hủy</button>
-          <button onClick={handleUpload} disabled={uploading}>
+          <button
+            onClick={handleUpload}
+            disabled={uploading || !parsedChapters.length}
+            className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+          >
             Tải lên
           </button>
         </div>

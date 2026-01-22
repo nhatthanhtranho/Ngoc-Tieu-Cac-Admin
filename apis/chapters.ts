@@ -107,19 +107,9 @@ export async function getChapterUploadLink(
   bookSlug: string,
   isPublic = false,
   isAudio = false
-): Promise<{ url: string; fields: Record<string, string> }> {
+): Promise<{ url: string; fields: Record<string, string>, preview: string }> {
   const res = await api.get(
     `/chapters/${bookSlug}/upload?isPublic=${isPublic ? 1 : 0}&isAudio=${isAudio ? 1 : 0}`
-  );
-  return res.data;
-}
-
-
-export async function getChapterPreviewUploadLink(
-  bookSlug: string,
-): Promise<{ url: string; fields: Record<string, string> }> {
-  const res = await api.get(
-    `/chapters/${bookSlug}/upload-preview`
   );
   return res.data;
 }

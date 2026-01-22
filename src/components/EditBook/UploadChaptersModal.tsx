@@ -1,9 +1,6 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import {
-  createChapters,
-  getChapterUploadLink,
-} from "../../../apis/chapters";
+import { createChapters, getChapterUploadLink } from "../../../apis/chapters";
 import { compressText } from "../../utils/compress";
 import { useNavigate } from "react-router-dom";
 
@@ -51,7 +48,7 @@ function takeFirstWordsKeepLines(text: string, maxWords = MAX_WORDS) {
 }
 
 const buildVipPreviewContent = (text: string) => `
-${takeFirstWordsKeepLines(text, 700)}
+${takeFirstWordsKeepLines(text, MAX_WORDS)}
 
 ────────────────────
 🔒 Nội dung đầy đủ chỉ dành cho thành viên VIP
@@ -67,14 +64,13 @@ export default function UploadChaptersModal({
   onUploaded,
 }: UploadChaptersModalProps) {
   const navigate = useNavigate();
+  const abortRef = useRef<AbortController | null>(null);
 
   const [parsedChapters, setParsedChapters] = useState<ParsedChapter[]>([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [totalUploads, setTotalUploads] = useState(0);
   const [error, setError] = useState<string | null>(null);
-
-  const abortRef = useRef<AbortController | null>(null);
 
   const extractTitle = async (file: File, chapterNumber: number) => {
     const text = await file.text();
@@ -93,6 +89,7 @@ export default function UploadChaptersModal({
 
     input.onchange = async (e: Event) => {
       const files = Array.from((e.target as HTMLInputElement).files || []);
+
       const parsed = await Promise.all(
         files
           .filter((f) => f.name.endsWith(".txt"))
@@ -114,13 +111,14 @@ export default function UploadChaptersModal({
     input.click();
   };
 
-  /* ================= upload helpers ================= */
+  /* ================= concurrency runner ================= */
 
   const uploadWithConcurrency = async <T,>(
     items: T[],
     worker: (item: T) => Promise<void>
   ) => {
     const queue = [...items];
+
     const runners = Array.from({ length: CONCURRENCY }).map(async () => {
       while (queue.length) {
         if (abortRef.current?.signal.aborted) throw new Error("aborted");
@@ -129,6 +127,7 @@ export default function UploadChaptersModal({
         setProgress((p) => p + 1);
       }
     });
+
     await Promise.all(runners);
   };
 
@@ -164,9 +163,9 @@ export default function UploadChaptersModal({
 
       /* 2️⃣ upload FREE */
       if (freeChapters.length) {
-        const { url, fields, preview } = await getChapterUploadLink(bookSlug, true);
-
         await uploadWithConcurrency(freeChapters, async (ch) => {
+          const { url, fields } = await getChapterUploadLink(bookSlug, true);
+
           const text = await ch.file.text();
           const file = new File([compressText(text)], ch.fileName, {
             type: "application/octet-stream",
@@ -174,183 +173,176 @@ export default function UploadChaptersModal({
 
           const fd = new FormData();
           Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
-          fd.set("key", `free/${bookSlug}/${file.name}`);
           fd.append("file", file);
 
           const res = await fetch(url, { method: "POST", body: fd });
-          if (!res.ok) throw new Error(`Upload free failed: ${file.name}`);
+          if (!res.ok) throw new Error(`Upload free failed: ${ch.fileName}`);
         });
       }
 
       /* 3️⃣ upload VIP preview */
       if (vipChapters.length) {
         await uploadWithConcurrency(vipChapters, async (ch) => {
-          const { preview, fields } = await getChapterUploadLink(bookSlug);
+          const { url, fields } = await getChapterUploadLink(bookSlug, true);
 
-          await uploadWithConcurrency(vipChapters, async (ch) => {
-            const text = await ch.file.text();
-            const file = new File([compressText(text)], ch.fileName, {
-              type: "application/octet-stream",
-            });
+          const text = await ch.file.text();
+          const previewText = buildVipPreviewContent(text);
 
-            const fd = new FormData();
-            Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
-            fd.set("key", `${bookSlug}/${file.name}`);
-            if (!fields.acl) fd.append("acl", "private");
-            fd.append("file", file);
-
-            const res = await fetch(preview, { method: "POST", body: fd });
-            if (!res.ok) throw new Error("Upload vip full failed");
+          const file = new File([compressText(previewText)], ch.fileName, {
+            type: "application/octet-stream",
           });
-        })
+
+          const fd = new FormData();
+          Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
+          fd.append("file", file);
+
+          const res = await fetch(url, { method: "POST", body: fd });
+          if (!res.ok)
+            throw new Error(`Upload vip preview failed: ${ch.fileName}`);
+        });
       }
 
       /* 4️⃣ upload VIP full */
       if (vipChapters.length) {
+        await uploadWithConcurrency(vipChapters, async (ch) => {
           const { url, fields } = await getChapterUploadLink(bookSlug);
 
-          await uploadWithConcurrency(vipChapters, async (ch) => {
-            const text = await ch.file.text();
-            const file = new File([compressText(text)], ch.fileName, {
-              type: "application/octet-stream",
-            });
-
-            const fd = new FormData();
-            Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
-            fd.set("key", `${bookSlug}/${file.name}`);
-            if (!fields.acl) fd.append("acl", "private");
-            fd.append("file", file);
-
-            const res = await fetch(url, { method: "POST", body: fd });
-            if (!res.ok) throw new Error("Upload vip full failed");
+          const text = await ch.file.text();
+          const file = new File([compressText(text)], ch.fileName, {
+            type: "application/octet-stream",
           });
-        }
 
-        onUploaded();
-        navigate(0);
-      } catch (e: any) {
-        setError(e.message || "Upload thất bại");
-      } finally {
-        setUploading(false);
+          const fd = new FormData();
+          Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
+          fd.append("file", file);
+
+          const res = await fetch(url, { method: "POST", body: fd });
+          if (!res.ok) throw new Error(`Upload vip full failed: ${ch.fileName}`);
+        });
       }
-    };
 
-    /* ================= UI ================= */
+      onUploaded();
+      navigate(0);
+    } catch (e: any) {
+      setError(e.message || "Upload thất bại");
+    } finally {
+      setUploading(false);
+    }
+  };
 
-    const freeCount = parsedChapters.filter((c) => c.chapterNumber <= 50).length;
-    const vipCount = parsedChapters.filter((c) => c.chapterNumber > 50).length;
+  /* ================= UI ================= */
 
-    const previewChapters = parsedChapters.slice(0, PREVIEW_LIMIT);
-    const hasMore = parsedChapters.length > PREVIEW_LIMIT;
+  const freeCount = parsedChapters.filter((c) => c.chapterNumber <= 50).length;
+  const vipCount = parsedChapters.filter((c) => c.chapterNumber > 50).length;
 
-    return (
-      <motion.div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <motion.div className="bg-white rounded-2xl w-[800px] max-h-[80vh] flex flex-col">
-          <div className="p-4 flex justify-between border-b">
-            <h3 className="font-semibold">Upload chương</h3>
-            <button onClick={onClose}>✕</button>
-          </div>
+  const previewChapters = parsedChapters.slice(0, PREVIEW_LIMIT);
+  const hasMore = parsedChapters.length > PREVIEW_LIMIT;
 
-          {parsedChapters.length === 0 && (
-            <div className="m-6 border-2 border-dashed p-8 text-center">
-              Chọn folder{" "}
-              <button
-                onClick={handleChooseFolder}
-                className="underline text-green-600"
-              >
-                từ máy
-              </button>
-            </div>
-          )}
+  return (
+    <motion.div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <motion.div className="bg-white rounded-2xl w-[800px] max-h-[80vh] flex flex-col">
+        <div className="p-4 flex justify-between border-b">
+          <h3 className="font-semibold">Upload chương</h3>
+          <button onClick={onClose}>✕</button>
+        </div>
 
-          {parsedChapters.length > 0 && !uploading && (
-            <div className="flex flex-col flex-1">
-              <div className="px-4 py-2 text-sm text-gray-600 flex justify-between">
-                <span>
-                  Tổng: <b>{parsedChapters.length}</b> chương
-                </span>
-                <span>
-                  Free: <b className="text-green-600">{freeCount}</b> | VIP:{" "}
-                  <b className="text-purple-600">{vipCount}</b>
-                </span>
-              </div>
-
-              <div className="overflow-auto border-t">
-                <table className="w-full text-sm">
-                  <thead className="sticky top-0 bg-gray-100">
-                    <tr>
-                      <th className="p-2 w-16 text-left">#</th>
-                      <th className="p-2 text-left">Tiêu đề</th>
-                      <th className="p-2 text-left">File</th>
-                      <th className="p-2 w-20">Loại</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {previewChapters.map((c) => (
-                      <tr key={c.fileName} className="border-t hover:bg-gray-50">
-                        <td className="p-2 font-mono">{c.chapterNumber}</td>
-                        <td className="p-2">{c.title}</td>
-                        <td className="p-2 text-gray-500">{c.fileName}</td>
-                        <td className="p-2 text-center">
-                          {c.chapterNumber <= 50 ? (
-                            <span className="text-green-600">Free</span>
-                          ) : (
-                            <span className="text-purple-600">VIP</span>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  {hasMore && (
-                    <tfoot>
-                      <tr>
-                        <td
-                          colSpan={4}
-                          className="p-3 text-center text-sm text-gray-500 bg-gray-50"
-                        >
-                          … còn <b>{parsedChapters.length - PREVIEW_LIMIT}</b>{" "}
-                          chương nữa{" "}
-                          <span className="ml-2 text-gray-400">
-                            (chỉ hiển thị 10 chương đầu)
-                          </span>
-                        </td>
-                      </tr>
-                    </tfoot>
-                  )}
-                </table>
-              </div>
-            </div>
-          )}
-
-          {uploading && totalUploads > 0 && (
-            <div className="px-4 py-4">
-              <div className="h-2 bg-gray-200 rounded">
-                <div
-                  className="h-2 bg-green-600 rounded"
-                  style={{
-                    width: `${Math.min((progress / totalUploads) * 100, 100)}%`,
-                  }}
-                />
-              </div>
-              <div className="mt-2 text-sm text-gray-600 text-right">
-                {progress} / {totalUploads} file
-              </div>
-            </div>
-          )}
-
-          {error && <div className="p-4 text-red-600">{error}</div>}
-
-          <div className="p-4 border-t flex justify-end gap-3">
-            <button onClick={onClose}>Hủy</button>
+        {parsedChapters.length === 0 && (
+          <div className="m-6 border-2 border-dashed p-8 text-center">
+            Chọn folder{" "}
             <button
-              onClick={handleUpload}
-              disabled={uploading || !parsedChapters.length}
-              className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+              onClick={handleChooseFolder}
+              className="underline text-green-600"
             >
-              Tải lên
+              từ máy
             </button>
           </div>
-        </motion.div>
+        )}
+
+        {parsedChapters.length > 0 && !uploading && (
+          <div className="flex flex-col flex-1">
+            <div className="px-4 py-2 text-sm text-gray-600 flex justify-between">
+              <span>
+                Tổng: <b>{parsedChapters.length}</b> chương
+              </span>
+              <span>
+                Free: <b className="text-green-600">{freeCount}</b> | VIP:{" "}
+                <b className="text-purple-600">{vipCount}</b>
+              </span>
+            </div>
+
+            <div className="overflow-auto border-t">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-gray-100">
+                  <tr>
+                    <th className="p-2 w-16 text-left">#</th>
+                    <th className="p-2 text-left">Tiêu đề</th>
+                    <th className="p-2 text-left">File</th>
+                    <th className="p-2 w-20">Loại</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {previewChapters.map((c) => (
+                    <tr key={c.fileName} className="border-t hover:bg-gray-50">
+                      <td className="p-2 font-mono">{c.chapterNumber}</td>
+                      <td className="p-2">{c.title}</td>
+                      <td className="p-2 text-gray-500">{c.fileName}</td>
+                      <td className="p-2 text-center">
+                        {c.chapterNumber <= 50 ? (
+                          <span className="text-green-600">Free</span>
+                        ) : (
+                          <span className="text-purple-600">VIP</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                {hasMore && (
+                  <tfoot>
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="p-3 text-center text-sm text-gray-500 bg-gray-50"
+                      >
+                        … còn <b>{parsedChapters.length - PREVIEW_LIMIT}</b>{" "}
+                        chương nữa
+                      </td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+          </div>
+        )}
+
+        {uploading && totalUploads > 0 && (
+          <div className="px-4 py-4">
+            <div className="h-2 bg-gray-200 rounded">
+              <div
+                className="h-2 bg-green-600 rounded"
+                style={{
+                  width: `${Math.min((progress / totalUploads) * 100, 100)}%`,
+                }}
+              />
+            </div>
+            <div className="mt-2 text-sm text-gray-600 text-right">
+              {progress} / {totalUploads} file
+            </div>
+          </div>
+        )}
+
+        {error && <div className="p-4 text-red-600">{error}</div>}
+
+        <div className="p-4 border-t flex justify-end gap-3">
+          <button onClick={onClose}>Hủy</button>
+          <button
+            onClick={handleUpload}
+            disabled={uploading || !parsedChapters.length}
+            className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+          >
+            Tải lên
+          </button>
+        </div>
       </motion.div>
-    );
-  }
+    </motion.div>
+  );
+}

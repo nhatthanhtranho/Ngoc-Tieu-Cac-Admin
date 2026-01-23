@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { createChapters, getChapterUploadLink } from "../../../apis/chapters";
@@ -124,7 +126,6 @@ export default function UploadChaptersModal({
         if (abortRef.current?.signal.aborted) throw new Error("aborted");
         const item = queue.shift()!;
         await worker(item);
-        setProgress((p) => p + 1);
       }
     });
 
@@ -177,47 +178,69 @@ export default function UploadChaptersModal({
 
           const res = await fetch(url, { method: "POST", body: fd });
           if (!res.ok) throw new Error(`Upload free failed: ${ch.fileName}`);
+
+          setProgress((p) => p + 1);
         });
       }
 
-      /* 3️⃣ upload VIP preview */
+      /* 3️⃣ upload VIP (preview + full) */
       if (vipChapters.length) {
         await uploadWithConcurrency(vipChapters, async (ch) => {
-          const { url, fields } = await getChapterUploadLink(bookSlug, true);
+          const {
+            url,
+            fields,
+            preview,
+            previewFields,
+          } = await getChapterUploadLink(bookSlug);
 
           const text = await ch.file.text();
+
+          /* ===== PREVIEW ===== */
           const previewText = buildVipPreviewContent(text);
+          const previewFile = new File(
+            [compressText(previewText)],
+            ch.fileName,
+            { type: "application/octet-stream" }
+          );
 
-          const file = new File([compressText(previewText)], ch.fileName, {
-            type: "application/octet-stream",
+          const previewFd = new FormData();
+          Object.entries(previewFields).forEach(([k, v]) =>
+            previewFd.append(k, v as string)
+          );
+          previewFd.append("file", previewFile);
+
+          const previewRes = await fetch(preview, {
+            method: "POST",
+            body: previewFd,
           });
+          if (!previewRes.ok) {
+            throw new Error(`Upload VIP preview failed: ${ch.fileName}`);
+          }
 
-          const fd = new FormData();
-          Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
-          fd.append("file", file);
+          setProgress((p) => p + 1);
 
-          const res = await fetch(url, { method: "POST", body: fd });
-          if (!res.ok)
-            throw new Error(`Upload vip preview failed: ${ch.fileName}`);
-        });
-      }
+          /* ===== FULL ===== */
+          const fullFile = new File(
+            [compressText(text)],
+            ch.fileName,
+            { type: "application/octet-stream" }
+          );
 
-      /* 4️⃣ upload VIP full */
-      if (vipChapters.length) {
-        await uploadWithConcurrency(vipChapters, async (ch) => {
-          const { url, fields } = await getChapterUploadLink(bookSlug);
+          const fullFd = new FormData();
+          Object.entries(fields).forEach(([k, v]) =>
+            fullFd.append(k, v as string)
+          );
+          fullFd.append("file", fullFile);
 
-          const text = await ch.file.text();
-          const file = new File([compressText(text)], ch.fileName, {
-            type: "application/octet-stream",
+          const fullRes = await fetch(url, {
+            method: "POST",
+            body: fullFd,
           });
+          if (!fullRes.ok) {
+            throw new Error(`Upload VIP full failed: ${ch.fileName}`);
+          }
 
-          const fd = new FormData();
-          Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
-          fd.append("file", file);
-
-          const res = await fetch(url, { method: "POST", body: fd });
-          if (!res.ok) throw new Error(`Upload vip full failed: ${ch.fileName}`);
+          setProgress((p) => p + 1);
         });
       }
 

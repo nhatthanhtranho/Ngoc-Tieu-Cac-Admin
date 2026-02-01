@@ -7,6 +7,12 @@ import { compressText } from "../../utils/compress";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../../apis";
 
+function buildPreviewFileName(original: string) {
+  const dot = original.lastIndexOf(".");
+  if (dot === -1) return `${original}-preview`;
+  return `${original.slice(0, dot)}-preview${original.slice(dot)}`;
+}
+
 export interface ParsedChapter {
   chapterNumber: number;
   title: string;
@@ -198,9 +204,13 @@ export default function UploadChaptersModal({
 
           /* ===== PREVIEW ===== */
           const previewText = buildVipPreviewContent(text);
+
+          const previewName = buildPreviewFileName(ch.fileName);
+          // ví dụ: chuong-12.txt -> chuong-12-preview.txt
+
           const previewFile = new File(
             [compressText(previewText)],
-            ch.fileName,
+            previewName,
             { type: "application/octet-stream" }
           );
 

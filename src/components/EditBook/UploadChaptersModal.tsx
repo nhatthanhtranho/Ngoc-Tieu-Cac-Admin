@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { createChapters, getChapterUploadLink } from "../../../apis/chapters";
 import { compressText } from "../../utils/compress";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../../apis";
 
 export interface ParsedChapter {
   chapterNumber: number;
@@ -245,6 +246,7 @@ export default function UploadChaptersModal({
       }
 
       onUploaded();
+      await api.patch(`/books/${bookSlug}`, { updated: true });
       navigate(0);
     } catch (e: any) {
       setError(e.message || "Upload thất bại");

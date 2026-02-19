@@ -1,5 +1,5 @@
 import { api } from ".";
-import { compressText, decompressText } from "../src/utils/compress";
+import { compressText } from "../src/utils/compress";
 
 export interface Chapter {
   chapterNumber: number;

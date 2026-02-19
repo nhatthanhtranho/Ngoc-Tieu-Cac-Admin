@@ -8,16 +8,17 @@ import { useAuthState } from "./stores/auth.store";
 import {
   Home as HomeIcon,
   Crown,
-  PlusSquare,
   Coins,
   LogOut,
   ChartAreaIcon,
   IdCard,
   Music2,
+  TableConfig,
 } from "lucide-react";
 import { api } from "../apis";
 import Badge from "./components/Badge";
 import LeaderBoardAudio from "./pages/LeaderBoardAudio";
+import Variable from "./pages/Variable";
 
 // Dynamic imports
 const Home = lazy(() => import("./pages/Home"));
@@ -84,6 +85,14 @@ export default function App() {
                   icon={<HomeIcon size={20} />}
                   label="Trang chủ"
                 />
+
+                <NavItem
+                  to="/variable"
+                  icon={<TableConfig size={20} />}
+                  label="Biến Môi Trường"
+                />
+
+
                 <NavItem
                   to="/leaderboard"
                   icon={<Crown size={20} />}
@@ -149,6 +158,7 @@ export default function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/leaderboard" element={<LeaderBoard />} />
                 <Route path="/leaderboard-audio" element={<LeaderBoardAudio />} />
+                <Route path="/variable" element={<Variable />} />
 
                 <Route path="/thong-ke" element={<ThongKe />} />
                 <Route path="/top-up" element={<TopUp topUpType="topup" />} />

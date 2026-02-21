@@ -14,11 +14,13 @@ import {
   IdCard,
   Music2,
   TableConfig,
+  SquareUserRound,
 } from "lucide-react";
 import { api } from "../apis";
 import Badge from "./components/Badge";
 import LeaderBoardAudio from "./pages/LeaderBoardAudio";
 import Variable from "./pages/Variable";
+import DichGia from "./pages/DichGia";
 
 // Dynamic imports
 const Home = lazy(() => import("./pages/Home"));
@@ -31,7 +33,10 @@ const TopUp = lazy(() => import("./pages/TopUp"));
 export default function App() {
   const { accessToken, user, logout } = useAuthState();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [pendingCount, setPendingCount] = useState<{ membership: number, topup: number }>({ membership: 0, topup: 0 }); // ✅ state badge
+  const [pendingCount, setPendingCount] = useState<{
+    membership: number;
+    topup: number;
+  }>({ membership: 0, topup: 0 }); // ✅ state badge
   const location = useLocation();
 
   const handleLogOut = () => logout();
@@ -87,11 +92,16 @@ export default function App() {
                 />
 
                 <NavItem
+                  to="/dich-gia"
+                  icon={<SquareUserRound size={20} />}
+                  label="Dịch giả"
+                />
+
+                <NavItem
                   to="/variable"
                   icon={<TableConfig size={20} />}
                   label="Biến Môi Trường"
                 />
-
 
                 <NavItem
                   to="/leaderboard"
@@ -157,12 +167,18 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/leaderboard" element={<LeaderBoard />} />
-                <Route path="/leaderboard-audio" element={<LeaderBoardAudio />} />
+                <Route
+                  path="/leaderboard-audio"
+                  element={<LeaderBoardAudio />}
+                />
                 <Route path="/variable" element={<Variable />} />
-
+                <Route path="/dich-gia" element={<DichGia />} />
                 <Route path="/thong-ke" element={<ThongKe />} />
                 <Route path="/top-up" element={<TopUp topUpType="topup" />} />
-                <Route path="/membership" element={<TopUp topUpType="membership" />} />
+                <Route
+                  path="/membership"
+                  element={<TopUp topUpType="membership" />}
+                />
 
                 <Route path="/book/:slug" element={<BookDetail />} />
                 <Route
@@ -198,10 +214,11 @@ function NavItem({
   return (
     <Link
       to={to}
-      className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${isActive
-        ? "bg-blue-600 text-white shadow-md"
-        : "text-gray-300 hover:bg-zinc-800 hover:text-white"
-        }`}
+      className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+        isActive
+          ? "bg-blue-600 text-white shadow-md"
+          : "text-gray-300 hover:bg-zinc-800 hover:text-white"
+      }`}
     >
       {icon}
       <span className="text-sm font-medium">{label}</span>

@@ -41,4 +41,13 @@ export const categories = [
   { value: "quy-bi", label: "Quỷ Bí" },
   { value: "nhiet-huyet", label: "Nhiệt Huyết" },
   { value: "vo-dich", label: "Vô Địch" },
+  { value: "linh-di", label: "Linh Dị" },
+  { value: "linh-di", label: "Linh Dị" },
+  { value: "linh-di", label: "Linh Dị" },
+  { label: "Lãnh Khóc", value: "lanh-khoc" },
+  { label: "Nhẹ nhàng", value: "nhe-nhang" },
+  { label: "Phàm Nhân", value: "pham-nhan" },
+  { label: "Điềm Đạm", value: "diem-dam" },
+  { label: "Dã Sử", value: "da-su" },
+  { label: "Ngôn Tình", value: "ngon-tinh" },
 ];

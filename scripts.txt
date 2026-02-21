@@ -1,1 +1,1 @@
-aws s3 sync s3://ngoc-tieu-cac-public ./ngoc-tieu-cac-public --profile ngoc-tieu-cac
+aws s3 sync s3://assets.itruyenchu.com s3://assets.ngoctieucac.com --profile ngoc-tieu-cac

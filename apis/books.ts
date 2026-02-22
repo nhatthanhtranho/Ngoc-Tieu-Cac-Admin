@@ -22,13 +22,12 @@ export interface Book {
   tags?: string[];
   categories?: string[];
   tacGia: string;
-  loves: number;
-  price: number;
   totalViews: number;
   isPublished: boolean;
   beginBlockChapter: number;
   hasEbook: boolean;
   currentEbookChapter: number;
+  converter?: string;
 }
 
 export async function createBook(newBook: Book): Promise<Book> {

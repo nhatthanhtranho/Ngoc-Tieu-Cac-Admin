@@ -11,7 +11,8 @@ export async function seedComment(
   avatarUrl: string,
   content: string,
   parentId: string,
-  isRandomUser: boolean,
+  random: boolean,
+  isConverter = false,
 ) {
   const res = await api.post(`/admin/create-comment`, {
     bookSlug,
@@ -19,7 +20,8 @@ export async function seedComment(
     avatarUrl,
     content,
     parentId,
-    random: isRandomUser
+    random: random,
+    converter: isConverter
   });
   return res.data;
 }

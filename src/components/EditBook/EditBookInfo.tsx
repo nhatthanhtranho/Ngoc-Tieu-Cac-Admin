@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Select from "react-select";
 import { useParams } from "react-router-dom";
-import { BookA, CloudUpload, Eye, Heart, Tag } from "lucide-react";
+import { BookA, CloudUpload, Eye } from "lucide-react";
 import { toast } from "react-toastify";
 
 import ChapterListView from "./ChapterListView";
@@ -18,6 +18,7 @@ import {
 import { categories } from "../../constants/category";
 import { getBannerURL } from "../../utils/getBannerURL";
 import { api } from "../../../apis";
+import { Converter, getConverters } from "../../../apis/converter";
 import { BannerNgang } from "./BannerNgang";
 
 export default function EditBookInfo() {
@@ -29,6 +30,11 @@ export default function EditBookInfo() {
   const [preview, setPreview] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
+  const [converters, setConverters] = useState<Converter[]>([]);
+
+  useEffect(() => {
+    getConverters().then(setConverters);
+  }, []);
 
   useEffect(() => {
     if (book) {
@@ -84,7 +90,7 @@ export default function EditBookInfo() {
     try {
       setIsHidden(nextValue);
       await updateBook(book?.slug as any, { isHidden: nextValue }, book as any);
-      await handleSyncBook()
+      await handleSyncBook();
       toast.success(nextValue ? "Đã Ẩn Sách " : "Đã tắt Ẩn Sách");
     } catch (e) {
       console.error(e);
@@ -113,8 +119,9 @@ export default function EditBookInfo() {
     } catch (err) {
       console.error("❌ Lỗi khi lưu:", err);
       toast.error(
-        `Đã xảy ra lỗi khi lưu thay đổi: ${err instanceof Error ? err.message : err
-        }`
+        `Đã xảy ra lỗi khi lưu thay đổi: ${
+          err instanceof Error ? err.message : err
+        }`,
       );
     }
   };
@@ -182,10 +189,11 @@ export default function EditBookInfo() {
           <button
             onClick={handleSyncBook}
             disabled={loading}
-            className={`p-3 rounded shadow text-white flex items-center justify-center ${loading
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-emerald-500 hover:bg-emerald-600"
-              }`}
+            className={`p-3 rounded shadow text-white flex items-center justify-center ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-emerald-500 hover:bg-emerald-600"
+            }`}
           >
             {loading ? (
               <svg
@@ -239,7 +247,7 @@ export default function EditBookInfo() {
           Ẩn truyện
           <button
             onClick={async () => {
-              await handleToggleHiddenBook()
+              await handleToggleHiddenBook();
             }}
             className={`relative w-11 h-6 rounded-full transition-colors duration-200 
           ${isHidden ? "bg-green-500" : "bg-gray-300"}`}
@@ -249,7 +257,6 @@ export default function EditBookInfo() {
             ${isHidden ? "translate-x-5" : ""}`}
             />
           </button>
-
         </div>
         <div className="flex flex-col lg:flex-row px-8 py-10 gap-4 bg-white rounded-2xl shadow">
           <div className="w-auto">
@@ -339,7 +346,6 @@ export default function EditBookInfo() {
                 />
               </div>
 
-
               <div>
                 <label className="block text-sm font-medium">Tác giả</label>
                 <input
@@ -349,15 +355,7 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium">Audio tới chương</label>
-                <input
-                  type="number"
-                  value={book.currentAudioChapter ?? 0}
-                  onChange={(e) => onChange("currentAudioChapter", e.target.value)}
-                  className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
-                />
-              </div>
+ 
               <div>
                 <label className="block text-sm font-medium">Dịch giả</label>
                 <input
@@ -367,8 +365,6 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
                 />
               </div>
-
-
 
               <div>
                 <label className="block text-sm font-medium">
@@ -390,12 +386,7 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 bg-gray-50 text-gray-600 rounded-lg p-2 cursor-not-allowed"
                 />
               </div>
-
-
-
-
             </div>
-
 
             <div className="mb-4">
               <label className="block text-sm font-medium">Mô tả</label>
@@ -419,7 +410,7 @@ export default function EditBookInfo() {
                 onChange={(selected) =>
                   onChange(
                     "categories",
-                    selected.map((opt) => opt.value)
+                    selected.map((opt) => opt.value),
                   )
                 }
                 options={categories}
@@ -431,53 +422,32 @@ export default function EditBookInfo() {
 
             <div className="grid grid-cols-4 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Price</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-                    <Tag size={18} />
-                  </span>
-                  <input
-                    value={book.price}
-                    onChange={(e) => onChange("price", e.target.value)}
-                    type="number"
-                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400 appearance-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Love</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none">
-                    <Heart size={18} />
-                  </span>
-                  <input
-                    value={book.loves}
-                    onChange={(e) => onChange("loves", e.target.value)}
-                    type="number"
-                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400 appearance-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1 flex items-center gap-2">
-                  View
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const rand = Math.floor(50000 + Math.random() * 50000);
-                      onChange("totalViews", rand);
-                      toast.success(
-                        `🎯 Đã random view: ${rand.toLocaleString()}`
-                      );
-                    }}
-                    className="px-2 py-0.5 text-[12px] bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    Random
-                  </button>
+                <label className="block text-sm font-medium mb-1">
+                  Converter
                 </label>
-
+                <Select
+                  placeholder="Chọn converter..."
+                  value={
+                    book.converter
+                      ? {
+                          label: book.converter,
+                          value: book.converter,
+                        }
+                      : null
+                  }
+                  onChange={(selected) =>
+                    onChange("converter", selected?.value || "")
+                  }
+                  options={converters.map((c) => ({
+                    label: c.username,
+                    value: c.username,
+                  }))}
+                  isClearable
+                  className="mt-1"
+                />
+              </div>
+              <div className="relative">
+                <label className="block text-sm font-medium mb-1">View</label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none">
                     <Eye size={18} />
@@ -504,10 +474,10 @@ export default function EditBookInfo() {
                 <button
                   onClick={async () => {
                     const res = await api.get(
-                      `/admin/ebook/${book.slug}?currentChapter=${book.currentChapter}`
+                      `/admin/ebook/${book.slug}?currentChapter=${book.currentChapter}`,
                     );
                     toast(
-                      `Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`
+                      `Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`,
                     );
                   }}
                   className="mt-4 w-32 py-2 bg-cyan-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
@@ -529,7 +499,7 @@ export default function EditBookInfo() {
           />
         </div>
         <div className="bg-white rounded-2xl shadow">
-          <CommentList bookSlug={book.slug} isSeed={book.isSeed} />
+          <CommentList converter={book.converter || ""} bookSlug={book.slug} isSeed={book.isSeed} />
         </div>
       </div>
     </>

@@ -16,6 +16,7 @@ import { useSeedUserStore } from "../../stores/seed.stote";
 interface CommentListProps {
   bookSlug: string;
   isSeed?: boolean;
+  converter: string;
 }
 
 export interface Comment {
@@ -26,9 +27,14 @@ export interface Comment {
   createdAt: string;
   parentId: string;
   replies?: Comment[];
+  converter?: boolean
 }
 
-export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
+export default function CommentList({
+  bookSlug,
+  isSeed,
+  converter,
+}: CommentListProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isSeedComment, setIsSeedComment] = useState(isSeed);
 
@@ -41,7 +47,9 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [content, setContent] = useState("");
   const [parentId, setParentId] = useState<string | "">("");
+
   const [isRandomUser, setIsRandomUser] = useState(false);
+  const [isConverterUser, setIsConverterUser] = useState(false);
 
   const users = getSeedUsers();
 
@@ -56,7 +64,6 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
     try {
       const res = await getCommentsInBook(bookSlug);
 
-      // nếu backend trả seedEnabled
       if (res?.seedEnabled !== undefined) {
         setIsSeedComment(res.seedEnabled);
       }
@@ -79,13 +86,13 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
 
     try {
       setIsSeedComment(nextValue);
-
       await toggleSeedComment(bookSlug, nextValue);
-
-      toast.success(nextValue ? "Đã bật seed comment" : "Đã tắt seed comment");
+      toast.success(
+        nextValue ? "Đã bật seed comment" : "Đã tắt seed comment"
+      );
     } catch (e) {
       console.error(e);
-      setIsSeedComment(!nextValue); // rollback UI
+      setIsSeedComment(!nextValue);
       toast.error("Không thể thay đổi trạng thái seed comment");
     }
   };
@@ -97,12 +104,12 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
     const trimmedUsername = username.trim();
     const trimmedContent = content.trim();
 
-    if (!isRandomUser && !trimmedUsername) {
+    if (!isRandomUser && !isConverterUser && !trimmedUsername) {
       setError("Vui lòng nhập tên người dùng");
       return;
     }
 
-    if (!isRandomUser && !trimmedContent) {
+    if (!trimmedContent) {
       setError("Vui lòng nhập nội dung bình luận");
       return;
     }
@@ -112,11 +119,12 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
 
       await seedComment(
         bookSlug,
-        trimmedUsername,
+        isConverterUser ? converter : trimmedUsername,
         avatarUrl,
-        trimmedContent, // ✅ dùng content đã trim
+        trimmedContent,
         parentId,
-        isRandomUser
+        isRandomUser,
+        isConverterUser
       );
 
       await fetchComments();
@@ -153,26 +161,56 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
 
       {/* Admin Add Comment */}
       <div className="mb-6 p-4 rounded-lg border border-slate-700 space-y-3">
-        {/* Seed user */}
+
+        {/* Random seed user */}
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">🎲 Random seed user</span>
 
           <button
             type="button"
-            onClick={() => setIsRandomUser((v) => !v)}
+            onClick={() => {
+              setIsRandomUser((v) => !v);
+              setIsConverterUser(false);
+            }}
             className={`relative w-11 h-6 rounded-full transition-colors duration-200
-      ${isRandomUser ? "bg-blue-500" : "bg-gray-300"}`}
+              ${isRandomUser ? "bg-blue-500" : "bg-gray-300"}`}
           >
             <span
               className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200
-        ${isRandomUser ? "translate-x-5" : ""}`}
+                ${isRandomUser ? "translate-x-5" : ""}`}
             />
           </button>
         </div>
 
+        {/* Comment as Converter */}
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-medium">📚 Comment as Converter</span>
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsConverterUser((v) => !v);
+              setIsRandomUser(false);
+
+              if (!isConverterUser) {
+                setUserName(converter);
+              }
+            }}
+            className={`relative w-11 h-6 rounded-full transition-colors duration-200
+              ${isConverterUser ? "bg-purple-500" : "bg-gray-300"}`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200
+                ${isConverterUser ? "translate-x-5" : ""}`}
+            />
+          </button>
+        </div>
+
+        {/* Seed user select */}
         <select
           className="w-full rounded px-3 py-2 border"
           value={username}
+          disabled={isConverterUser}
           onChange={(e) => {
             const user = users.find((u) => u.username === e.target.value);
             if (!user) return;
@@ -192,6 +230,7 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
           className="w-full rounded px-3 py-2 border"
           placeholder="Tên người dùng"
           value={username}
+          disabled={isConverterUser}
           onChange={(e) => setUserName(e.target.value)}
         />
 
@@ -223,7 +262,9 @@ export default function CommentList({ bookSlug, isSeed }: CommentListProps) {
           onChange={(e) => setContent(e.target.value)}
         />
 
-        {error && <p className="text-red-500 text-sm font-medium">⚠ {error}</p>}
+        {error && (
+          <p className="text-red-500 text-sm font-medium">⚠ {error}</p>
+        )}
 
         <button
           disabled={submitting}

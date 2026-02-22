@@ -70,3 +70,39 @@ export async function uploadDataToS3(
     url: `https://${bucket}.s3.${S3_REGION}.amazonaws.com/${key}`,
   };
 }
+
+export async function uploadAvatarToS3(
+  username: string,
+  file: File
+) {
+  const creds = await getValidS3Credentials();
+
+  const s3 = new S3Client({
+    region: S3_REGION,
+    credentials: {
+      accessKeyId: creds.accessKeyId,
+      secretAccessKey: creds.secretAccessKey,
+      sessionToken: creds.sessionToken,
+    },
+  });
+
+  const key = `avatars/${username}.webp`;
+
+  const arrayBuffer = await file.arrayBuffer(); // 👈 convert trước
+
+  const command = new PutObjectCommand({
+    Bucket: PUBLIC_BUCKET,
+    Key: key,
+    Body: new Uint8Array(arrayBuffer), // 👈 dùng Uint8Array thay vì File
+    ContentType: "image/webp",
+    CacheControl: "public, max-age=31536000",
+  });
+
+  await s3.send(command);
+
+  return {
+    bucket: PUBLIC_BUCKET,
+    key,
+    url: `https://${PUBLIC_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`,
+  };
+}

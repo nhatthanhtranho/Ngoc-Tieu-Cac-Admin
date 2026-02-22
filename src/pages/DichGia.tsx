@@ -1,44 +1,42 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Users, Pencil, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, Users, X } from "lucide-react";
+import { getConverterAvatarUrl } from "../utils/getBannerURL";
+import { uploadAvatarToS3 } from "../../apis/s3"; // sửa đúng path file bạn để
 
-type Translator = {
-  id: string;
-  name: string;
-  bio?: string;
-  avatar: string;
-};
-
-const initialMockData: Translator[] = [
-  {
-    id: "1",
-    name: "Nguyễn Văn A",
-    bio: "Chuyên dịch tiểu thuyết ngôn tình và fantasy.",
-    avatar: "https://ui-avatars.com/api/?name=Nguyen+Van+A&background=random",
-  },
-  {
-    id: "2",
-    name: "Trần Thị B",
-    bio: "Dịch giả truyện kiếm hiệp Trung Quốc.",
-    avatar: "https://ui-avatars.com/api/?name=Tran+Thi+B&background=random",
-  },
-];
+import {
+  Converter,
+  createConverter,
+  getConverters,
+} from "../../apis/converter";
 
 export default function DichGia() {
-  const [translators, setTranslators] = useState<Translator[]>(initialMockData);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-
+  const [converters, setConverters] = useState<Converter[]>([]);
   const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<Translator | null>(null);
+  const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [avatarVersion, setAvatarVersion] = useState<Record<string, number>>(
+    {},
+  );
 
-  const [name, setName] = useState("");
-  const [bio, setBio] = useState("");
+  // ================= LOAD DATA =================
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getConverters();
+        console.log(data);
+        setConverters(data);
+      } catch (err) {
+        console.error("Load converters error:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const resetForm = () => {
-    setName("");
-    setBio("");
-    setEditing(null);
+    setUsername("");
   };
 
   const openCreate = () => {
@@ -46,50 +44,98 @@ export default function DichGia() {
     setOpen(true);
   };
 
-  const openEdit = (translator: Translator) => {
-    setEditing(translator);
-    setName(translator.name);
-    setAvatarPreview(translator.avatar);
-    setOpen(true);
-  };
+  // ================= RESIZE 50x50 =================
+  const resizeImageTo50x50 = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-
-    if (editing) {
-      // Update
-      setTranslators((prev) =>
-        prev.map((t) =>
-          t.id === editing.id
-            ? {
-                ...t,
-                name,
-                bio,
-                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  name,
-                )}&background=random`,
-              }
-            : t,
-        ),
-      );
-    } else {
-      // Create
-      const newTranslator: Translator = {
-        id: Date.now().toString(),
-        name,
-        bio,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          name,
-        )}&background=random`,
+      reader.onload = (e) => {
+        img.src = e.target?.result as string;
       };
-      setTranslators((prev) => [newTranslator, ...prev]);
-    }
 
-    setOpen(false);
-    resetForm();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const size = 160;
+
+        canvas.width = size;
+        canvas.height = size;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject("Canvas not supported");
+
+        const cropSize = Math.min(img.width, img.height);
+        const sx = (img.width - cropSize) / 2;
+        const sy = (img.height - cropSize) / 2;
+
+        ctx.drawImage(img, sx, sy, cropSize, cropSize, 0, 0, size, size);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return reject("Resize failed");
+
+            const resizedFile = new File([blob], `${file.name}.webp`, {
+              type: "image/webp",
+            });
+
+            resolve(resizedFile);
+          },
+          "image/webp",
+          0.9,
+        );
+      };
+
+      reader.readAsDataURL(file);
+    });
   };
 
+  // ================= CREATE =================
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username.trim()) return;
+
+    try {
+      setLoading(true);
+
+      const newConverter: Converter = await createConverter(username);
+
+      setConverters((prev) => [...prev, newConverter]);
+      setOpen(false);
+      resetForm();
+    } catch (err) {
+      console.error("Create converter error:", err);
+      alert("Tạo thất bại");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ================= UPLOAD AVATAR =================
+  const handleAvatarUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    username: string,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const resizedFile = await resizeImageTo50x50(file);
+
+      await uploadAvatarToS3(username, resizedFile);
+
+      // update version để reload avatar
+      setAvatarVersion((prev) => ({
+        ...prev,
+        [username]: Date.now(),
+      }));
+
+      // reset input để có thể upload lại cùng 1 file
+      e.target.value = "";
+    } catch (err) {
+      console.error("Upload avatar error:", err);
+      alert("Upload avatar thất bại");
+    }
+  };
   return (
     <div className="mx-auto px-20 py-10">
       {/* Header */}
@@ -101,55 +147,61 @@ export default function DichGia() {
 
         <button
           onClick={openCreate}
-          className=" bg-emerald-500 hover:bg-emerald-600 text-white p-2 rounded cursor-pointer"
+          className="bg-emerald-500 hover:bg-emerald-600 text-white p-2 rounded cursor-pointer"
         >
           <Plus className="w-4 h-4 text-white" />
         </button>
       </div>
 
       {/* List */}
-      <div className="flex gap-6">
-        {translators.map((translator) => (
+      <div className="flex gap-6 flex-wrap">
+        {converters.map((converter) => (
           <div
-            key={translator.id}
-            className="group relative bg-white rounded-2xl border border-gray-100 
-             shadow-sm hover:shadow-lg hover:-translate-y-1 
-             transition-all duration-300 w-56 p-6 flex flex-col items-center text-center"
+            key={converter.username}
+            className="bg-white rounded-2xl border border-gray-100 
+            shadow-sm hover:shadow-lg hover:-translate-y-1 
+            transition-all duration-300 w-56 p-6 flex flex-col items-center text-center"
           >
-            {/* Edit button */}
-            <button
-              onClick={() => openEdit(translator)}
-              className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 
-               transition text-gray-400 hover:text-indigo-600"
-            >
-              <Pencil className="w-4 h-4" />
-            </button>
-
-            {/* Avatar */}
-            <div className="relative mb-4">
+            <label className="relative mb-4 cursor-pointer group">
               <img
-                src={translator.avatar}
-                alt={translator.name}
+                src={`${getConverterAvatarUrl(converter.username)}${
+                  avatarVersion[converter.username]
+                    ? `?v=${avatarVersion[converter.username]}`
+                    : ""
+                }`}
+                alt={converter.username}
                 className="w-20 h-20 rounded-full object-cover ring-4 ring-indigo-50"
               />
-            </div>
 
-            {/* Name */}
+              <div
+                className="absolute inset-0 bg-black/40 rounded-full 
+                opacity-0 group-hover:opacity-100 
+                transition flex items-center justify-center text-white text-xs"
+              >
+                Đổi ảnh
+              </div>
+
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleAvatarUpload(e, converter.username)}
+              />
+            </label>
+
             <h3 className="font-semibold text-base text-gray-800">
-              {translator.name}
+              {converter.username}
             </h3>
 
-            {/* Optional subtle underline effect */}
             <div className="w-10 h-1 bg-indigo-500 rounded-full mt-3 opacity-70" />
           </div>
         ))}
       </div>
 
-      {/* Modal */}
+      {/* Modal tạo mới */}
       {open && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl w-full max-w-sm p-6 relative">
-            {/* Close button */}
             <button
               onClick={() => setOpen(false)}
               className="absolute top-3 right-3 cursor-pointer text-red-500"
@@ -158,76 +210,29 @@ export default function DichGia() {
             </button>
 
             <h2 className="text-xl font-semibold mb-6 text-center">
-              Chỉnh sửa dịch giả
+              Thêm dịch giả
             </h2>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!name.trim()) return;
-
-                setTranslators((prev) =>
-                  prev.map((t) =>
-                    t.id === editing?.id
-                      ? {
-                          ...t,
-                          name,
-                          avatar: avatarPreview || t.avatar,
-                        }
-                      : t,
-                  ),
-                );
-
-                setOpen(false);
-              }}
-              className="space-y-6"
-            >
-              {/* Avatar Upload */}
-              <div className="flex flex-col items-center gap-3">
-                <div className="relative">
-                  <img
-                    src={avatarPreview || editing?.avatar}
-                    alt="avatar"
-                    className="w-24 h-24 rounded-full object-cover ring-4 ring-indigo-50"
-                  />
-                </div>
-
-                <label className="cursor-pointer text-sm text-emerald-600 underline">
-                  Đổi avatar
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const previewUrl = URL.createObjectURL(file);
-                        setAvatarPreview(previewUrl);
-                      }
-                    }}
-                  />
-                </label>
-              </div>
-
-              {/* Name input */}
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="text-sm text-gray-600 mb-1 block">
-                  Tên dịch giả
+                  Username
                 </label>
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full border rounded px-4 py-2"
                 />
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded transition font-medium cursor-pointer"
+                disabled={loading}
+                className="w-full bg-emerald-500 hover:bg-emerald-600 
+                text-white py-2 rounded transition font-medium cursor-pointer disabled:opacity-50"
               >
-                Cập nhật
+                {loading ? "Đang tạo..." : "Tạo mới"}
               </button>
             </form>
           </div>

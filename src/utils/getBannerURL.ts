@@ -14,3 +14,8 @@ export function getSmallBannerURL(storySlug: string): string {
 export function getAvatarUrl(id: string): string {
   return `${STORAGE}/user-avatar/${id}.webp`;
 }
+
+
+export function getConverterAvatarUrl(username: string): string {
+return `${STORAGE}/avatars/${username}.webp`;
+}

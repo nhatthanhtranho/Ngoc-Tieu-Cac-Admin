@@ -1,348 +1,246 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Coins, Eye, User, Book, Crown } from "lucide-react";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { User, Book, Crown, Users, TrendingUp } from "lucide-react";
 import { api } from "../../apis";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function ThongKe() {
-  const [filter, setFilter] = useState("today");
-  const [topTienNgoc, setTopTienNgoc] = useState([]);
-  const [topViews, setTopViews] = useState([]);
-  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [topViews, setTopViews] = useState<any[]>([]);
   const [topReaders, setTopReaders] = useState<any[]>([]);
-  const [totalBooks, setTotalBooks] = useState(0)
-  const [countUsers, setCountUsers] = useState<{
-    totalMembershipUsers: number;
-    newYesterday: number;
-    newToday: number;
+  const [platformViews, setPlatformViews] = useState<any[]>([]);
+  const [totalBooks, setTotalBooks] = useState(0);
 
-    totalNew: number;
-  }>({ totalMembershipUsers: 0, newToday: 0, newYesterday: 0, totalNew: 0 });
-
-  // ----------------------------
-  // 🚫 HANDLE BAN USER
-  // ----------------------------
-  const handleBan = async (email: string) => {
-    if (!confirm(`Bạn có chắc muốn BAN user: ${email}?`)) return;
-
-    try {
-      const res = await api.post("/admin/ban-user", { email });
-
-      if (res.status === 200) {
-        alert("Đã ban user!");
-
-        // update UI, remove premium, mark banned
-        setTopReaders((prev) =>
-          prev.map((u) =>
-            u.email === email
-              ? { ...u, isPremium: false, banned: true }
-              : u
-          )
-        );
-      }
-    } catch (err: any) {
-      console.error(err);
-      alert(err?.response?.data?.message || "Lỗi server");
-    }
-  };
-
-  // Summary
-  const summary = useMemo(() => {
-    return [
-      {
-        label: "Tổng Truyện",
-        value: totalBooks,
-        prevValue: 40,
-        icon: <Book className="w-6 h-6 text-gray-800" />,
-      },
-      {
-        label: "Người Dùng Mới Hôm Qua",
-        value: countUsers.newYesterday,
-        icon: <User className="w-6 h-6 text-gray-800" />,
-      },
-      {
-        label: "Người Dùng Mới Hôm Nay",
-        value: countUsers.newToday,
-        icon: <User className="w-6 h-6 text-gray-800" />,
-      },
-      {
-        label: "Tổng Người Dùng Mới",
-        value: countUsers.totalNew,
-        icon: <User className="w-6 h-6 text-gray-800" />,
-      },
-      {
-        label: "Người Dùng Premium",
-        value: countUsers.totalMembershipUsers,
-        icon: <Crown className="w-6 h-6 text-gray-800" />,
-      },
-    ];
-  }, [countUsers]);
-
-  const sampleHistory = [
-    { id: "TX001", user: "NguyenVanA", amount: 100, type: "Tiêu", time: "2025-11-24 14:35" },
-    { id: "TX002", user: "TranThiB", amount: 500, type: "Nạp", time: "2025-11-24 13:12" },
-    { id: "TX003", user: "LeVanC", amount: 200, type: "Tiêu", time: "2025-11-23 18:45" },
-    { id: "TX004", user: "PhamThiD", amount: 300, type: "Nạp", time: "2025-11-23 16:22" },
-  ];
+  const [countUsers, setCountUsers] = useState({
+    totalMembershipUsers: 0,
+    newYesterday: 0,
+    newToday: 0,
+    totalNew: 0,
+  });
 
   const formatNumber = (num: number) =>
     new Intl.NumberFormat("en-US").format(num);
 
-  const viewData = useMemo(
-    () => ({
-      labels: topViews.map((i: any) => i?.title),
-      datasets: [
-        {
-          label: "Lượt xem",
-          data: topViews.map((i: any) => i.weekViews),
-          backgroundColor: "rgba(59, 130, 246, 0.7)",
-          borderColor: "rgba(37, 99, 235, 1)",
-          borderWidth: 1,
-          borderRadius: 6,
-        },
-      ],
-    }),
-    [topViews]
-  );
-
-  const tienNgocData = useMemo(
-    () => ({
-      labels: topTienNgoc.map((i: any) => i.book.title),
-      datasets: [
-        {
-          label: "Tiêu tiên ngọc",
-          data: topTienNgoc.map((i: any) => i.totalTienNgoc),
-          backgroundColor: "rgba(236, 72, 153, 0.7)",
-          borderColor: "rgba(219, 39, 119, 1)",
-          borderWidth: 1,
-          borderRadius: 6,
-        },
-      ],
-    }),
-    [topTienNgoc]
-  );
-
-  const chartOptions = {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { ticks: { color: "#4b5563" } },
-      y: { ticks: { color: "#4b5563" } },
-    },
+  const handleBan = async (email: string) => {
+    if (!confirm(`Xác nhận chặn người dùng: ${email}?`)) return;
+    try {
+      const res = await api.post("/admin/ban-user", { email });
+      if (res.status === 200) {
+        setTopReaders((prev) =>
+          prev.map((u) => (u.email === email ? { ...u, banned: true } : u)),
+        );
+      }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Lỗi hệ thống");
+    }
   };
 
   useEffect(() => {
-    async function fetchTopData() {
-      const res = await api.get("/books/top-book");
-      const topReader = await api.get("/admin/userRequests?range=24h");
-      console.log('res user', res.data.countUsers)
-      setCountUsers(res.data.countUsers);
-      setTopTienNgoc(res.data.topTienNgoc || []);
-      setTopViews(res.data.topViews || []);
-      setHistory(sampleHistory);
-      setTopReaders(topReader.data.data);
-      setTotalBooks(res.data.totalBooks)
+    async function fetchData() {
+      try {
+        const [resBooks, resUsers] = await Promise.all([
+          api.get("/books/top-book"),
+          api.get("/admin/userRequests?range=24h"),
+        ]);
+        setCountUsers(resBooks.data.countUsers);
+        setTopViews(resBooks.data.topViews || []);
+        setTopReaders(resUsers.data.topUsers || []);
+        setPlatformViews(resUsers.data.platformStats || []);
+        setTotalBooks(resBooks.data.totalBooks);
+      } finally {
+        setLoading(false);
+      }
     }
-    fetchTopData();
+    fetchData();
   }, []);
 
-  return (
-    <div className="container mx-auto p-4 space-y-8 mt-10">
-      <h1 className="text-3xl font-bold text-gray-800 text-center mb-8">
-        Thống kê hoạt động
-      </h1>
+  const summaryCards = useMemo(
+    () => [
+      {
+        label: "Tổng số truyện",
+        value: totalBooks,
+        icon: <Book />,
+        color: "bg-blue-50 text-blue-600",
+      },
+      {
+        label: "Mới hôm nay",
+        value: countUsers.newToday,
+        icon: <TrendingUp />,
+        color: "bg-green-50 text-green-600",
+      },
+      {
+        label: "Mới hôm qua",
+        value: countUsers.newYesterday,
+        icon: <Users />,
+        color: "bg-orange-50 text-orange-600",
+      },
+      {
+        label: "Tổng User mới",
+        value: countUsers.totalNew,
+        icon: <User />,
+        color: "bg-purple-50 text-purple-600",
+      },
+      {
+        label: "Hội viên Premium",
+        value: countUsers.totalMembershipUsers,
+        icon: <Crown />,
+        color: "bg-yellow-50 text-yellow-600",
+      },
+    ],
+    [countUsers, totalBooks],
+  );
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-        {summary.map((item, idx) => {
-          return (
-            <div
-              key={idx}
-              className="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow hover:shadow-md transition"
-            >
-              {item.icon}
-              <span className="mt-2 text-sm text-gray-500">{item.label}</span>
-              <span className="mt-1 text-xl font-bold text-gray-900">
-                {formatNumber(item.value)}
-              </span>
-            </div>
-          );
-        })}
+  const platformChartData = useMemo(() => {
+    const cleaned = platformViews
+      .filter((i) => i.platform)
+      .map((i) => ({
+        platform: i.platform.trim(),
+        count: Number(i.requestCount),
+      }));
+    return {
+      labels: cleaned.map((i) => i.platform),
+      datasets: [
+        {
+          data: cleaned.map((i) => i.count),
+          backgroundColor: [
+            "#3b82f6",
+            "#10b981",
+            "#ef4444",
+            "#8b5cf6",
+            "#f59e0b",
+          ],
+          borderWidth: 0,
+        },
+      ],
+    };
+  }, [platformViews]);
+
+  if (loading)
+    return (
+      <div className="flex h-screen items-center justify-center font-medium">
+        Đang tải dữ liệu...
       </div>
+    );
 
-      {/* Filter Buttons */}
-      <div className="flex justify-end mt-4">
-        <div className="inline-flex bg-gray-100 rounded-full p-1 text-sm">
-          {["today", "7days", "30days"].map((key) => (
-            <button
-              key={key}
-              onClick={() => setFilter(key)}
-              className={`px-3 py-1 rounded-full font-medium transition text-sm ${filter === key
-                ? "bg-black text-white shadow"
-                : "bg-white text-gray-700 hover:bg-gray-200"
-                }`}
+  return (
+    <div className="min-h-screen bg-gray-50/50 p-6 lg:p-10">
+      <div className="mx-auto max-w-7xl space-y-8">
+        <header>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+            Dashboard Thống Kê
+          </h1>
+          <p className="text-gray-500 text-sm">
+            Cập nhật hoạt động hệ thống theo thời gian thực.
+          </p>
+        </header>
+
+        {/* SUMMARY CARDS */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {summaryCards.map((card, i) => (
+            <div
+              key={i}
+              className="rounded-2xl bg-white p-5 shadow-sm border border-gray-100 flex items-center gap-4 transition-transform hover:scale-[1.02]"
             >
-              {key === "today"
-                ? "Hôm nay"
-                : key === "7days"
-                  ? "7 ngày"
-                  : "30 ngày"}
-            </button>
+              <div className={`p-3 rounded-xl ${card.color}`}>{card.icon}</div>
+              <div>
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {card.label}
+                </p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {formatNumber(card.value)}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
-      </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
-        <div className="rounded-xl transition">
-          <div className="flex items-center gap-2 mb-4">
-            <Eye className="text-gray-800" />
-            <h2 className="text-lg font-semibold text-gray-900">
-              Top truyện có lượt view cao nhất
-            </h2>
-          </div>
-          <Bar data={viewData} options={chartOptions} />
-        </div>
-
-        {/* <div className="rounded-xl p-5 bg-white border hover:shadow-md transition">
-          <div className="flex items-center gap-2 mb-4">
-            <Coins className="text-gray-800" />
-            <h2 className="text-lg font-semibold text-gray-900">
-              Top 10 truyện tiêu tiên ngọc cao nhất
-            </h2>
-          </div>
-          <Bar data={tienNgocData} options={chartOptions} />
-        </div> */}
-      </div>
-
-      {/* History Table */}
-      {/* <div className="mt-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Lịch sử sử dụng Tiền Ngọc
-        </h2>
-
-        <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                {["ID", "Người dùng", "Số Tiền Ngọc", "Loại", "Thời gian"].map(
-                  (h, i) => (
-                    <th
-                      key={i}
-                      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                    >
-                      {h}
-                    </th>
-                  )
-                )}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
-              {history.map((row, idx) => (
-                <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-4 py-2 text-sm text-gray-700 font-mono">
-                    {row.id}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-700">
-                    {row.user}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-700">
-                    {formatNumber(row.amount)}
-                  </td>
-                  <td
-                    className={`px-4 py-2 text-sm font-medium ${row.type === "Nạp"
-                      ? "text-green-600"
-                      : "text-red-600"
-                      }`}
-                  >
-                    {row.type}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-500">
-                    {row.time}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div> */}
-
-      {/* Top Readers Table */}
-      <div className="mt-10">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Top lượt đọc
-        </h2>
-
-        <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                {["Email", "Lượt đọc", "Premium", "Action"].map((h, i) => (
-                  <th
-                    key={i}
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    {h}
+        <div className="flex gap-8">
+          {/* TOP BOOKS TABLE */}
+          <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-gray-50/50 border-b border-gray-100">
+                <tr>
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">
+                    Hạng
                   </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody className="bg-white divide-y divide-gray-100">
-              {topReaders?.map((row, idx) => (
-                <tr key={idx} className="hover:bg-gray-50 transition-colors">
-
-                  <td className="px-4 py-2 text-sm text-gray-700">
-                    {row.email}
-                    {row.banned && (
-                      <span className="ml-2 text-xs px-2 py-1 bg-red-100 text-red-700 rounded-full">
-                        Banned
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="px-4 py-2 text-sm text-gray-700">
-                    {formatNumber(row.requestCount)}
-                  </td>
-
-                  <td className="px-4 py-2 text-sm">
-                    {row.isPremium ? (
-                      <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 font-semibold">
-                        Premium
-                      </span>
-                    ) : (
-                      <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
-                        Thường
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="px-4 py-2">
-                    <button
-                      onClick={() => handleBan(row.email)}
-                      className="px-3 py-1 text-sm font-medium bg-red-500 text-white rounded-lg hover:bg-red-600 active:scale-95 transition cursor-pointer"
-                    >
-                      Ban
-                    </button>
-                  </td>
-
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">
+                    Tên Truyện
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-right">
+                    Lượt View
+                  </th>
                 </tr>
-              ))}
-            </tbody>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {topViews.map((book, i) => (
+                  <tr key={i} className="hover:bg-blue-50/30 transition-colors">
+                    <td className="px-6 py-4 font-mono text-gray-400">
+                      0{i + 1}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-gray-800">
+                      {book.title}
+                    </td>
+                    <td className="px-6 py-4 text-right font-bold text-blue-600">
+                      {formatNumber(book.weekViews)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-          </table>
+          {/* PLATFORM CHART */}
+          <div>
+            <div className="rounded-2xl mb-5 border border-gray-100 bg-white p-6 shadow-sm h-[380px] flex items-center justify-center">
+              <Pie
+                data={platformChartData}
+                options={{
+                  plugins: { legend: { position: "bottom" } },
+                  maintainAspectRatio: false,
+                }}
+              />
+            </div>
+            <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-gray-50/50 border-b border-gray-100">
+                    <tr>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">
+                        Usernam
+                      </th>
+                      <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">
+                        View
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {topReaders.map((user, i) => (
+                      <tr
+                        key={i}
+                        className="hover:bg-red-50/30 transition-colors group"
+                      >
+                        <td className="px-6 py-4 font-medium text-gray-700">
+                          {user.email}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="font-semibold text-gray-900">
+                            {formatNumber(user.requestCount)}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* TOP READERS */}
       </div>
     </div>
   );

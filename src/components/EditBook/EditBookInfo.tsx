@@ -84,6 +84,15 @@ export default function EditBookInfo() {
     return changed;
   };
 
+
+  const randomView = () => {
+    const min = 56000;
+    const max = 150000;
+    const random = Math.floor(Math.random() * (max - min + 1)) + min;
+    onChange("totalViews", random);
+  };
+
+
   const handleToggleHiddenBook = async () => {
     const nextValue = !isHidden;
 
@@ -119,8 +128,7 @@ export default function EditBookInfo() {
     } catch (err) {
       console.error("❌ Lỗi khi lưu:", err);
       toast.error(
-        `Đã xảy ra lỗi khi lưu thay đổi: ${
-          err instanceof Error ? err.message : err
+        `Đã xảy ra lỗi khi lưu thay đổi: ${err instanceof Error ? err.message : err
         }`,
       );
     }
@@ -189,11 +197,10 @@ export default function EditBookInfo() {
           <button
             onClick={handleSyncBook}
             disabled={loading}
-            className={`p-3 rounded shadow text-white flex items-center justify-center ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-emerald-500 hover:bg-emerald-600"
-            }`}
+            className={`p-3 rounded shadow text-white flex items-center justify-center ${loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-emerald-500 hover:bg-emerald-600"
+              }`}
           >
             {loading ? (
               <svg
@@ -355,7 +362,7 @@ export default function EditBookInfo() {
                   className="mt-1 w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400"
                 />
               </div>
- 
+
               <div>
                 <label className="block text-sm font-medium">Dịch giả</label>
                 <input
@@ -430,9 +437,9 @@ export default function EditBookInfo() {
                   value={
                     book.converter
                       ? {
-                          label: book.converter,
-                          value: book.converter,
-                        }
+                        label: book.converter,
+                        value: book.converter,
+                      }
                       : null
                   }
                   onChange={(selected) =>
@@ -446,20 +453,33 @@ export default function EditBookInfo() {
                   className="mt-1"
                 />
               </div>
-              <div className="relative">
-                <label className="block text-sm font-medium mb-1">View</label>
+              <div className="flex flex-row items-center gap-4 justify-center">
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none">
-                    <Eye size={18} />
-                  </span>
-                  <input
-                    onChange={(e) => onChange("totalViews", e.target.value)}
-                    value={book.totalViews}
-                    type="number"
-                    className="w-full border border-gray-300 rounded-lg pl-10 p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400 appearance-none"
-                  />
+                  <label className="block text-sm font-medium mb-1">View</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none">
+                      <Eye size={18} />
+                    </span>
+                    <input
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        onChange("totalViews", isNaN(value) ? 0 : value);
+                      }}
+                      value={book.totalViews}
+                      type="number"
+                      className="w-full border border-gray-300 rounded-lg pl-10 p-2 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-400 appearance-none"
+                    />
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={randomView}
+                  className="px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-all w-fit h-10"
+                >
+                  Random
+                </button>
               </div>
+
             </div>
 
             <div className="flex justify-between items-center">

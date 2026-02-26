@@ -15,12 +15,15 @@ import {
   Music2,
   TableConfig,
   SquareUserRound,
+  MessageCircle
+
 } from "lucide-react";
 import { api } from "../apis";
 import Badge from "./components/Badge";
 import LeaderBoardAudio from "./pages/LeaderBoardAudio";
 import Variable from "./pages/Variable";
 import DichGia from "./pages/DichGia";
+import CommentList from "./pages/Comments";
 
 // Dynamic imports
 const Home = lazy(() => import("./pages/Home"));
@@ -120,6 +123,12 @@ export default function App() {
                 />
 
                 <NavItem
+                  to="/comments"
+                  icon={<MessageCircle size={20} />}
+                  label="Bình luận"
+                />
+
+                <NavItem
                   to="/top-up"
                   icon={<Coins size={20} />}
                   label="Top Up"
@@ -175,6 +184,8 @@ export default function App() {
                 <Route path="/dich-gia" element={<DichGia />} />
                 <Route path="/thong-ke" element={<ThongKe />} />
                 <Route path="/top-up" element={<TopUp topUpType="topup" />} />
+                <Route path="/comments" element={<CommentList />} />
+
                 <Route
                   path="/membership"
                   element={<TopUp topUpType="membership" />}
@@ -214,11 +225,10 @@ function NavItem({
   return (
     <Link
       to={to}
-      className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
-        isActive
+      className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${isActive
           ? "bg-blue-600 text-white shadow-md"
           : "text-gray-300 hover:bg-zinc-800 hover:text-white"
-      }`}
+        }`}
     >
       {icon}
       <span className="text-sm font-medium">{label}</span>

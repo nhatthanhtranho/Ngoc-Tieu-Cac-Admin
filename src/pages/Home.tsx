@@ -5,6 +5,8 @@ import CreateStoryFormModal from "../components/CreateStoryModal";
 import { StarIcon, UploadCloud } from "lucide-react";
 import { api } from "../../apis";
 import Spinner from '../components/Spinner'
+import pLimit from "p-limit"
+import { toast } from "react-toastify";
 
 function App() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -44,14 +46,45 @@ function App() {
 
   const handleSync = async () => {
     setLoading(true)
-    const books = (await api.get('/books/slugs')).data
-    const slugs = books.map((book: any) => book.slug)
 
-    for (const slug of slugs) {
-      await syncBookData(slug)
-      console.log('done', slug)
-      await new Promise(r => setTimeout(r, 500))
+    try {
+      const books = (await api.get("/books/slugs")).data
+      const slugs = books.map((book: any) => book.slug)
+
+      const limit = pLimit(20)
+
+      const errorSlugs: string[] = []
+
+      await Promise.all(
+        slugs.map((slug: string) =>
+          limit(async () => {
+            try {
+              await syncBookData(slug)
+              console.log("done", slug)
+            } catch (err) {
+              console.error("error:", slug)
+              errorSlugs.push(slug) // 👈 lưu slug lỗi
+            }
+          })
+        )
+      )
+
+      // 👇 Sau khi chạy xong hết
+      if (errorSlugs.length > 0) {
+        toast.error(
+          `Có ${errorSlugs.length} slug lỗi`,
+        )
+
+        // nếu muốn show full list
+        toast.info(errorSlugs.join(", "))
+      } else {
+        toast.success("Sync thành công toàn bộ 🎉")
+      }
+
+    } catch (err) {
+      toast.error("Lỗi khi lấy danh sách slug")
     }
+
     setLoading(false)
   }
 

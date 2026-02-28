@@ -40,7 +40,7 @@ export default function CommentList() {
                         className="cursor-pointer group flex bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300"
                     >
                         {/* Banner nhỏ */}
-                        <div className="relative w-[80px] h-[120px] flex-shrink-0 overflow-hidden bg-gray-200">
+                        <div className="relative w-20 h-[120px] shrink-0 overflow-hidden bg-gray-200">
                             <img
                                 src={`https://assets.ngoctieucac.com/book-cover/${item.slug}/banner-small.webp`}
                                 alt="banner"

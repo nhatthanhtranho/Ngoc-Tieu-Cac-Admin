@@ -35,7 +35,7 @@ export default function CommentList() {
                     <div
                         key={item.id}
                         onClick={() => {
-                            window.open(`/#/book/${item.slug}`, "_blank");
+                            window.open(`https://nhatthanhtranho.github.io/Ngoc-Tieu-Cac-Admin/#/book/${item.slug}`, "_blank");
                         }}
                         className="cursor-pointer group flex bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300"
                     >

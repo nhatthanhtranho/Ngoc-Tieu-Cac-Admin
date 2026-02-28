@@ -15,7 +15,8 @@ import {
   Music2,
   TableConfig,
   SquareUserRound,
-  MessageCircle
+  MessageCircle,
+  CircleDollarSign
 
 } from "lucide-react";
 import { api } from "../apis";
@@ -141,6 +142,14 @@ export default function App() {
                   label="Membership"
                   badge={pendingCount.membership}
                 />
+
+
+                <NavItem
+                  to="/nap-tien"
+                  icon={<CircleDollarSign size={20} />}
+                  label="Nạp tiền"
+                />
+
                 {/* ✅ thêm badge */}
               </nav>
             </div>
@@ -226,8 +235,8 @@ function NavItem({
     <Link
       to={to}
       className={`relative flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${isActive
-          ? "bg-blue-600 text-white shadow-md"
-          : "text-gray-300 hover:bg-zinc-800 hover:text-white"
+        ? "bg-blue-600 text-white shadow-md"
+        : "text-gray-300 hover:bg-zinc-800 hover:text-white"
         }`}
     >
       {icon}

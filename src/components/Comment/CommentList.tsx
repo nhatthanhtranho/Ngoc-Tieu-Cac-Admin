@@ -12,6 +12,8 @@ import {
 import CommentItem from "./CommentItem";
 import { buildCommentTree } from "./CommentNode";
 import { useSeedUserStore } from "../../stores/seed.stote";
+import { ToggleButton } from "./ToggleButton";
+import { BookOpen, CalendarDays, User, UserPen } from "lucide-react";
 
 interface CommentListProps {
   bookSlug: string;
@@ -27,7 +29,7 @@ export interface Comment {
   createdAt: string;
   parentId: string;
   replies?: Comment[];
-  converter?: boolean
+  converter?: boolean;
 }
 
 export default function CommentList({
@@ -49,6 +51,7 @@ export default function CommentList({
   const [parentId, setParentId] = useState<string | "">("");
 
   const [isRandomUser, setIsRandomUser] = useState(false);
+  const [isRandomDate, setIsRandomDate] = useState(false);
   const [isConverterUser, setIsConverterUser] = useState(false);
 
   const users = getSeedUsers();
@@ -87,9 +90,7 @@ export default function CommentList({
     try {
       setIsSeedComment(nextValue);
       await toggleSeedComment(bookSlug, nextValue);
-      toast.success(
-        nextValue ? "Đã bật seed comment" : "Đã tắt seed comment"
-      );
+      toast.success(nextValue ? "Đã bật seed comment" : "Đã tắt seed comment");
     } catch (e) {
       console.error(e);
       setIsSeedComment(!nextValue);
@@ -124,7 +125,8 @@ export default function CommentList({
         trimmedContent,
         parentId,
         isRandomUser,
-        isConverterUser
+        isConverterUser,
+        isRandomDate,
       );
 
       await fetchComments();
@@ -161,49 +163,35 @@ export default function CommentList({
 
       {/* Admin Add Comment */}
       <div className="mb-6 p-4 rounded-lg border border-slate-700 space-y-3">
-
-        {/* Random seed user */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">🎲 Random seed user</span>
-
-          <button
-            type="button"
-            onClick={() => {
-              setIsRandomUser((v) => !v);
+        <div className="flex items-center gap-2">
+          <ToggleButton
+            label="User"
+            icon={User}
+            checked={isRandomUser}
+            onChange={() => {
+              setIsRandomUser(!isRandomUser);
               setIsConverterUser(false);
             }}
-            className={`relative w-11 h-6 rounded-full transition-colors duration-200
-              ${isRandomUser ? "bg-blue-500" : "bg-gray-300"}`}
-          >
-            <span
-              className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200
-                ${isRandomUser ? "translate-x-5" : ""}`}
-            />
-          </button>
-        </div>
+          />
 
-        {/* Comment as Converter */}
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">📚 Comment as Converter</span>
+          <ToggleButton
+            label="Date"
+            icon={CalendarDays}
+            checked={isRandomDate}
+            onChange={() => setIsRandomDate(!isRandomDate)}
+          />
 
-          <button
-            type="button"
-            onClick={() => {
-              setIsConverterUser((v) => !v);
+          <ToggleButton
+            label="Cvt"
+            icon={UserPen}
+            checked={isConverterUser}
+            onChange={() => {
+              const nextState = !isConverterUser;
+              setIsConverterUser(nextState);
               setIsRandomUser(false);
-
-              if (!isConverterUser) {
-                setUserName(converter);
-              }
+              if (nextState) setUserName(converter);
             }}
-            className={`relative w-11 h-6 rounded-full transition-colors duration-200
-              ${isConverterUser ? "bg-purple-500" : "bg-gray-300"}`}
-          >
-            <span
-              className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200
-                ${isConverterUser ? "translate-x-5" : ""}`}
-            />
-          </button>
+          />
         </div>
 
         {/* Seed user select */}
@@ -262,9 +250,7 @@ export default function CommentList({
           onChange={(e) => setContent(e.target.value)}
         />
 
-        {error && (
-          <p className="text-red-500 text-sm font-medium">⚠ {error}</p>
-        )}
+        {error && <p className="text-red-500 text-sm font-medium">⚠ {error}</p>}
 
         <button
           disabled={submitting}

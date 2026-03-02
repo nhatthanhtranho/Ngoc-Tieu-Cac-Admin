@@ -25,6 +25,7 @@ import LeaderBoardAudio from "./pages/LeaderBoardAudio";
 import Variable from "./pages/Variable";
 import DichGia from "./pages/DichGia";
 import CommentList from "./pages/Comments";
+import NapTien from "./pages/NapTien";
 
 // Dynamic imports
 const Home = lazy(() => import("./pages/Home"));
@@ -194,6 +195,7 @@ export default function App() {
                 <Route path="/thong-ke" element={<ThongKe />} />
                 <Route path="/top-up" element={<TopUp topUpType="topup" />} />
                 <Route path="/comments" element={<CommentList />} />
+                <Route path="/nap-tien" element={<NapTien />} />
 
                 <Route
                   path="/membership"

@@ -16,7 +16,8 @@ import {
   TableConfig,
   SquareUserRound,
   MessageCircle,
-  CircleDollarSign
+  CircleDollarSign,
+  LibraryBig
 
 } from "lucide-react";
 import { api } from "../apis";
@@ -26,6 +27,7 @@ import Variable from "./pages/Variable";
 import DichGia from "./pages/DichGia";
 import CommentList from "./pages/Comments";
 import NapTien from "./pages/NapTien";
+import UserEbook from "./pages/UserEbook";
 
 // Dynamic imports
 const Home = lazy(() => import("./pages/Home"));
@@ -143,7 +145,12 @@ export default function App() {
                   label="Membership"
                   badge={pendingCount.membership}
                 />
-
+                
+                <NavItem
+                  to="/ebook-da-mua"
+                  icon={<LibraryBig size={20} />}
+                  label="Epub Đã Mua"
+                />
 
                 <NavItem
                   to="/nap-tien"
@@ -196,7 +203,7 @@ export default function App() {
                 <Route path="/top-up" element={<TopUp topUpType="topup" />} />
                 <Route path="/comments" element={<CommentList />} />
                 <Route path="/nap-tien" element={<NapTien />} />
-
+                <Route path="/ebook-da-mua" element={<UserEbook />} />
                 <Route
                   path="/membership"
                   element={<TopUp topUpType="membership" />}

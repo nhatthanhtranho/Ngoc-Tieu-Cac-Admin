@@ -34,8 +34,8 @@ export default function BookList({
   useEffect(() => {
     if (!initialBooks) return;
     const sortedBooks = [...initialBooks].sort((a, b) => {
-      const aBookmarked = bookmarks.includes(a.slug);
-      const bBookmarked = bookmarks.includes(b.slug);
+      const aBookmarked = bookmarks.includes(a?.slug);
+      const bBookmarked = bookmarks.includes(b?.slug);
       if (aBookmarked === bBookmarked) return 0;
       return aBookmarked ? -1 : 1;
     });
@@ -68,21 +68,21 @@ export default function BookList({
           ))
         : books.map((book) => (
             <motion.div
-              key={book.slug}
+              key={book?.slug}
               layout="position"
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
             >
               <BookCard2
-                slug={book.slug}
-                currentChapter={book.currentChapter || 0}
-                title={`${book.title}`}
-                handleClick={() => window.open(`/Ngoc-Tieu-Cac-Admin/#/book/${book.slug}`, "_blank", "noopener,noreferrer")}
-                thumbnailUrl={getSmallBannerURL(book.slug) || ""}
-                isBookmarked={bookmarks.includes(book.slug)}
-                onToggleBookmark={() => toggleBookmark(book.slug)}
-                hasEbook={book.hasEbook}
-                latestEbook={book.currentChapter == book.currentEbookChapter}
-                isSeed={book.isSeed}
+                slug={book?.slug}
+                currentChapter={book?.currentChapter || 0}
+                title={`${book?.title}`}
+                handleClick={() => window.open(`/Ngoc-Tieu-Cac-Admin/#/book/${book?.slug}`, "_blank", "noopener,noreferrer")}
+                thumbnailUrl={getSmallBannerURL(book?.slug) || ""}
+                isBookmarked={bookmarks.includes(book?.slug)}
+                onToggleBookmark={() => toggleBookmark(book?.slug)}
+                hasEbook={book?.hasEbook}
+                latestEbook={book?.currentChapter == book?.currentEbookChapter}
+                isSeed={book?.isSeed}
               />
             </motion.div>
           ))}

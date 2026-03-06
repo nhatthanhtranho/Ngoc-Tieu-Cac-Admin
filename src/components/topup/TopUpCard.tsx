@@ -231,15 +231,7 @@ export default function TopupCard({ item, onStatusChange }: Props) {
           />
 
           <div className="flex items-center gap-3 mt-4">
-            {item.status === "pending" && (
-              <button
-                onClick={handleProcess}
-                className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
-              >
-                <Check className="w-4 h-4" />
-                Kiểm tra xong
-              </button>
-            )}
+           
 
              {item.status === "pending" && (
               <button

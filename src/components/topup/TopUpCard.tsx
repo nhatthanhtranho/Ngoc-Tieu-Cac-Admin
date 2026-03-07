@@ -19,6 +19,7 @@ import { api } from "../../../apis";
 interface Props {
   item: TopupItem;
   onStatusChange: (id: string, status: "approved" | "rejected") => void;
+  displayXuLy?: boolean
 }
 
 function formatDate(dateStr?: string) {
@@ -34,7 +35,7 @@ function formatDate(dateStr?: string) {
   });
 }
 
-export default function TopupCard({ item, onStatusChange }: Props) {
+export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) {
   const [open, setOpen] = useState(false);
 
   const [preview, setPreview] = useState<string | null>(null); // ⬅️ zoom ảnh
@@ -231,7 +232,15 @@ export default function TopupCard({ item, onStatusChange }: Props) {
           />
 
           <div className="flex items-center gap-3 mt-4">
-           
+            {item.status === "pending" && displayXuLy && (
+              <button
+                onClick={handleProcess}
+                className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+              >
+                <Check className="w-4 h-4" />
+                Kiểm tra xong
+              </button>
+            )}
 
              {item.status === "pending" && (
               <button

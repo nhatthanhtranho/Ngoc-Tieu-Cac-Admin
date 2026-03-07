@@ -102,7 +102,7 @@ export default function TopUpManager({ topUpType }: TopUpManagerProps) {
                   hover:shadow-[0_0_12px_rgba(16,185,129,0.15)]
                 "
               >
-                <TopupCard item={item} onStatusChange={handleUpdateStatus} />
+                <TopupCard item={item} onStatusChange={handleUpdateStatus} displayXuLy={topUpType === 'membership'}/>
               </div>
             ))}
           </div>

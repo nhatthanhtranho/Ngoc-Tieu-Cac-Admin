@@ -12,7 +12,7 @@ export default function CommentList() {
     const fetchComments = async () => {
         try {
             const res = await api.get("/admin/real-comments");
-            setComments(res.data);
+            setComments(res?.data ?? []);
         } catch (err) {
             console.error("Lỗi:", err);
         } finally {
@@ -31,20 +31,26 @@ export default function CommentList() {
     return (
         <div className="mx-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-                {comments.map((item) => (
+                {comments?.map((item) => (
                     <div
-                        key={item.id}
+                        key={item?.id ?? Math.random()}
                         onClick={() => {
-                            window.open(`https://nhatthanhtranho.github.io/Ngoc-Tieu-Cac-Admin/#/book/${item.slug}`, "_blank");
+                            if (item?.slug) {
+                                window.open(
+                                    `https://nhatthanhtranho.github.io/Ngoc-Tieu-Cac-Admin/#/book/${item.slug}`,
+                                    "_blank"
+                                );
+                            }
                         }}
                         className="cursor-pointer group flex bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300"
                     >
                         {/* Banner nhỏ */}
                         <div className="relative w-20 h-[120px] shrink-0 overflow-hidden bg-gray-200">
                             <img
-                                src={`https://assets.ngoctieucac.com/book-cover/${item.slug}/banner-small.webp`}
+                                src={`https://assets.ngoctieucac.org/book-cover/${item.slug}/banner-small.webp`}
                                 alt="banner"
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                           
                             />
                         </div>
 
@@ -56,18 +62,18 @@ export default function CommentList() {
                                     Comment
                                 </span>
                                 <span className="text-gray-300 text-[11px]">
-                                    #{item.id}
+                                    #{item?.id ?? "?"}
                                 </span>
                             </div>
 
                             {/* Username */}
                             <h3 className="text-base font-semibold text-gray-800 mb-1 group-hover:text-indigo-600 transition-colors">
-                                {item.username}
+                                {item?.username ?? "Ẩn danh"}
                             </h3>
 
                             {/* Nội dung comment */}
                             <p className="text-sm text-gray-600 leading-relaxed line-clamp-4">
-                                {item.content}
+                                {item?.content ?? "Không có nội dung"}
                             </p>
 
                             {/* Footer */}
@@ -79,7 +85,9 @@ export default function CommentList() {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        window.open(`/#/book/${item.slug}`, "_blank");
+                                        if (item?.slug) {
+                                            window.open(`/#/book/${item.slug}`, "_blank");
+                                        }
                                     }}
                                     className="text-indigo-500 font-medium hover:underline text-xs"
                                 >

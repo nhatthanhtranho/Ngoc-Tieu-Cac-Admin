@@ -8,7 +8,6 @@ export async function getCommentsInBook(bookSlug: string) {
 export async function seedComment(
   bookSlug: string,
   username: string,
-  avatarUrl: string,
   content: string,
   parentId: string,
   random: boolean,
@@ -18,7 +17,6 @@ export async function seedComment(
   const res = await api.post(`/admin/create-comment`, {
     bookSlug,
     username,
-    avatarUrl,
     content,
     parentId,
     random: random,

@@ -13,7 +13,7 @@ import CommentItem from "./CommentItem";
 import { buildCommentTree } from "./CommentNode";
 import { useSeedUserStore } from "../../stores/seed.stote";
 import { ToggleButton } from "./ToggleButton";
-import { BookOpen, CalendarDays, User, UserPen } from "lucide-react";
+import { CalendarDays, User, UserPen } from "lucide-react";
 
 interface CommentListProps {
   bookSlug: string;
@@ -24,7 +24,6 @@ interface CommentListProps {
 export interface Comment {
   _id: string;
   username: string;
-  avatarUrl: string;
   content: string;
   createdAt: string;
   parentId: string;
@@ -46,7 +45,6 @@ export default function CommentList({
   const [error, setError] = useState("");
 
   const [username, setUserName] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
   const [content, setContent] = useState("");
   const [parentId, setParentId] = useState<string | "">("");
 
@@ -121,7 +119,6 @@ export default function CommentList({
       await seedComment(
         bookSlug,
         isConverterUser ? converter : trimmedUsername,
-        avatarUrl,
         trimmedContent,
         parentId,
         isRandomUser,
@@ -137,7 +134,6 @@ export default function CommentList({
     } finally {
       setSubmitting(false);
       setUserName("");
-      setAvatarUrl("");
       setContent("");
       setParentId("");
     }
@@ -203,7 +199,6 @@ export default function CommentList({
             const user = users.find((u) => u.username === e.target.value);
             if (!user) return;
             setUserName(user.username);
-            setAvatarUrl(user.avatarUrl);
           }}
         >
           <option value="">👤 Chọn seed user</option>
@@ -221,14 +216,6 @@ export default function CommentList({
           disabled={isConverterUser}
           onChange={(e) => setUserName(e.target.value)}
         />
-
-        <input
-          className="w-full rounded px-3 py-2 border"
-          placeholder="Avatar URL (optional)"
-          value={avatarUrl}
-          onChange={(e) => setAvatarUrl(e.target.value)}
-        />
-
         {/* Parent comment */}
         <select
           className="w-full rounded px-3 py-2 border"

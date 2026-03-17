@@ -37,20 +37,14 @@ export default function CommentItem({ comment, depth = 0 }: CommentItemProps) {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <img
-              src={
-                comment.converter
-                  ? getConverterAvatarUrl(comment.username)
-                  : comment.avatarUrl
-              }
+              src={getConverterAvatarUrl(comment.username)}
               alt={comment.username}
               className="rounded-full object-cover border border-slate-700/60 w-10 h-10"
             />
 
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-medium text-sm">
-                  {comment.username}
-                </span>
+                <span className="font-medium text-sm">{comment.username}</span>
 
                 {comment.converter && (
                   <span className="px-2 py-[2px] text-[11px] font-semibold rounded-full bg-emerald-500/15 text-emerald-600 border border-emerald-500/30">
@@ -90,11 +84,7 @@ export default function CommentItem({ comment, depth = 0 }: CommentItemProps) {
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-3">
           {comment.replies.map((reply) => (
-            <CommentItem
-              key={reply._id}
-              comment={reply}
-              depth={depth + 1}
-            />
+            <CommentItem key={reply._id} comment={reply} depth={depth + 1} />
           ))}
         </div>
       )}

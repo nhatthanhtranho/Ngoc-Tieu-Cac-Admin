@@ -6,12 +6,10 @@ import { useNavigate } from "react-router-dom";
 import { Upload, Download, BrushCleaning, Music } from "lucide-react";
 
 import UploadChaptersModal from "./UploadChaptersModal";
-import UploadFreeModal from "./UploadFreeModal";
 import { Chapter, fetchChapters } from "../../../apis/chapters";
 import DownloadBookModal from "./DownloadBookModal";
 import InlinePageInput from "./InlinePageInput";
 import DeleteBookModal from "./DeleteBookModal";
-import UploadAudioModel from "./UploadAudioModal";
 import { toast } from "react-toastify";
 import { api } from "../../../apis";
 interface ChapterListViewProps {
@@ -93,20 +91,6 @@ export default function ChapterListView({
           >
             <Upload className="w-6 h-6" />
           </button>
-
-          <button
-            onClick={() => setShowUploadFreeModal(true)}
-            className="bg-fuchsia-600 rounded p-2 flex gap-2 cursor-pointer hover:bg-fuchsia-800 transition-colors duration-200 shadow text-white"
-          >
-            <Upload className="w-6 h-6" /> Free
-          </button>
-
-          <button
-            onClick={() => setShowUploadAudioModal(true)}
-            className="bg-emerald-600 rounded p-2 flex gap-2 cursor-pointer hover:bg-fuchsia-800 transition-colors duration-200 shadow text-white"
-          >
-            <Music className="w-6 h-6" /> Audio
-          </button>
         </div>
       </div>
 
@@ -183,25 +167,6 @@ export default function ChapterListView({
           <UploadChaptersModal
             bookSlug={bookSlug}
             onClose={() => setShowUploadModal(false)}
-            onUploaded={handleUploaded}
-          />
-        )}
-
-        {showUploadAudioModal && (
-          <UploadAudioModel
-            bookSlug={bookSlug}
-            onClose={() => setShowUploadAudioModal(false)}
-            onUploaded={async () => {
-              await api.patch(`/books/${bookSlug}`, { hasAudio: true })
-              toast.success("Đã upload audio thành công!");
-            }}
-          />
-        )}
-
-        {showUploadFreeModal && (
-          <UploadFreeModal
-            bookSlug={bookSlug}
-            onClose={() => setShowUploadFreeModal(false)}
             onUploaded={handleUploaded}
           />
         )}

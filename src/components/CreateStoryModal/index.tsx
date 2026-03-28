@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, CheckCircle, AlertTriangle } from "lucide-react";
 import slugify from "slugify";
@@ -14,7 +14,6 @@ export interface StoryFormData {
   dichGia: string;
   tacGia: string;
   tagInput: string;
-  isFree: boolean;
 }
 
 interface CreateStoryFormModalProps {
@@ -24,28 +23,18 @@ interface CreateStoryFormModalProps {
 }
 
 /* =========================
-   SLUG VN + FREE HANDLER
+        SLUG VN
 ========================= */
-
 function slugVN(str: string) {
   if (!str) return "";
-  const clean = str
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D");
-
-  return slugify(clean, { lower: true, strict: true, trim: true });
-}
-
-function applyFreeSlug(slug: string, isFree: boolean) {
-  if (!slug) return "";
-
-  if (isFree) {
-    return slug.endsWith("-free") ? slug : `${slug}-free`;
-  }
-
-  return slug.replace(/-free$/, "");
+  return slugify(
+    str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D"),
+    { lower: true, strict: true, trim: true }
+  );
 }
 
 export default function CreateStoryFormModal({
@@ -54,6 +43,7 @@ export default function CreateStoryFormModal({
   onCreate,
 }: CreateStoryFormModalProps) {
   const navigate = useNavigate();
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [slugEdited, setSlugEdited] = useState(false);
   const [slugStatus, setSlugStatus] = useState<
@@ -68,10 +58,7 @@ export default function CreateStoryFormModal({
     dichGia: "",
     tacGia: "",
     tagInput: "",
-    isFree: false,
   });
-
-  useEffect(() => {}, []);
 
   /* =========================
         HANDLERS
@@ -80,26 +67,18 @@ export default function CreateStoryFormModal({
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
 
-    setFormData((prev) => {
-      let newSlug = prev.slug;
-
-      if (!slugEdited) {
-        const baseSlug = slugVN(value);
-        newSlug = applyFreeSlug(baseSlug, prev.isFree);
-      }
-
-      return { ...prev, title: value, slug: newSlug };
-    });
+    setFormData((prev) => ({
+      ...prev,
+      title: value,
+      slug: slugEdited ? prev.slug : slugVN(value),
+    }));
   };
 
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawSlug = e.target.value;
-
     setFormData((prev) => ({
       ...prev,
-      slug: applyFreeSlug(rawSlug.replace(/-free$/, ""), prev.isFree),
+      slug: slugVN(e.target.value),
     }));
-
     setSlugEdited(true);
     setSlugStatus("idle");
   };
@@ -116,26 +95,19 @@ export default function CreateStoryFormModal({
     setFormData((prev) => ({
       ...prev,
       tagInput: value,
-      tags: value
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
+      tags: value.split(",").map((t) => t.trim()).filter(Boolean),
     }));
   };
 
   const handleValidate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.title.trim())
-      newErrors.title = "Tiêu đề không được để trống.";
-    if (!formData.slug.trim())
-      newErrors.slug = "Slug không được để trống.";
-    if (!formData.tacGia.trim())
-      newErrors.tacGia = "Nhập tên tác giả.";
-    if (!formData.dichGia.trim())
-      newErrors.dichGia = "Nhập tên dịch giả.";
+    if (!formData.title.trim()) newErrors.title = "Tiêu đề không được để trống.";
+    if (!formData.slug.trim()) newErrors.slug = "Slug không được để trống.";
+    if (!formData.tacGia.trim()) newErrors.tacGia = "Nhập tên tác giả.";
+    if (!formData.dichGia.trim()) newErrors.dichGia = "Nhập tên dịch giả.";
     if (slugStatus === "taken")
-      newErrors.slug = "Slug đã tồn tại, vui lòng đổi slug khác.";
+      newErrors.slug = "Slug đã tồn tại.";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -145,14 +117,13 @@ export default function CreateStoryFormModal({
     if (!handleValidate()) return alert("⚠️ Kiểm tra lại thông tin!");
 
     try {
-      const newBook = {
+      const res = await createBook({
         ...formData,
         status: "Published",
         currentChapter: 0,
-      };
+      } as any);
 
-      const res = await createBook(newBook as any);
-      onCreate && onCreate(res);
+      onCreate?.(res);
       onClose();
       navigate("/");
     } catch (err) {
@@ -162,16 +133,15 @@ export default function CreateStoryFormModal({
   };
 
   const handleCheckSlug = async () => {
-    if (!formData.slug.trim()) return alert("Nhập slug trước khi kiểm tra!");
+    if (!formData.slug.trim()) return alert("Nhập slug trước!");
 
     try {
       setSlugStatus("checking");
-      const isValid = await checkBookSlugValid(formData.slug);
-      setSlugStatus(isValid ? "available" : "taken");
-    } catch (err) {
-      console.error(err);
+      const ok = await checkBookSlugValid(formData.slug);
+      setSlugStatus(ok ? "available" : "taken");
+    } catch {
       setSlugStatus("idle");
-      alert("❌ Lỗi khi kiểm tra slug");
+      alert("❌ Lỗi check slug");
     }
   };
 
@@ -182,129 +152,73 @@ export default function CreateStoryFormModal({
   ========================= */
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-teal-50 to-white-100 p-4">
-      <div className="relative w-full max-w-3xl bg-white/95 rounded-3xl shadow-2xl p-8 space-y-6 border border-teal-200 backdrop-blur-sm">
-        <button
-          className="absolute top-4 right-4 text-teal-400 hover:text-teal-600"
-          onClick={onClose}
-        >
-          <X size={24} />
+    <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4 z-50">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl p-6 space-y-4 shadow-xl">
+        <button onClick={onClose} className="absolute top-3 right-3">
+          <X />
         </button>
 
-        <h2 className="text-3xl font-medium text-teal-600 text-center">
-          🍑 Tạo Truyện Mới 🍑
+        <h2 className="text-xl font-semibold text-center">
+          Tạo Truyện Mới
         </h2>
 
         {/* Title */}
-        <div>
-          <label className="text-sm font-medium text-teal-500 mb-1 block">
-            Tên truyện
-          </label>
+        <input
+          placeholder="Tên truyện"
+          value={formData.title}
+          onChange={handleTitleChange}
+          className="w-full p-2 border rounded"
+        />
+
+        {/* Author */}
+        <input
+          name="tacGia"
+          placeholder="Tác giả"
+          value={formData.tacGia}
+          onChange={handleInfoChange}
+          className="w-full p-2 border rounded"
+        />
+
+        {/* Translator */}
+        <input
+          name="dichGia"
+          placeholder="Dịch giả"
+          value={formData.dichGia}
+          onChange={handleInfoChange}
+          className="w-full p-2 border rounded"
+        />
+
+        {/* Slug */}
+        <div className="flex gap-2">
           <input
-            value={formData.title}
-            onChange={handleTitleChange}
-            className="w-full p-3 rounded-xl border border-teal-300"
+            value={formData.slug}
+            onChange={handleSlugChange}
+            className="flex-1 p-2 border rounded"
           />
+          <button onClick={handleCheckSlug} className="px-3 bg-gray-800 text-white rounded">
+            Check
+          </button>
         </div>
 
-        {/* Author & Translator */}
-        {[
-          { label: "Tác giả", name: "tacGia" },
-          { label: "Dịch giả", name: "dichGia" },
-        ].map(({ label, name }) => (
-          <div key={name}>
-            <label className="text-sm font-medium text-teal-500 mb-1 block">
-              {label}
-            </label>
-            <input
-              name={name}
-              value={(formData as any)[name]}
-              onChange={handleInfoChange}
-              className="w-full p-3 rounded-xl border border-teal-300"
-            />
+        {/* Slug status */}
+        {slugStatus === "checking" && <p>Checking...</p>}
+        {slugStatus === "available" && <p className="text-green-500">OK</p>}
+        {slugStatus === "taken" && <p className="text-red-500">Taken</p>}
+
+        {/* Errors */}
+        {Object.values(errors).map((err, i) => (
+          <div key={i} className="text-red-500 text-sm flex gap-1">
+            <AlertTriangle size={16} /> {err}
           </div>
         ))}
 
-        {/* Free Toggle */}
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-teal-500">Truyện Free</span>
-          <button
-            type="button"
-            onClick={() =>
-              setFormData((prev) => {
-                const newIsFree = !prev.isFree;
-                return {
-                  ...prev,
-                  isFree: newIsFree,
-                  slug: applyFreeSlug(
-                    prev.slug.replace(/-free$/, ""),
-                    newIsFree
-                  ),
-                };
-              })
-            }
-            className={`w-12 h-6 rounded-full p-1 transition ${
-              formData.isFree ? "bg-teal-400" : "bg-gray-300"
-            }`}
-          >
-            <div
-              className={`w-4 h-4 bg-white rounded-full shadow transform transition ${
-                formData.isFree ? "translate-x-6" : ""
-              }`}
-            />
-          </button>
-          {formData.isFree && (
-            <span className="text-xs text-green-600 font-medium">-free</span>
-          )}
-        </div>
-
-        {/* Slug */}
-        <div>
-          <label className="text-sm font-medium text-teal-500 mb-1 block">
-            Slug
-          </label>
-          <div className="flex gap-2">
-            <input
-              value={formData.slug}
-              onChange={handleSlugChange}
-              className="flex-1 p-3 rounded-xl border border-teal-300"
-            />
-            <button
-              onClick={handleCheckSlug}
-              className="px-4 bg-teal-400 text-white rounded-xl"
-            >
-              Check
-            </button>
-          </div>
-
-          {slugStatus === "checking" && (
-            <p className="text-sm text-gray-500 mt-1">Đang kiểm tra...</p>
-          )}
-          {slugStatus === "available" && (
-            <p className="text-sm text-green-600 mt-1">✅ Slug hợp lệ</p>
-          )}
-          {slugStatus === "taken" && (
-            <p className="text-sm text-red-600 mt-1">❌ Slug đã tồn tại</p>
-          )}
-        </div>
-
-        {/* Errors */}
-        {Object.keys(errors).length > 0 && (
-          <div className="bg-red-50 border border-red-200 p-3 rounded-xl">
-            {Object.values(errors).map((err, i) => (
-              <div key={i} className="flex items-center gap-2 text-red-600">
-                <AlertTriangle size={16} /> {err}
-              </div>
-            ))}
-          </div>
-        )}
-
+        {/* Submit */}
         <div className="flex justify-end">
           <button
             onClick={handleSubmit}
-            className="flex items-center gap-2 px-6 py-2 bg-teal-400 text-white rounded-xl"
+            className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded"
           >
-            <CheckCircle size={20} /> Lưu Truyện
+            <CheckCircle size={18} /> Lưu
           </button>
         </div>
       </div>

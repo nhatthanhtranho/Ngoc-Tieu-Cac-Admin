@@ -64,7 +64,6 @@ export async function saveChapterContent(
   const lines = chapterContent.split("\n");
   const metadataLine = lines[0] || "";
 
-  // Lấy phần sau dấu ':' làm title
   const parsedTitle = metadataLine.includes(":")
     ? metadataLine.split(":")[1].trim()
     : metadataLine.trim();
@@ -74,27 +73,22 @@ export async function saveChapterContent(
     chapterNumber,
   };
 
-  // Tạo chapter trên server
   await createChapters(bookSlug, [chapter]);
 
-  // Lấy presigned URL upload
   const { url, fields } = await getChapterUploadLink(bookSlug);
 
   const formData = new FormData();
   const fileName = `chuong-${chapterNumber}.txt`;
   const compressed = compressText(chapterContent);
 
-  // Blob từ Uint8Array
   const blob = new Blob([compressed as BlobPart], {
     type: "application/octet-stream",
   });
 
-  // Nếu S3 presigned yêu cầu các fields, append tất cả
   Object.entries(fields || {}).forEach(([key, value]) => {
     formData.append(key, value as string);
   });
 
-  // Thêm file cuối cùng
   formData.append("file", blob, fileName);
 
   await fetch(url, {
@@ -105,15 +99,18 @@ export async function saveChapterContent(
 
 export async function getChapterUploadLink(
   bookSlug: string,
-  isPublic = false,
-  isAudio = false
-): Promise<{ url: string; fields: Record<string, string>, preview: string, previewFields: Record<string, string> }> {
+  isPublic = false
+): Promise<{
+  url: string;
+  fields: Record<string, string>;
+  preview: string;
+  previewFields: Record<string, string>;
+}> {
   const res = await api.get(
-    `/chapters/${bookSlug}/upload?isPublic=${isPublic ? 1 : 0}&isAudio=${isAudio ? 1 : 0}`
+    `/chapters/${bookSlug}/upload?isPublic=${isPublic ? 1 : 0}`
   );
   return res.data;
 }
-
 
 export async function deleteAllChapters(
   bookSlug: string

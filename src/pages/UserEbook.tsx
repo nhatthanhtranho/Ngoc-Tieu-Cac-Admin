@@ -41,15 +41,9 @@ function UserEbook() {
   }, []);
 
   const filteredBooks = useMemo(() => {
-    // ✅ Bước 1: loại bỏ undefined/null trước
-    const validBooks = books.filter(
-      (b: any) => b?.hasEbook !== undefined && b?.hasEbook !== null
-    );
+    if (filter === "all") return books;
 
-    if (filter === "all") return validBooks;
-
-    // ✅ Bước 2: chỉ lấy chưa có ebook
-    return validBooks.filter((b: any) => b.hasEbook === false);
+    return books.filter((b: any) => !b?.hasEbook); // sửa field theo API
   }, [books, filter]);
 
   return (

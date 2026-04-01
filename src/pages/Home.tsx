@@ -6,7 +6,7 @@ import {
 } from "../../apis/books";
 import BookList from "../components/Book/BookList";
 import CreateStoryFormModal from "../components/CreateStoryModal";
-import { StarIcon, UploadCloud } from "lucide-react";
+import { StarIcon, UploadCloud, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { api } from "../../apis";
 import Spinner from "../components/Spinner";
 import pLimit from "p-limit";
@@ -23,7 +23,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
 
-  // ✅ NEW: dùng boolean thay vì string
   const [bookStatusFilter, setBookStatusFilter] = useState({
     completed: true,
     ongoing: true,
@@ -31,50 +30,42 @@ function App() {
 
   const pageSize = 100;
 
-  // ✅ fetch + filter đúng logic
   const fetchAllBookSlugs = async (filter = bookStatusFilter) => {
     try {
       const res = await api.get("/books/slugs");
-      let books = res.data;
+      let booksData = res.data;
 
-      books = books.filter((book: any) => {
+      booksData = booksData.filter((book: any) => {
         const isCompleted = book.categories?.includes("hoan-thanh");
-
         if (filter.completed && filter.ongoing) return true;
         if (filter.completed) return isCompleted;
         if (filter.ongoing) return !isCompleted;
-
         return false;
       });
 
-      setBookSlugs(books);
+      setBookSlugs(booksData);
     } catch (err) {
       toast.error("Lỗi khi lấy danh sách slug");
     }
   };
 
-  // toggle filter
   const toggleStatusFilter = (type: "completed" | "ongoing") => {
     setBookStatusFilter((prev) => {
       const newState = {
         ...prev,
         [type]: !prev[type],
       };
-
       fetchAllBookSlugs(newState);
       setCurrentPage(1);
-
       return newState;
     });
   };
 
   const handleSync = async () => {
     setLoading(true);
-
     try {
-      const books = (await api.get("/books/slugs")).data;
-      const slugs = books.map((book: any) => book.slug);
-
+      const res = await api.get("/books/slugs");
+      const slugs = res.data.map((book: any) => book.slug);
       const limit = pLimit(20);
       const errorSlugs: string[] = [];
 
@@ -83,7 +74,6 @@ function App() {
           limit(async () => {
             try {
               await syncBookData(slug);
-              console.log("done", slug);
             } catch {
               errorSlugs.push(slug);
             }
@@ -93,38 +83,42 @@ function App() {
 
       if (errorSlugs.length > 0) {
         toast.error(`Có ${errorSlugs.length} slug lỗi`);
-        toast.info(errorSlugs.join(", "));
       } else {
         toast.success("Sync thành công toàn bộ 🎉");
       }
     } catch {
       toast.error("Lỗi khi lấy danh sách slug");
     }
-
     setLoading(false);
   };
 
   const handleSyncCategory = async () => {
     setLoading(true);
-    const books = (await api.get("/admin/generate-category-page-data")).data;
-    const slugs = books.map((book: any) => book.slug);
-
-    for (const slug of slugs) {
-      await syncBookData(slug);
-      console.log("done", slug);
-      await new Promise((r) => setTimeout(r, 500));
+    try {
+      const res = await api.get("/admin/generate-category-page-data");
+      const slugs = res.data.map((book: any) => book.slug);
+      for (const slug of slugs) {
+        await syncBookData(slug);
+        await new Promise((r) => setTimeout(r, 500));
+      }
+      toast.success("Sync Category hoàn tất");
+    } catch {
+      toast.error("Lỗi Sync Category");
     }
-
     setLoading(false);
   };
 
   const generateRelativeBook = async () => {
     setLoading(true);
-    await api.get("/admin/gemnerateRelativeBook");
+    try {
+      await api.get("/admin/gemnerateRelativeBook");
+      toast.success("Đã cập nhật sách liên quan");
+    } catch {
+      toast.error("Lỗi khi tạo sách liên quan");
+    }
     setLoading(false);
   };
 
-  // load localStorage + init data
   useEffect(() => {
     const savedSlugs = localStorage.getItem("bookSlugs");
     const savedBookmarks = localStorage.getItem("bookmarks");
@@ -146,15 +140,12 @@ function App() {
     }
   }, []);
 
-  // fetch books theo page/search
   useEffect(() => {
     setLoading(true);
-
     let filteredSlugs = bookSlugs;
 
     if (searchKeyword.trim() !== "") {
       const keyword = searchKeyword.toLowerCase().replace(/\s+/g, "");
-
       filteredSlugs = bookSlugs.filter((b) => {
         const title = b.title.toLowerCase().replace(/\s+/g, "");
         const slug = b.slug.toLowerCase().replace(/\s+/g, "");
@@ -171,10 +162,8 @@ function App() {
       .map((b) => b.slug);
 
     const allSlugsOrdered = [...bookmarkedSlugs, ...normalSlugs];
-
     const start = (currentPage - 1) * pageSize;
-    const end = currentPage * pageSize;
-    const slugsPage = allSlugsOrdered.slice(start, end);
+    const slugsPage = allSlugsOrdered.slice(start, start + pageSize);
 
     if (slugsPage.length > 0) {
       fetchBookBySlugs(slugsPage, (data) => setBooks(data)).finally(() =>
@@ -193,100 +182,130 @@ function App() {
   const totalPages = Math.ceil(bookSlugs.length / pageSize);
 
   return (
-    <div className="overflow-hidden">
+    <div className="min-h-screen bg-gray-50/50">
       <Spinner show={loading} />
 
       <div className="container mx-auto px-4 py-10 font-genshin text-genshin-dark">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-4xl font-bold">Danh Sách Truyện</h1>
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+          <div>
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 mb-2">
+              Danh Sách Truyện
+            </h1>
+            <p className="text-gray-500">Quản lý và đồng bộ dữ liệu thư viện</p>
+          </div>
 
-          <div className="flex gap-4">
-            <button onClick={handleSyncCategory} className="btn bg-red-400">
+          <div className="flex flex-wrap gap-3">
+            <button 
+              onClick={handleSyncCategory} 
+              className="px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl shadow-sm transition-all active:scale-95 font-medium flex items-center gap-2"
+            >
               Category
             </button>
 
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="btn bg-yellow-400"
+              className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-sm transition-all active:scale-95 font-medium flex items-center gap-2"
             >
-              + Tạo truyện
+              <Plus size={20} /> Tạo truyện
             </button>
 
-            <button onClick={handleSync} className="btn bg-green-400 flex gap-2">
-              <UploadCloud /> Sync
+            <button 
+              onClick={handleSync} 
+              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all active:scale-95 font-medium flex items-center gap-2"
+            >
+              <UploadCloud size={18} /> Sync Toàn Bộ
             </button>
 
             <button
               onClick={generateRelativeBook}
-              className="btn bg-blue-400 flex gap-2"
+              className="px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl shadow-sm transition-all active:scale-95 font-medium flex items-center gap-2"
             >
-              <StarIcon /> Tạo Sách Theo Tác Giả
+              <StarIcon size={18} /> Sách Theo Tác Giả
             </button>
           </div>
         </div>
 
-        {/* Filter */}
-        <div className="flex gap-2 my-5">
-          <button
-            onClick={() => toggleStatusFilter("completed")}
-            className={`w-32 py-2 rounded text-white ${
-              bookStatusFilter.completed ? "bg-emerald-500" : "bg-gray-400"
-            }`}
-          >
-            Hoàn Thành
-          </button>
+        {/* Filter & Search Bar */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+          <div className="flex flex-col lg:flex-row gap-6 items-center">
+            {/* Status Filter Toggle */}
+            <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-full lg:w-auto">
+              <button
+                onClick={() => toggleStatusFilter("completed")}
+                className={`flex-1 lg:w-32 py-2 px-4 rounded-lg font-medium transition-all ${
+                  bookStatusFilter.completed 
+                  ? "bg-white text-emerald-600 shadow-sm" 
+                  : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Hoàn Thành
+              </button>
+              <button
+                onClick={() => toggleStatusFilter("ongoing")}
+                className={`flex-1 lg:w-32 py-2 px-4 rounded-lg font-medium transition-all ${
+                  bookStatusFilter.ongoing 
+                  ? "bg-white text-emerald-600 shadow-sm" 
+                  : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Đang Ra
+              </button>
+            </div>
 
-          <button
-            onClick={() => toggleStatusFilter("ongoing")}
-            className={`w-32 py-2 rounded text-white ${
-              bookStatusFilter.ongoing ? "bg-emerald-500" : "bg-gray-400"
-            }`}
-          >
-            Đang Ra
-          </button>
+            {/* Search Input */}
+            <div className="relative w-full">
+              <input
+                value={searchKeyword}
+                onChange={(e) => {
+                  setSearchKeyword(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Tìm tên truyện hoặc slug..."
+                className="w-full pl-4 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none transition-all"
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Search */}
-        <input
-          value={searchKeyword}
-          onChange={(e) => {
-            setSearchKeyword(e.target.value);
-            setCurrentPage(1);
-          }}
-          placeholder="Tìm truyện..."
-          className="w-full p-3 border rounded-lg mb-6"
-        />
+        {/* List Section */}
+        <div className="min-h-[400px]">
+          <BookList initialBooks={books} loading={loading} />
+        </div>
 
-        <BookList initialBooks={books} loading={loading} />
-
-        {/* Pagination */}
-        {!searchKeyword && (
-          <div className="flex justify-center gap-3 mt-6">
+        {/* Pagination Section */}
+        {!searchKeyword && totalPages > 1 && (
+          <div className="flex justify-center items-center gap-3 mt-12 pb-10">
             <button
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => p - 1)}
+              className="p-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-all active:scale-90"
             >
-              Trước
+              <ChevronLeft size={20} />
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                onClick={() => setCurrentPage(p)}
-                className={
-                  `py-1 px-3 ${currentPage === p ? "bg-yellow-400 text-white" : "bg-gray-200"}`
-                }
-              >
-                {p}
-              </button>
-            ))}
+            <div className="flex gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setCurrentPage(p)}
+                  className={`w-11 h-11 rounded-xl font-bold transition-all ${
+                    currentPage === p 
+                    ? "bg-amber-400 text-white shadow-lg shadow-amber-200 scale-110" 
+                    : "bg-white border border-gray-100 text-gray-500 hover:border-amber-300 hover:text-amber-500"
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
 
             <button
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => p + 1)}
+              className="p-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-all active:scale-90"
             >
-              Sau
+              <ChevronRight size={20} />
             </button>
           </div>
         )}
@@ -302,3 +321,4 @@ function App() {
 }
 
 export default App;
+

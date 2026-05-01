@@ -30,7 +30,6 @@ export default function ChapterListView({
   const [error, setError] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
 
-  const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const navigate = useNavigate();
 
@@ -73,12 +72,7 @@ export default function ChapterListView({
           >
             <BrushCleaning className="w-6 h-6" />
           </button>
-          <button
-            onClick={() => setShowDownloadModal(true)}
-            className="bg-green-600 rounded p-2 cursor-pointer hover:bg-green-800 transition-colors duration-200 shadow text-white"
-          >
-            <Download className="w-6 h-6" />
-          </button>
+        
           <button
             onClick={() => setShowUploadModal(true)}
             className="bg-blue-600 rounded p-2 cursor-pointer hover:bg-blue-800 transition-colors duration-200 shadow text-white"
@@ -128,15 +122,6 @@ export default function ChapterListView({
             bookSlug={bookSlug}
             onClose={() => setShowUploadModal(false)}
             onUploaded={handleUploaded}
-          />
-        )}
-
-        {showDownloadModal && (
-          <DownloadBookModal
-            totalChapters={numberOfChapters}
-            key="download-modal"
-            bookSlug={bookSlug}
-            onClose={() => setShowDownloadModal(false)}
           />
         )}
         {showDeleteModal && (

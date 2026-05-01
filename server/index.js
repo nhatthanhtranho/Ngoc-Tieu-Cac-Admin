@@ -26,7 +26,7 @@ app.get("/chapters/:slug", async (req, res) => {
 });
 
 // POST bulk chapters theo bookSlug
-app.post("/api/books/:bookSlug/chapters", async (req, res) => {
+app.post("/books/:bookSlug/chapters", async (req, res) => {
   try {
 
     const chaptersCol = getCollection(CHAPTERS);
@@ -99,6 +99,9 @@ app.post("/api/books/:bookSlug/chapters", async (req, res) => {
     });
   }
 });
+
+
+// thiếu sync và delete
 
 // ===== START SERVER =====
 

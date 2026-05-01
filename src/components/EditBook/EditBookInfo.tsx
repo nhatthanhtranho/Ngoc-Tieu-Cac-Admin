@@ -3,7 +3,7 @@ import Select from "react-select";
 import { useParams } from "react-router-dom";
 import { BookA, CloudUpload, Eye } from "lucide-react";
 import { toast } from "react-toastify";
-
+import { getChangedFields, base64ToBlob, randomViewValue } from './bookfunc'
 import ChapterListView from "./ChapterListView";
 import CommentList from "../Comment/CommentList";
 import CropImage from "../CropImage";
@@ -29,18 +29,13 @@ export default function EditBookInfo() {
   const [originalBook, setOriginalBook] = useState<Book | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
   const [converters, setConverters] = useState<Converter[]>([]);
 
   useEffect(() => {
     getConverters().then(setConverters);
   }, []);
 
-  useEffect(() => {
-    if (book) {
-      setIsHidden(book.isHidden || false);
-    }
-  }, [book]);
+
 
   const [bannerSet, setBannerSet] = useState<{
     small?: string;
@@ -67,47 +62,10 @@ export default function EditBookInfo() {
     setBook((prev) => (prev ? { ...prev, [key]: value } : prev));
   };
 
-  const getChangedFields = (newData: Book, oldData: Book): Partial<Book> => {
-    const changed: Partial<Book> = {};
-    (Object.keys(newData) as (keyof Book)[]).forEach((key) => {
-      const newValue = newData[key];
-      const oldValue = oldData[key];
-      if (Array.isArray(newValue) && Array.isArray(oldValue)) {
-        const isDifferent =
-          newValue.length !== oldValue.length ||
-          newValue.some((v, i) => v !== oldValue[i]);
-        if (isDifferent) (changed as any)[key] = newValue;
-      } else if (newValue !== oldValue) {
-        (changed as any)[key] = newValue;
-      }
-    });
-    return changed;
-  };
-
 
   const randomView = () => {
-    const min = 56000;
-    const max = 150000;
-    const random = Math.floor(Math.random() * (max - min + 1)) + min;
-    onChange("totalViews", random);
+    onChange("totalViews", randomViewValue());
   };
-
-
-  const handleToggleHiddenBook = async () => {
-    const nextValue = !isHidden;
-
-    try {
-      setIsHidden(nextValue);
-      await updateBook(book?.slug as any, { isHidden: nextValue }, book as any);
-      await handleSyncBook();
-      toast.success(nextValue ? "Đã Ẩn Sách " : "Đã tắt Ẩn Sách");
-    } catch (e) {
-      console.error(e);
-      setIsHidden(!nextValue); // rollback UI
-      toast.error("Không thể thay đổi trạng thái seed comment");
-    }
-  };
-
   const handleSyncBook = async () => {
     setLoading(true);
     await syncBookData(slug).finally(() => setLoading(false));
@@ -138,16 +96,6 @@ export default function EditBookInfo() {
     setBannerSet(result);
     setPreview(result.default);
     setShowCrop(false);
-  };
-
-  const base64ToBlob = (b64: string) => {
-    const arr = b64.split(",");
-    const mime = arr[0].match(/:(.*?);/)![1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) u8arr[n] = bstr.charCodeAt(n);
-    return new Blob([u8arr], { type: mime });
   };
 
   const uploadBanner = async () => {
@@ -250,21 +198,7 @@ export default function EditBookInfo() {
         )}
 
         {/* Ảnh bìa vuông */}
-        <div className="flex flex-row gap-2 mb-3 justify-end">
-          Ẩn truyện
-          <button
-            onClick={async () => {
-              await handleToggleHiddenBook();
-            }}
-            className={`relative w-11 h-6 rounded-full transition-colors duration-200 
-          ${isHidden ? "bg-green-500" : "bg-gray-300"}`}
-          >
-            <span
-              className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200
-            ${isHidden ? "translate-x-5" : ""}`}
-            />
-          </button>
-        </div>
+
         <div className="flex flex-col lg:flex-row px-8 py-10 gap-4 bg-white rounded-2xl shadow">
           <div className="w-auto">
             <div className="flex flex-col flex-wrap gap-6">

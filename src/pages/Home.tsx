@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Book, fetchAllBookSlugs, fetchBookBySlugs, syncBookData } from "../../apis/books";
+import {
+  Book,
+  fetchBookBySlugs,
+  syncBookData,
+} from "../../apis/books";
 import BookList from "../components/Book/BookList";
 import CreateStoryFormModal from "../components/CreateStoryModal";
-import { StarIcon, UploadCloud } from "lucide-react";
+import { StarIcon, UploadCloud, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { api } from "../../apis";
-import Spinner from '../components/Spinner'
-import pLimit from "p-limit"
+import Spinner from "../components/Spinner";
+import pLimit from "p-limit";
 import { toast } from "react-toastify";
 
 function App() {
@@ -14,102 +18,107 @@ function App() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [bookmarks, setBookmarks] = useState<string[]>([]);
   const [bookSlugs, setBookSlugs] = useState<
-    Array<{ slug: string; title: string }>
+    Array<{ slug: string; title: string; categories?: string[] }>
   >([]);
   const [loading, setLoading] = useState(true);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [bookStatusFilter, setBookStatusFilter] = useState<string[]>([
-    "hoan-thanh",
-    "dang-ra",
-  ]);
+
+  const [bookStatusFilter, setBookStatusFilter] = useState({
+    completed: true,
+    ongoing: true,
+  });
+
   const pageSize = 100;
 
-  const toggleStatusFilter = async (status: string) => {
+  const fetchAllBookSlugs = async (filter = bookStatusFilter) => {
+    try {
+      const res = await api.get("/books/slugs");
+      let booksData = res.data;
+
+      booksData = booksData.filter((book: any) => {
+        const isCompleted = book.categories?.includes("hoan-thanh");
+        if (filter.completed && filter.ongoing) return true;
+        if (filter.completed) return isCompleted;
+        if (filter.ongoing) return !isCompleted;
+        return false;
+      });
+
+      setBookSlugs(booksData);
+    } catch (err) {
+      toast.error("Lỗi khi lấy danh sách slug");
+    }
+  };
+
+  const toggleStatusFilter = (type: "completed" | "ongoing") => {
     setBookStatusFilter((prev) => {
-      let newStatus: string[];
-
-      if (prev.includes(status)) {
-        // Nếu đã có → bỏ
-        newStatus = prev.filter((s) => s !== status);
-      } else {
-        // Nếu chưa có → thêm
-        newStatus = [...prev, status];
-      }
-
-      // Fetch ngay theo giá trị mới
-      fetchAllBookSlugs(setBookSlugs, newStatus as any);
+      const newState = {
+        ...prev,
+        [type]: !prev[type],
+      };
+      fetchAllBookSlugs(newState);
       setCurrentPage(1);
-
-      return newStatus;
+      return newState;
     });
   };
 
   const handleSync = async () => {
-    setLoading(true)
-
+    setLoading(true);
     try {
-      const books = (await api.get("/books/slugs")).data
-      const slugs = books.map((book: any) => book.slug)
-
-      const limit = pLimit(20)
-
-      const errorSlugs: string[] = []
+      const res = await api.get("/books/slugs");
+      const slugs = res.data.map((book: any) => book.slug);
+      const limit = pLimit(20);
+      const errorSlugs: string[] = [];
 
       await Promise.all(
         slugs.map((slug: string) =>
           limit(async () => {
             try {
-              await syncBookData(slug)
-              console.log("done", slug)
-            } catch (err) {
-              console.error("error:", slug)
-              errorSlugs.push(slug) // 👈 lưu slug lỗi
+              await syncBookData(slug);
+            } catch {
+              errorSlugs.push(slug);
             }
           })
         )
-      )
+      );
 
-      // 👇 Sau khi chạy xong hết
       if (errorSlugs.length > 0) {
-        toast.error(
-          `Có ${errorSlugs.length} slug lỗi`,
-        )
-
-        // nếu muốn show full list
-        toast.info(errorSlugs.join(", "))
+        toast.error(`Có ${errorSlugs.length} slug lỗi`);
       } else {
-        toast.success("Sync thành công toàn bộ 🎉")
+        toast.success("Sync thành công toàn bộ 🎉");
       }
-
-    } catch (err) {
-      toast.error("Lỗi khi lấy danh sách slug")
+    } catch {
+      toast.error("Lỗi khi lấy danh sách slug");
     }
-
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   const handleSyncCategory = async () => {
-    setLoading(true)
-    const books = (await api.get('/admin/generate-category-page-data')).data
-    const slugs = books.map((book: any) => book.slug)
-
-    for (const slug of slugs) {
-      await syncBookData(slug)
-      console.log('done', slug)
-      await new Promise(r => setTimeout(r, 500))
+    setLoading(true);
+    try {
+      const res = await api.get("/admin/generate-category-page-data");
+      const slugs = res.data.map((book: any) => book.slug);
+      for (const slug of slugs) {
+        await syncBookData(slug);
+        await new Promise((r) => setTimeout(r, 500));
+      }
+      toast.success("Sync Category hoàn tất");
+    } catch {
+      toast.error("Lỗi Sync Category");
     }
-    setLoading(false)
-  }
-
+    setLoading(false);
+  };
 
   const generateRelativeBook = async () => {
-    setLoading(true)
-    await api.get('/admin/gemnerateRelativeBook')
-    setLoading(false)
-  }
+    setLoading(true);
+    try {
+      await api.get("/admin/gemnerateRelativeBook");
+      toast.success("Đã cập nhật sách liên quan");
+    } catch {
+      toast.error("Lỗi khi tạo sách liên quan");
+    }
+    setLoading(false);
+  };
 
-
-  // Load bookmark từ localStorage
   useEffect(() => {
     const savedSlugs = localStorage.getItem("bookSlugs");
     const savedBookmarks = localStorage.getItem("bookmarks");
@@ -117,43 +126,33 @@ function App() {
 
     if (savedSlugs) {
       try {
-        const parsedSlugs = JSON.parse(savedSlugs);
-        if (Array.isArray(parsedSlugs)) setBookSlugs(parsedSlugs);
-      } catch {
-        console.error("Lỗi khi parse bookSlugs từ localStorage");
-      }
+        const parsed = JSON.parse(savedSlugs);
+        if (Array.isArray(parsed)) setBookSlugs(parsed);
+      } catch {}
     } else {
-      fetchAllBookSlugs(setBookSlugs);
+      fetchAllBookSlugs();
     }
 
     if (savedBookmarks) {
       try {
         setBookmarks(JSON.parse(savedBookmarks));
-      } catch {
-        console.error("Lỗi khi parse bookmarks từ localStorage");
-      }
+      } catch {}
     }
   }, []);
 
-  // Fetch books theo bookmark / page / search
   useEffect(() => {
     setLoading(true);
-
-    // Lọc theo searchKeyword
     let filteredSlugs = bookSlugs;
-    if (searchKeyword.trim() !== "") {
-      const keyword = searchKeyword.toLowerCase().replace(/\s+/g, ""); // loại bỏ space để match slug/title
 
+    if (searchKeyword.trim() !== "") {
+      const keyword = searchKeyword.toLowerCase().replace(/\s+/g, "");
       filteredSlugs = bookSlugs.filter((b) => {
-        const titleNormalized = b.title.toLowerCase().replace(/\s+/g, "");
-        const slugNormalized = b.slug.toLowerCase().replace(/\s+/g, "");
-        return (
-          titleNormalized.includes(keyword) || slugNormalized.includes(keyword)
-        );
+        const title = b.title.toLowerCase().replace(/\s+/g, "");
+        const slug = b.slug.toLowerCase().replace(/\s+/g, "");
+        return title.includes(keyword) || slug.includes(keyword);
       });
     }
 
-    // Sắp bookmark lên đầu
     const bookmarkedSlugs = filteredSlugs
       .filter((b) => bookmarks.includes(b.slug))
       .map((b) => b.slug);
@@ -163,132 +162,150 @@ function App() {
       .map((b) => b.slug);
 
     const allSlugsOrdered = [...bookmarkedSlugs, ...normalSlugs];
-
     const start = (currentPage - 1) * pageSize;
-    const end = currentPage * pageSize;
-    const slugsPage = allSlugsOrdered.slice(start, end);
+    const slugsPage = allSlugsOrdered.slice(start, start + pageSize);
 
-    if (slugsPage.length > 0)
+    if (slugsPage.length > 0) {
       fetchBookBySlugs(slugsPage, (data) => setBooks(data)).finally(() =>
         setLoading(false)
       );
-    else setBooks([]); // không có kết quả
-    setLoading(false);
+    } else {
+      setBooks([]);
+      setLoading(false);
+    }
   }, [currentPage, bookmarks, bookSlugs, searchKeyword]);
 
-  const addNewBook = useCallback(
-    (book: any) => {
-      setBooks((prevBooks) => [book, ...prevBooks]);
-    },
-    [setBooks]
-  );
+  const addNewBook = useCallback((book: any) => {
+    setBooks((prev) => [book, ...prev]);
+  }, []);
+
   const totalPages = Math.ceil(bookSlugs.length / pageSize);
 
   return (
-    <div className="overflow-hidden">
+    <div className="min-h-screen bg-gray-50/50">
       <Spinner show={loading} />
+
       <div className="container mx-auto px-4 py-10 font-genshin text-genshin-dark">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-4xl font-bold drop-shadow-glow tracking-wide">
-            Danh Sách Truyện
-          </h1>
-          <div className="flex flex-row gap-4">
-            <button
-              onClick={() => handleSyncCategory()}
-              className="px-4 py-2 bg-red-400 text-white rounded-lg font-semibold hover:bg-yellow-500 transition-colors"
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+          <div>
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 mb-2">
+              Danh Sách Truyện
+            </h1>
+            <p className="text-gray-500">Quản lý và đồng bộ dữ liệu thư viện</p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <button 
+              onClick={handleSyncCategory} 
+              className="px-5 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl shadow-sm transition-all active:scale-95 font-medium flex items-center gap-2"
             >
               Category
             </button>
 
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="px-4 py-2 bg-yellow-400 text-white rounded-lg font-semibold hover:bg-yellow-500 transition-colors"
+              className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl shadow-sm transition-all active:scale-95 font-medium flex items-center gap-2"
             >
-              + Tạo truyện
+              <Plus size={20} /> Tạo truyện
             </button>
-            <button
-              onClick={() => handleSync()}
-              className="flex flex-row px-4 py-2 bg-green-400 text-white rounded-lg font-semibold hover:bg-green-500 transition-colors"
+
+            <button 
+              onClick={handleSync} 
+              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all active:scale-95 font-medium flex items-center gap-2"
             >
-              <UploadCloud />
-              Sync
+              <UploadCloud size={18} /> Sync Toàn Bộ
             </button>
 
             <button
-              onClick={() => generateRelativeBook()}
-              className="flex flex-row px-4 py-2 bg-blue-400 text-white rounded-lg font-semibold hover:bg-blue-500 transition-colors"
+              onClick={generateRelativeBook}
+              className="px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl shadow-sm transition-all active:scale-95 font-medium flex items-center gap-2"
             >
-              <StarIcon />
-              Tạo Sách Theo Tác Giả
+              <StarIcon size={18} /> Sách Theo Tác Giả
             </button>
           </div>
-
-
-        </div>
-        <div className="flex gap-2 my-5">
-          <button
-            onClick={() => toggleStatusFilter("hoan-thanh")}
-            className={`text-white py-2 w-32 rounded shadow cursor-pointer ${bookStatusFilter.includes("hoan-thanh")
-              ? "bg-emerald-500"
-              : "bg-gray-400"
-              }`}
-          >
-            Hoàn Thành
-          </button>
-          <button
-            onClick={() => toggleStatusFilter("dang-ra")}
-            className={`text-white py-2 w-32 rounded shadow cursor-pointer ${bookStatusFilter.includes("dang-ra")
-              ? "bg-emerald-500"
-              : "bg-gray-400"
-              }`}
-          >
-            Đang Ra
-          </button>
         </div>
 
-        {/* Search bar */}
-        <div className="mb-6">
-          <input
-            type="text"
-            value={searchKeyword}
-            onChange={(e) => {
-              setSearchKeyword(e.target.value);
-              setCurrentPage(1);
-            }}
-            placeholder="Tìm truyện..."
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-          />
+        {/* Filter & Search Bar */}
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+          <div className="flex flex-col lg:flex-row gap-6 items-center">
+            {/* Status Filter Toggle */}
+            <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-full lg:w-auto">
+              <button
+                onClick={() => toggleStatusFilter("completed")}
+                className={`flex-1 lg:w-32 py-2 px-4 rounded-lg font-medium transition-all ${
+                  bookStatusFilter.completed 
+                  ? "bg-white text-emerald-600 shadow-sm" 
+                  : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Hoàn Thành
+              </button>
+              <button
+                onClick={() => toggleStatusFilter("ongoing")}
+                className={`flex-1 lg:w-32 py-2 px-4 rounded-lg font-medium transition-all ${
+                  bookStatusFilter.ongoing 
+                  ? "bg-white text-emerald-600 shadow-sm" 
+                  : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                Đang Ra
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative w-full">
+              <input
+                value={searchKeyword}
+                onChange={(e) => {
+                  setSearchKeyword(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="Tìm tên truyện hoặc slug..."
+                className="w-full pl-4 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none transition-all"
+              />
+            </div>
+          </div>
         </div>
 
-        <BookList initialBooks={books} loading={loading} />
+        {/* List Section */}
+        <div className="min-h-[400px]">
+          <BookList initialBooks={books} loading={loading} />
+        </div>
 
-        {/* Pagination */}
-        {!searchKeyword && (
-          <div className="flex justify-center gap-3 mt-6">
+        {/* Pagination Section */}
+        {!searchKeyword && totalPages > 1 && (
+          <div className="flex justify-center items-center gap-3 mt-12 pb-10">
             <button
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => p - 1)}
-              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+              className="p-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-all active:scale-90"
             >
-              Trước
+              <ChevronLeft size={20} />
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                onClick={() => setCurrentPage(p)}
-                className={`px-3 py-1 rounded ${currentPage === p ? "bg-yellow-400 text-white" : "bg-gray-200"
+
+            <div className="flex gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setCurrentPage(p)}
+                  className={`w-11 h-11 rounded-xl font-bold transition-all ${
+                    currentPage === p 
+                    ? "bg-amber-400 text-white shadow-lg shadow-amber-200 scale-110" 
+                    : "bg-white border border-gray-100 text-gray-500 hover:border-amber-300 hover:text-amber-500"
                   }`}
-              >
-                {p}
-              </button>
-            ))}
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+
             <button
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => p + 1)}
-              className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50"
+              className="p-2.5 rounded-xl border border-gray-200 bg-white text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 transition-all active:scale-90"
             >
-              Sau
+              <ChevronRight size={20} />
             </button>
           </div>
         )}
@@ -304,3 +321,4 @@ function App() {
 }
 
 export default App;
+

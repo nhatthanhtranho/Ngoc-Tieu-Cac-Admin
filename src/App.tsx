@@ -32,7 +32,6 @@ import UserEbook from "./pages/UserEbook";
 // Dynamic imports
 const Home = lazy(() => import("./pages/Home"));
 const BookDetail = lazy(() => import("./pages/BookDetail"));
-const ChapterDetailPage = lazy(() => import("./pages/ChapterDetail"));
 const LeaderBoard = lazy(() => import("./pages/LeaderBoard"));
 const ThongKe = lazy(() => import("./pages/ThongKe"));
 const TopUp = lazy(() => import("./pages/TopUp"));
@@ -210,10 +209,7 @@ export default function App() {
                 />
 
                 <Route path="/book/:slug" element={<BookDetail />} />
-                <Route
-                  path="/book/:slug/chapter/:chapterNumber"
-                  element={<ChapterDetailPage />}
-                />
+            
               </Routes>
             </Suspense>
           </div>

@@ -1,83 +1,115 @@
 import express from "express";
-import { getCollection } from "./db.js";
+import { getDB, getCollection, getCollectionCloud } from "./db.js";
+import cors from "cors";
+
 
 const app = express();
 app.use(express.json());
+app.use(cors())
 
-const COLLECTION = "chapters";
+const CHAPTERS = "chapters";
+const BOOKS = "books";
 
 // ===== GET CHAPTERS =====
-app.get("/api/chapters", async (req, res) => {
+app.get("/chapters/:slug", async (req, res) => {
   try {
-    const col = await getCollection(COLLECTION);
-
-    const { page = 1, limit = 10, keyword } = req.query;
-
-    const query = {};
-
-    if (keyword) {
-      query.title = { $regex: keyword, $options: "i" };
-    }
-
-    const skip = (Number(page) - 1) * Number(limit);
-
-    const [data, total] = await Promise.all([
-      col.find(query)
-        .skip(skip)
-        .limit(Number(limit))
-        .sort({ createdAt: -1 })
-        .toArray(),
-      col.countDocuments(query),
-    ]);
-
-    res.json({
-      data,
-      pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total,
-      },
-    });
+    const chaptersCol = await getCollection(CHAPTERS);
+    const { slug } = req.params;
+    const rs = await chaptersCol
+      .find({ slug }).sortBy({ chapterNumber: 1 })
+      .toArray();
+    return res.json(rs); // ✅ QUAN TRỌNG
   } catch (err) {
     console.error("GET /chapters error:", err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 });
 
-// ===== POST CHAPTER =====
-app.post("/api/chapters", async (req, res) => {
+// POST bulk chapters theo bookSlug
+app.post("/api/books/:bookSlug/chapters", async (req, res) => {
   try {
-    const col = await getCollection(COLLECTION);
 
-    const { title, content } = req.body;
+    const chaptersCol = getCollection(CHAPTERS);
+    const booksCol = getCollectionCloud(BOOKS);
 
-    if (!title || !content) {
+    const { bookSlug } = req.params;
+    const chapters = req.body; // expect array
+
+    if (!Array.isArray(chapters)) {
       return res.status(400).json({
-        error: "Missing title or content",
+        message: "chapters must be an array",
       });
     }
 
-    const newChapter = {
-      title,
-      content,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    // ===== UPSERT BULK =====
+    if (chapters.length > 0) {
+      const ops = chapters.map((chapter) => ({
+        updateOne: {
+          filter: {
+            slug: bookSlug,
+            chapterNumber: chapter.chapterNumber,
+          },
+          update: {
+            $set: {
+              title: chapter.title,
+              slug: bookSlug,
+              chapterNumber: chapter.chapterNumber,
+              updatedAt: new Date(),
+            },
+            $setOnInsert: {
+              createdAt: new Date(),
+            },
+          },
+          upsert: true,
+        },
+      }));
 
-    const result = await col.insertOne(newChapter);
+      await chaptersCol.bulkWrite(ops);
+    }
 
-    res.json({
-      message: "Created",
-      id: result.insertedId,
+    // ===== GET MAX CHAPTER =====
+    const maxChapter = await chaptersCol
+      .find({ slug: bookSlug })
+      .sort({ chapterNumber: -1 })
+      .limit(1)
+      .toArray();
+
+    const maxChapterNumber = maxChapter[0]?.chapterNumber ?? 0;
+
+    // ===== UPDATE BOOK =====
+    await booksCol.collection("books").updateOne(
+      { slug: bookSlug },
+      {
+        $set: {
+          currentChapter: maxChapterNumber,
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    return res.json({
+      message: "success",
+      currentChapter: maxChapterNumber,
     });
   } catch (err) {
-    console.error("POST /chapters error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("POST bulk chapters error:", err);
+    res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
   }
 });
 
 // ===== START SERVER =====
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+
+
+// ===== INIT SERVER =====
+const startServer = async () => {
+  await getDB(); // 👈 chỉ gọi 1 lần
+
+  app.listen(3001, () => {
+    console.log("🚀 Server running at http://localhost:3001");
+  });
+};
+
+startServer()

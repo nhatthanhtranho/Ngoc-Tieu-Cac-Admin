@@ -6,6 +6,8 @@
   "homepage": "https://nhatthanhtranho.github.io/Ngoc-Tieu-Cac-Admin",
   "scripts": {
     "dev": "vite",
+    "start": "npm run dev",
+    "server": "node ./server/index.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -56,6 +58,7 @@
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.1.0",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",

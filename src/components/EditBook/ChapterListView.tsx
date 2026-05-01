@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { vi } from "date-fns/locale";
+import { se, vi } from "date-fns/locale";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Upload, Download, BrushCleaning, Music } from "lucide-react";
+import { Upload, Download, BrushCleaning, SortAsc } from "lucide-react";
 
 import UploadChaptersModal from "./UploadChaptersModal";
 import { Chapter, fetchChapters } from "../../../apis/chapters";
 import DownloadBookModal from "./DownloadBookModal";
 import InlinePageInput from "./InlinePageInput";
 import DeleteBookModal from "./DeleteBookModal";
-import { toast } from "react-toastify";
-import { api } from "../../../apis";
 interface ChapterListViewProps {
   numberOfChapters: number;
   bookSlug: string;
@@ -28,41 +26,31 @@ export default function ChapterListView({
   numberOfChapters,
   bookSlug,
 }: ChapterListViewProps) {
-  const [page, setPage] = useState(1);
-  const [inputPage, setInputPage] = useState(""); // ✅ trang nhập thủ công
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [showUploadAudioModal, setShowUploadAudioModal] = useState(false);
 
-  const [showUploadFreeModal, setShowUploadFreeModal] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const navigate = useNavigate();
 
-  const pageSize = 10;
-  const totalPages = Math.ceil(numberOfChapters / pageSize);
 
   useEffect(() => {
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize - 1;
-    fetchChapters(bookSlug, start, end, setChapters, "desc");
-  }, [bookSlug, page]);
+    fetchChapters(bookSlug, setChapters);
+  }, [bookSlug]);
+
+
+  const sortChapter = () => {
+    setChapters((prev) => {
+      const sorted = [...prev].reverse()
+      return sorted;
+    })
+  }
 
   const handleUploaded = async () => {
     setShowUploadModal(false);
-    const start = (page - 1) * pageSize;
-    const end = start + pageSize - 1;
-    await fetchChapters(bookSlug, start, end, setChapters);
+    await fetchChapters(bookSlug, setChapters);
     setError(null);
-  };
-
-  const handleJumpPage = () => {
-    const newPage = parseInt(inputPage, 10);
-    if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
-      setPage(newPage);
-      setInputPage("");
-    }
   };
 
   return (
@@ -73,6 +61,12 @@ export default function ChapterListView({
           Danh sách chương ({numberOfChapters})
         </h2>
         <div className="flex gap-2">
+        <button
+            onClick={() => sortChapter()}
+            className="bg-gray-600 rounded p-2 cursor-pointer hover:bg-gray-900 transition-colors duration-200 shadow text-white"
+          >
+            <SortAsc className="w-6 h-6" />
+          </button>
           <button
             onClick={() => setShowDeleteModal(true)}
             className="bg-red-600 rounded p-2 cursor-pointer hover:bg-red-800 transition-colors duration-200 shadow text-white"
@@ -99,7 +93,7 @@ export default function ChapterListView({
       {chapters.length === 0 ? (
         <p>Không có chương nào.</p>
       ) : (
-        <ul className="divide-y divide-gray-200 gap-2">
+        <ul className="divide-y max-h-250 overflow-y-scroll divide-gray-200 gap-2">
           {chapters.map((chapter) => (
             <li
               onClick={(e) => {
@@ -125,40 +119,6 @@ export default function ChapterListView({
             </li>
           ))}
         </ul>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center mt-6 space-x-3">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-            className={`px-4 py-2 rounded-lg border cursor-pointer transition-colors ${page === 1
-              ? "text-gray-400 border-gray-300 cursor-not-allowed bg-gray-100 dark:bg-gray-700"
-              : "text-gray-700 dark:text-gray-200 border-gray-300 hover:bg-green-500 hover:text-white"
-              }`}
-          >
-            ← Trước
-          </button>
-
-          {/* ✅ Trang hiện tại — click để chỉnh sửa */}
-          <InlinePageInput
-            currentPage={page}
-            totalPages={totalPages}
-            onChange={(newPage: any) => setPage(newPage)}
-          />
-
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
-            className={`px-4 py-2 rounded-lg border transition-colors cursor-pointer ${page === totalPages
-              ? "text-gray-400 border-gray-300 cursor-not-allowed bg-gray-100 dark:bg-gray-700"
-              : "text-gray-700 dark:text-gray-200 border-gray-300 hover:bg-green-500 hover:text-white"
-              }`}
-          >
-            Sau →
-          </button>
-        </div>
       )}
 
       {/* Popup Upload */}

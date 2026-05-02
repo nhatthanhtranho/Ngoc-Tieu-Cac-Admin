@@ -71,7 +71,7 @@ export async function fetchAllBookSlugs(
       categories: string[];
       currentAudioChapter: string | null;
     }>
-  >(getEndpoint(`books/slugs${query}`));
+  >(`http://localhost:3000/slugs${query}`);
 
   setBookSlugs(res.data);
   return res.data;

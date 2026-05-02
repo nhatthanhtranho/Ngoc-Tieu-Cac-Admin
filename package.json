@@ -6,7 +6,7 @@
   "homepage": "https://nhatthanhtranho.github.io/Ngoc-Tieu-Cac-Admin",
   "scripts": {
     "dev": "vite",
-    "start": "npm run dev",
+"start": "concurrently \"npm run dev -- --host\" \"npm run server\"",
     "server": "node ./server/index.js",
     "build": "vite build",
     "lint": "eslint .",

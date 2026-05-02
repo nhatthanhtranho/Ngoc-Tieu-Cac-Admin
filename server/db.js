@@ -24,22 +24,14 @@ export async function getDB() {
   return db;
 }
 
-export async function getDB2() {
-  if (!db2) {
-    await client.connect();
-    db2 = client.db(DB_NAME);
-    console.log("✅ Mongo connected");
-  }
-  return db;
-}
 
 export async function getDBCloud() {
-  if (!db) {
+  if (!db2) {
     await client2.connect();
-    db = client2.db(DB_NAME);
-    console.log("✅ Mongo connected");
+    db2 = client2.db(DB_NAME);
+    console.log("✅ Mongo CLOUD connected");
   }
-  return db;
+  return db2;
 }
 
 // tiện nếu muốn lấy collection luôn

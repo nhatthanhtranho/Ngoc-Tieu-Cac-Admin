@@ -1,5 +1,5 @@
 import express from "express";
-import { getDB, getCollection, getCollectionCloud } from "./db.js";
+import { getDB, getCollection, getCollectionCloud, getDBCloud } from "./db.js";
 import cors from "cors";
 import { getRelatedBooks } from "./books.js";
 import { strToU8, gzipSync } from "fflate";
@@ -13,7 +13,7 @@ dotenv.config();
 const {
   S3_PUBLIC_KEY_ID,
   S3_PRIVATE_KEY_ID,
-// eslint-disable-next-line no-undef
+  // eslint-disable-next-line no-undef
 } = process.env;
 
 const BUCKET = "assets.itruyenchu.com";
@@ -28,11 +28,51 @@ const s3 = new S3Client({
 });
 
 const app = express();
+app.use(cors({
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
+
 app.use(express.json());
-app.use(cors())
 
 const CHAPTERS = "chapters";
 const BOOKS = "books";
+const PAYMENT_REQUESTS = "payment_requests";
+
+app.get("/slugs", async (req, res) => {
+  try {
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    const slugs = await booksCol
+      .find()
+      .project({ slug: 1, _id: 0, title: 1, currentChapter: 1 })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return res.json(slugs); // ✅ QUAN TRỌNG
+  } catch (err) {
+    console.error("GET /slugs error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/payment-requests", async (req, res) => {
+  try {
+    const paymentCol = await getCollectionCloud(PAYMENT_REQUESTS);
+    const [topupCount, premiumCount] = await Promise.all([
+      paymentCol.countDocuments({ status: "pending", type: "topup" }),
+      paymentCol.countDocuments({ status: "pending", type: "membership" })
+    ]);
+    return res.json({
+      topup: topupCount,
+      membership: premiumCount
+    }); // ✅ QUAN TRỌNG
+  } catch (err) {
+    console.error("GET /chapters error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 // ===== GET CHAPTERS =====
 app.get("/chapters/:slug", async (req, res) => {
@@ -104,7 +144,7 @@ app.get("/chapters/:slug/sync", async (req, res) => {
       }),
     );
 
-    return res.status(200).json({"message": "Sync successful"});
+    return res.status(200).json({ "message": "Sync successful" });
 
   } catch (err) {
     console.error("GET /chapters error:", err);
@@ -187,19 +227,13 @@ app.post("/chapters/:bookSlug", async (req, res) => {
   }
 });
 
-
-// thiếu sync và delete
-
-// ===== START SERVER =====
-
-
-// ===== INIT SERVER =====
 const startServer = async () => {
   await getDB(); // 👈 chỉ gọi 1 lần
+  await getDBCloud()
 
   app.listen(3001, () => {
     console.log("🚀 Server running at http://localhost:3001");
   });
 };
 
-startServer()
+startServer();

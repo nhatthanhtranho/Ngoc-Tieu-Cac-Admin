@@ -20,7 +20,6 @@ import {
   LibraryBig
 
 } from "lucide-react";
-import { api } from "../apis";
 import Badge from "./components/Badge";
 import LeaderBoardAudio from "./pages/LeaderBoardAudio";
 import Variable from "./pages/Variable";
@@ -28,6 +27,7 @@ import DichGia from "./pages/DichGia";
 import CommentList from "./pages/Comments";
 import NapTien from "./pages/NapTien";
 import UserEbook from "./pages/UserEbook";
+import axios from "axios";
 
 // Dynamic imports
 const Home = lazy(() => import("./pages/Home"));
@@ -54,7 +54,7 @@ export default function App() {
   useEffect(() => {
     const fetchPendingCount = async () => {
       try {
-        const res = await api.get("/payment-requests/count-pending");
+        const res = await axios.get("http://localhost:3001/payment-requests");
         setPendingCount(res.data); // axios trả data trong res.data
       } catch (err) {
         console.error("Failed to fetch pending count", err);

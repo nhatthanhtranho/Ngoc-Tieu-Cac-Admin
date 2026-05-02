@@ -32,7 +32,7 @@ function App() {
 
   const fetchAllBookSlugs = async (filter = bookStatusFilter) => {
     try {
-      const res = await api.get("/books/slugs");
+      const res = await api.get("http://localhost:3001/slugs");
       let booksData = res.data;
 
       booksData = booksData.filter((book: any) => {

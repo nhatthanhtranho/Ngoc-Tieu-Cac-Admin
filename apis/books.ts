@@ -146,5 +146,5 @@ export async function updateBook(
 }
 
 export async function syncBookData(bookSlug: string) {
-  return api.get(`/admin/books/${bookSlug}/sync`);
+  return axios.get(`http://localhost:3000/chapters/${bookSlug}/sync`);
 }

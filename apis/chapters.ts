@@ -1,5 +1,6 @@
 import axios from "axios";
 import { api } from ".";
+import { BACKEND_URL } from "../src/constant";
 
 export interface Chapter {
   chapterNumber: number;
@@ -17,13 +18,13 @@ export async function fetchChapters(
 ) {
   if (!bookSlug) return;
   const res = await axios.get<Chapter[]>(
-    `http://localhost:3001/chapters/${bookSlug}`
+    `${BACKEND_URL}/chapters/${bookSlug}`
   );
   setChapters(res.data);
 }
 
 export async function createChapters(bookSlug: string, chapters: Chapter[]) {
-  return axios.post(`http://localhost:3001/chapters/${bookSlug}`, chapters);
+  return axios.post(`${BACKEND_URL}/chapters/${bookSlug}`, chapters);
 }
 
 export async function getChapterUploadLink(
@@ -44,6 +45,6 @@ export async function getChapterUploadLink(
 export async function deleteAllChapters(
   bookSlug: string
 ): Promise<{ url: string; fields: Record<string, string> }> {
-  const res = await api.delete(`/chapters/${bookSlug}`);
+  const res = await axios.delete(`${BACKEND_URL}/chapters/${bookSlug}`);
   return res.data;
 }

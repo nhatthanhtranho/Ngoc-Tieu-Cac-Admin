@@ -28,6 +28,7 @@ import CommentList from "./pages/Comments";
 import NapTien from "./pages/NapTien";
 import UserEbook from "./pages/UserEbook";
 import axios from "axios";
+import { BACKEND_URL } from "./constant";
 
 // Dynamic imports
 const Home = lazy(() => import("./pages/Home"));
@@ -54,7 +55,7 @@ export default function App() {
   useEffect(() => {
     const fetchPendingCount = async () => {
       try {
-        const res = await axios.get("http://localhost:3001/payment-requests");
+        const res = await axios.get(`${BACKEND_URL}/payment-requests`);
         setPendingCount(res.data); // axios trả data trong res.data
       } catch (err) {
         console.error("Failed to fetch pending count", err);

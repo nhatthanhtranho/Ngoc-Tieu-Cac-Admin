@@ -3,8 +3,12 @@ import { getDB, getCollection, getCollectionCloud, getDBCloud } from "./db.js";
 import cors from "cors";
 import { getRelatedBooks } from "./books.js";
 import { strToU8, gzipSync } from "fflate";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand,
+} from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
+
+
 
 dotenv.config();
 
@@ -17,6 +21,7 @@ const {
 } = process.env;
 
 const BUCKET = "assets.itruyenchu.com";
+const PRIVATE_BUCKET = "ngoc-tieu-cac"
 
 
 const s3 = new S3Client({
@@ -26,19 +31,33 @@ const s3 = new S3Client({
     secretAccessKey: S3_PRIVATE_KEY_ID,
   },
 });
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://192.168.50.163:3000"
+];
 
 const app = express();
+
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
+
 
 app.use(express.json());
 
 const CHAPTERS = "chapters";
 const BOOKS = "books";
 const PAYMENT_REQUESTS = "payment_requests";
+const SEEDS = "seeds";
+const COMMENTS = "comments";
 
 app.get("/slugs", async (req, res) => {
   try {
@@ -53,6 +72,56 @@ app.get("/slugs", async (req, res) => {
     return res.json(slugs); // ✅ QUAN TRỌNG
   } catch (err) {
     console.error("GET /slugs error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/slugs", async (req, res) => {
+  try {
+    const slugs = req.body.slugs
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    const books = await booksCol
+      .find({ slug: { $in: slugs } })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return res.json(books); // ✅ QUAN TRỌNG
+  } catch (err) {
+    console.error("GET /slugs error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/converters", async (req, res) => {
+  try {
+    const seedsCol = await getCollectionCloud(SEEDS);
+
+    const converters = await seedsCol
+      .find()
+      .project({ _id: 0, username: 1 }) // chỉ trả username
+      .toArray();
+
+    return res.json(converters); // ✅ QUAN TRỌNG
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+
+app.get("/comments/:slug", async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const commentsCol = await getCollectionCloud(COMMENTS);
+
+    const comments = await commentsCol
+      .find({ slug })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return res.json({comments}); // ✅ QUAN TRỌNG
+  } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 });
@@ -221,6 +290,137 @@ app.post("/chapters/:bookSlug", async (req, res) => {
   } catch (err) {
     console.error("POST bulk chapters error:", err);
     res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
+
+
+// DELETE CHAPTERS
+// ===== helper: delete theo prefix (handle pagination) =====
+async function deleteByPrefix(bucket, prefix) {
+  let isTruncated = true;
+  let continuationToken = undefined;
+
+  while (isTruncated) {
+    const res = await s3.send(
+      new ListObjectsV2Command({
+        Bucket: bucket,
+        Prefix: prefix,
+        ContinuationToken: continuationToken,
+      })
+    );
+
+    if (res.Contents && res.Contents.length > 0) {
+      await s3.send(
+        new DeleteObjectsCommand({
+          Bucket: bucket,
+          Delete: {
+            Objects: res.Contents.map((obj) => ({
+              Key: obj.Key,
+            })),
+          },
+        })
+      );
+    }
+
+    isTruncated = res.IsTruncated;
+    continuationToken = res.NextContinuationToken;
+  }
+}
+
+// ===== helper: delete nhiều key lẻ =====
+async function deleteKeys(bucket, keys = []) {
+  if (!keys.length) return;
+
+  await s3.send(
+    new DeleteObjectsCommand({
+      Bucket: bucket,
+      Delete: {
+        Objects: keys.map((k) => ({ Key: k })),
+      },
+    })
+  );
+}
+
+app.get("/books/:slug", async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    if (!slug) {
+      return res.status(400).json({
+        message: "Missing slug parameter",
+      });
+    }
+
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    const book = await booksCol.findOne({ slug });
+
+    if (!book) {
+      return res.status(404).json({
+        message: "Không tìm thấy thông tin sách",
+      });
+    }
+
+    return res.json(book);
+  } catch (error) {
+    console.error("GET /books/:slug error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+});
+
+
+// ===== ROUTE =====
+app.delete("/chapters/:bookSlug", async (req, res) => {
+  try {
+    const { bookSlug } = req.params;
+
+    const chaptersCol = await getCollection(CHAPTERS);
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    // ===== 1. DELETE DB =====
+    await chaptersCol.deleteMany({ slug: bookSlug });
+
+    await booksCol.updateOne(
+      { slug: bookSlug },
+      {
+        $set: {
+          currentChapter: 0,
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    // ===== 2. DELETE S3 =====
+    // a. delete chapters folder
+    await deleteByPrefix(BUCKET, `${bookSlug}/`);
+
+    // b. delete preview folder (chuong-x.txt)
+    await deleteByPrefix(BUCKET, `preview/${bookSlug}/`);
+
+    // c. delete file lẻ trong bucket chính
+    await deleteKeys(BUCKET, [
+      `public/${bookSlug}`,
+      `${bookSlug}`,
+    ]);
+
+    // d. delete ở bucket khác
+    await deleteKeys("ngoc-tieu-cac", [
+      `${bookSlug}`,
+    ]);
+
+    return res.json({
+      message: "deleted all chapters + S3 cleaned",
+      currentChapter: 0,
+    });
+  } catch (err) {
+    console.error("DELETE /chapters error:", err);
+    return res.status(500).json({
       message: "Internal server error",
       error: err.message,
     });

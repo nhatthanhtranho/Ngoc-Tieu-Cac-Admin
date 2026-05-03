@@ -5,6 +5,7 @@ import { saveAs } from "file-saver";
 import { getEndpoint, api } from ".";
 import { PUBLIC_BUCKET, uploadDataToS3 } from "./s3";
 import { decompressText, JsonBuffer } from "../src/utils/compress";
+import { BACKEND_URL } from "../src/constant";
 
 export interface Book {
   currentAudioChapter?: number;
@@ -45,11 +46,15 @@ export async function fetchBookBySlug(
   setBook: (book: Book) => void,
   setOriginalBook?: (book: Book) => void
 ): Promise<Book> {
-  const res = await axios.get<Book>(getEndpoint(`books/${slug}`));
+  const res = await axios.get(`${BACKEND_URL}/books/${slug}`);
   setBook(res.data);
   setOriginalBook?.(res.data);
   return res.data;
 }
+
+
+
+
 
 export async function fetchAllBookSlugs(
   setBookSlugs: (
@@ -71,7 +76,7 @@ export async function fetchAllBookSlugs(
       categories: string[];
       currentAudioChapter: string | null;
     }>
-  >(`http://localhost:3000/slugs${query}`);
+  >(`http://localhost:3001/slugs${query}`);
 
   setBookSlugs(res.data);
   return res.data;
@@ -81,7 +86,7 @@ export async function fetchBookBySlugs(
   slugs: string[],
   setBooks: (categories: Book[]) => void
 ) {
-  const res = await axios.post<Book[]>(getEndpoint("books/slugs"), {
+  const res = await axios.post<Book[]>(`${BACKEND_URL}/slugs`, {
     slugs,
   });
   setBooks(res.data);
@@ -146,5 +151,5 @@ export async function updateBook(
 }
 
 export async function syncBookData(bookSlug: string) {
-  return axios.get(`http://localhost:3000/chapters/${bookSlug}/sync`);
+  return axios.get(`${BACKEND_URL}/chapters/${bookSlug}/sync`);
 }

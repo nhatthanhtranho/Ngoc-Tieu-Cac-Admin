@@ -3,12 +3,10 @@ import { formatDistanceToNow } from "date-fns";
 import { se, vi } from "date-fns/locale";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Upload, Download, BrushCleaning, SortAsc } from "lucide-react";
+import { Upload, BrushCleaning, SortAsc } from "lucide-react";
 
 import UploadChaptersModal from "./UploadChaptersModal";
 import { Chapter, fetchChapters } from "../../../apis/chapters";
-import DownloadBookModal from "./DownloadBookModal";
-import InlinePageInput from "./InlinePageInput";
 import DeleteBookModal from "./DeleteBookModal";
 interface ChapterListViewProps {
   numberOfChapters: number;

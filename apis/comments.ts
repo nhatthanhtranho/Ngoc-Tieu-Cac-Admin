@@ -1,7 +1,9 @@
+import axios from "axios";
 import { api } from ".";
+import { BACKEND_URL } from "../src/constant";
 
 export async function getCommentsInBook(bookSlug: string) {
-  const res = await api.get(`/comments/${bookSlug}`);
+  const res = await axios.get(`${BACKEND_URL}/comments/${bookSlug}`);
   return res.data.comments;
 }
 

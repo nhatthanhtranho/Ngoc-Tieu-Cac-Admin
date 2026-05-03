@@ -11,6 +11,8 @@ import { api } from "../../apis";
 import Spinner from "../components/Spinner";
 import pLimit from "p-limit";
 import { toast } from "react-toastify";
+import { BACKEND_URL } from "../constant";
+import axios from "axios";
 
 function App() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -32,7 +34,7 @@ function App() {
 
   const fetchAllBookSlugs = async (filter = bookStatusFilter) => {
     try {
-      const res = await api.get("http://localhost:3001/slugs");
+      const res = await axios.get(`${BACKEND_URL}/slugs`);
       let booksData = res.data;
 
       booksData = booksData.filter((book: any) => {

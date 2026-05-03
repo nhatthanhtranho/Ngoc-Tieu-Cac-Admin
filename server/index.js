@@ -427,6 +427,88 @@ app.delete("/chapters/:bookSlug", async (req, res) => {
   }
 });
 
+
+app.get("/payment-requests-list", async (req, res) => {
+  try {
+    // nếu bạn có middleware auth thì dùng ở đây
+    // const decoded = await verifyToken(req);
+    // if (!decoded) {
+    //   return res.status(401).json({ message: "Unauthorized" });
+    // }
+
+    const q = req.query || {};
+
+    const topUpType = q.topUpType;
+    const search = q.search || null;
+    const status = q.status || null;
+    const startDate = q.startDate || null;
+    const endDate = q.endDate || null;
+
+    const page = parseInt(q.page || "1");
+    const limit = parseInt(q.limit || "20");
+    const skip = (page - 1) * limit;
+
+    const query = {};
+
+    // 🔎 search
+    if (search) {
+      query.$or = [
+        { userEmail: { $regex: search, $options: "i" } },
+        { content: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // 🧾 type
+    if (topUpType) {
+      query.type = topUpType;
+    }
+
+    // 🟧 status
+    if (status) {
+      query.status = status;
+    }
+
+    // 📅 date range
+    if (startDate || endDate) {
+      query.createdAt = {};
+
+      if (startDate) {
+        query.createdAt.$gte = new Date(startDate);
+      }
+
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setDate(end.getDate() + 1);
+        query.createdAt.$lte = end;
+      }
+    }
+
+    const paymentCol = await getCollectionCloud(PAYMENT_REQUESTS);
+
+    // 🔢 total
+    const total = await paymentCol.countDocuments(query);
+
+    // 📦 data
+    const data = await paymentCol
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    return res.json({
+      data,
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    });
+  } catch (err) {
+    console.error("GET /payment-requests error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 const startServer = async () => {
   await getDB(); // 👈 chỉ gọi 1 lần
   await getDBCloud()

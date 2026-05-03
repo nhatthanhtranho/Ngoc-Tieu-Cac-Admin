@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import axios from "axios";
 import { api } from ".";
+import { BACKEND_URL } from "../src/constant";
 
 export interface TopupItem {
   id: string;
@@ -38,18 +40,16 @@ export async function fetchTopups(params?: {
 
   // Chỉ lấy param có giá trị
   const cleanParams: any = {};
-  if (params?.search) cleanParams.search = params.search;
   if (params?.topUpType) cleanParams.topUpType = params.topUpType;
 
   if (params?.status) cleanParams.status = params.status;
-  if (params?.startDate) cleanParams.startDate = params.startDate;
-  if (params?.endDate) cleanParams.endDate = params.endDate;
+  
   cleanParams.page = page;
   cleanParams.limit = LIMIT;
   cleanParams.skip = skip;
 
   const query = "?" + new URLSearchParams(cleanParams).toString();
-  const res = await api.get(`payment-requests${query}`);
+  const res = await axios.get(`${BACKEND_URL}/payment-requests-list${query}`);
   const data = await res.data;
 
   const requests: TopupItem[] = data.data.map((item: any) => ({

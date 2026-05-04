@@ -32,7 +32,7 @@ export interface Book {
 }
 
 export async function createBook(newBook: Book): Promise<Book> {
-  const res = await api.post<Book>("/books", { ...newBook });
+  const res = await axios.post(`${BACKEND_URL}/books`, { ...newBook });
   return res.data;
 }
 

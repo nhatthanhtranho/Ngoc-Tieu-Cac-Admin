@@ -509,6 +509,61 @@ app.get("/payment-requests-list", async (req, res) => {
   }
 });
 
+app.post("/books", async (req, res) => {
+  try {
+    // TODO: nếu có auth middleware thì verify ở đây
+    // const user = await verifyToken(req)
+    // if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    const bookData = req.body;
+
+    if (!bookData.slug) {
+      return res.status(400).json({
+        message: "Missing slug",
+      });
+    }
+
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    // 👉 normalize slugSearch giống Lambda
+    const slugSearch = bookData.slug
+      .trim()
+      .toLowerCase()
+      .replace(/-/g, " ");
+
+    // 👉 check duplicate slug (rất nên có)
+    const existed = await booksCol.findOne({ slug: bookData.slug });
+    if (existed) {
+      return res.status(409).json({
+        message: "Book with this slug already exists",
+      });
+    }
+
+    const now = new Date();
+
+    const dataToInsert = {
+      ...bookData,
+      slugSearch,
+      ...(bookData.updated === true
+        ? { updatedAt: now }
+        : { createdAt: now }),
+    };
+
+    const result = await booksCol.insertOne(dataToInsert);
+
+    return res.status(201).json({
+      ...dataToInsert,
+      _id: result.insertedId,
+    });
+  } catch (err) {
+    console.error("POST /books error:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
+
 const startServer = async () => {
   await getDB(); // 👈 chỉ gọi 1 lần
   await getDBCloud()

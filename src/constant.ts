@@ -1,1 +1,1 @@
-export const BACKEND_URL ="http://192.168.50.163:3001"
+export const BACKEND_URL ="http://localhost:3001"

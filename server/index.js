@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import express from "express";
 import { getDB, getCollection, getCollectionCloud, getDBCloud } from "./db.js";
 import cors from "cors";
@@ -11,6 +12,49 @@ import dotenv from "dotenv";
 
 
 dotenv.config();
+
+
+
+export async function purgeCloudflareByUrls(urls = []) {
+  try {
+    if (!process.env.CF_API_TOKEN) {
+      console.warn("⚠️ Missing CF_API_TOKEN");
+      return;
+    }
+
+    if (!process.env.CF_ZONES) {
+      console.warn("⚠️ Missing CF_ZONES");
+      return;
+    }
+
+    const zones = process.env.CF_ZONES.split(",");
+
+    for (const zoneId of zones) {
+      const res = await fetch(
+        `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // eslint-disable-next-line no-undef
+            Authorization: `Bearer ${process.env.CF_API_TOKEN}`,
+          },
+          body: JSON.stringify({
+            files: urls,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!data.success) {
+        console.warn("⚠️ Cloudflare purge failed:", data);
+      }
+    }
+  } catch (err) {
+    console.error("❌ purgeCloudflareByUrls error:", err);
+  }
+}
 
 
 
@@ -155,6 +199,123 @@ app.get("/chapters/:slug", async (req, res) => {
   } catch (err) {
     console.error("GET /chapters error:", err);
     return res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/admin/add-comment", async (req, res) => {
+  try {
+    // 👉 nếu có auth middleware thì verify ở đây
+    // const admin = await verifyToken(req, true);
+    // if (!admin) {
+    //   return res.status(401).json({ message: "Unauthorized!" });
+    // }
+
+    const {
+      bookSlug,
+      username,
+      avatarUrl,
+      content,
+      parentId,
+      random,
+      converter,
+      randomCreatedDate,
+    } = req.body;
+
+    if (!content) {
+      return res.status(400).json({
+        message: "Content bị thiếu!",
+      });
+    }
+
+    if (random !== true && (!bookSlug || !username)) {
+      return res.status(400).json({
+        message: "bookSlug, username bị thiếu!",
+      });
+    }
+
+    const commentsCol = await getCollectionCloud(COMMENTS);
+    const seedUsersCol = await getCollectionCloud(SEEDS);
+
+    let finalUsername = username;
+    let finalAvatar = avatarUrl || null;
+
+    /* ================= RANDOM USER ================= */
+    if (random === true) {
+      const [seedUser] = await seedUsersCol
+        .aggregate([{ $sample: { size: 1 } }])
+        .toArray();
+
+      if (!seedUser) {
+        return res.status(400).json({
+          message: "Chưa có seed user nào!",
+        });
+      }
+
+      finalUsername = seedUser.username;
+      finalAvatar = seedUser.avatarUrl || null;
+    } else {
+      // 👉 tạo seed user nếu chưa tồn tại
+      await seedUsersCol.findOneAndUpdate(
+        { username: finalUsername },
+        {
+          $setOnInsert: {
+            username: finalUsername,
+            avatarUrl: finalAvatar,
+          },
+        },
+        { upsert: true }
+      );
+    }
+
+    /* ================= RANDOM CREATED DATE ================= */
+    let createdAt = new Date();
+
+    if (randomCreatedDate === true) {
+      const now = Date.now();
+      const fiveDaysAgo = now - 5 * 24 * 60 * 60 * 1000;
+
+      const randomTimestamp =
+        Math.floor(Math.random() * (now - fiveDaysAgo)) + fiveDaysAgo;
+
+      createdAt = new Date(randomTimestamp);
+    }
+
+    /* ================= INSERT COMMENT ================= */
+    const newComment = {
+      username: finalUsername,
+      avatarUrl: finalAvatar,
+      content,
+      createdAt,
+      parentId: parentId || null,
+      slug: bookSlug,
+      type: "s", // seed
+      converter: converter || null,
+    };
+
+    const result = await commentsCol.insertOne(newComment);
+
+    /* ================= PURGE CLOUDFLARE ================= */
+    try {
+      await purgeCloudflareByUrls([
+        `https://api.ngoctieucac.link/comments/${bookSlug}`,
+      ]);
+    } catch (e) {
+      console.warn("⚠️ Cloudflare purge failed:", e.message);
+    }
+
+    return res.json({
+      message: "Add comment thành công",
+      data: {
+        ...newComment,
+        _id: result.insertedId,
+      },
+    });
+  } catch (err) {
+    console.error("POST /admin/add-comment error:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
   }
 });
 

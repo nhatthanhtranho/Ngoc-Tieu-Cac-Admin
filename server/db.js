@@ -4,7 +4,8 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 // eslint-disable-next-line no-undef
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017";
+const MONGO_URI = process.env.MONGO_URI
+console.log("MONGO_URI", MONGO_URI)
 const MONGO_URI_CLOUD = "mongodb+srv://nhatthanhtranho:nhatthanh123@cluster0.kmr8e.mongodb.net";
 
 

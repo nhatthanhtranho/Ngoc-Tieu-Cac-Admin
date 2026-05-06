@@ -36,8 +36,8 @@ export async function getChapterUploadLink(
   preview: string;
   previewFields: Record<string, string>;
 }> {
-  const res = await api.get(
-    `/chapters/${bookSlug}/upload?isPublic=${isPublic ? 1 : 0}`
+  const res = await axios.get(
+    `${BACKEND_URL}/chapters/download-link/${bookSlug}?isPublic=${isPublic ? 1 : 0}`
   );
   return res.data;
 }

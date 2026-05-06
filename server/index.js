@@ -9,6 +9,8 @@ import {
 } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
 
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 
 dotenv.config();
@@ -718,6 +720,71 @@ app.post("/books", async (req, res) => {
     });
   } catch (err) {
     console.error("POST /books error:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
+
+app.get("/chapters/download-link/:bookSlug", async (req, res) => {
+  try {
+    const { bookSlug } = req.params;
+    const { filename, isPublic, isAudio } = req.query;
+
+    if (!bookSlug || !filename) {
+      return res.status(400).json({
+        message: "Missing bookSlug or filename",
+      });
+    }
+
+    const downloadPublic = isPublic === "1";
+    const downloadAudio = isAudio === "1";
+
+    const bucket = downloadPublic ? BUCKET : PRIVATE_BUCKET;
+
+    // 🎯 build key giống upload
+    let keyPrefix = "";
+
+    if (downloadPublic) {
+      keyPrefix = downloadAudio
+        ? `audio-free/${bookSlug}/`
+        : `free/${bookSlug}/`;
+    } else {
+      keyPrefix = downloadAudio
+        ? `audio/${bookSlug}/`
+        : `${bookSlug}/`;
+    }
+
+    const finalKey = `${keyPrefix}${filename}`;
+
+    // ✅ public → trả thẳng URL
+    if (downloadPublic) {
+      return res.json({
+        url: `https://${bucket}.s3.amazonaws.com/${finalKey}`,
+        key: finalKey,
+        public: true,
+      });
+    }
+
+    // 🔐 private → signed URL
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: finalKey,
+    });
+
+    const signedUrl = await getSignedUrl(s3, command, {
+      expiresIn: 3600,
+    });
+
+    return res.json({
+      url: signedUrl,
+      key: finalKey,
+      expiresIn: 3600,
+      visibility: "private",
+    });
+  } catch (err) {
+    console.error("GET /chapters/download-link error:", err);
     return res.status(500).json({
       message: "Internal server error",
       error: err.message,

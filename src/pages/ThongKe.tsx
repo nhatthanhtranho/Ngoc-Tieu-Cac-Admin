@@ -5,6 +5,8 @@ import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { User, Book, Crown, Users, TrendingUp } from "lucide-react";
 import { api } from "../../apis";
+import axios from "axios";
+import { BACKEND_URL } from "../constant";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -44,7 +46,7 @@ export default function ThongKe() {
       try {
         const [resBooks, resUsers] = await Promise.all([
           api.get("/books/top-book"),
-          api.get("/admin/userRequests?range=24h"),
+          axios.get(`${BACKEND_URL}/user-stat?range=24h`),
         ]);
         setCountUsers(resBooks.data.countUsers);
         setTopViews(resBooks.data.topViews || []);

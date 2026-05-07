@@ -10,9 +10,61 @@ import {
 import dotenv from "dotenv";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import { ObjectId } from "mongodb";
+import {
+  CloudWatchLogsClient,
+  StartQueryCommand,
+  GetQueryResultsCommand,
+} from "@aws-sdk/client-cloudwatch-logs";
+
 
 dotenv.config();
 
+const cloudwatch = new CloudWatchLogsClient({
+  region: "ap-southeast-1",
+  credentials: {
+    accessKeyId: process.env.S3_PUBLIC_KEY_ID,
+    secretAccessKey: process.env.S3_PRIVATE_KEY_ID,
+  },
+});
+
+
+async function runLogQuery(logGroupName, queryString, startTime, endTime) {
+  const start = await cloudwatch.send(
+    new StartQueryCommand({
+      logGroupName,
+      startTime,
+      endTime,
+      queryString,
+    })
+  );
+
+  let results;
+
+  while (true) {
+    const res = await cloudwatch.send(
+      new GetQueryResultsCommand({
+        queryId: start.queryId,
+      })
+    );
+
+    if (res.status === "Complete") {
+      results = res.results;
+      break;
+    }
+
+    await new Promise((r) => setTimeout(r, 300));
+  }
+
+  return results.map((row) => {
+    const obj = {};
+
+    row.forEach((i) => {
+      obj[i.field] = i.value;
+    });
+
+    return obj;
+  });
+}
 
 
 export async function purgeCloudflareByUrls(urls = []) {
@@ -1100,6 +1152,99 @@ app.get("/admin/ebook", async (req, res) => {
     return res.status(500).json({
       message: "Internal Server Error",
       error: error.message,
+    });
+  }
+});
+
+app.get("/user-stat", async (req, res) => {
+  try {
+    /**
+     * VN timezone UTC+7
+     * 0h VN = 17h UTC hôm trước
+     */
+
+    const now = new Date();
+
+    const vnNow = new Date(
+      now.getTime() + 7 * 60 * 60 * 1000
+    );
+
+    const startOfDayVN = new Date(
+      vnNow.getFullYear(),
+      vnNow.getMonth(),
+      vnNow.getDate(),
+      0,
+      0,
+      0
+    );
+
+    const endOfDayVN = new Date(
+      vnNow.getFullYear(),
+      vnNow.getMonth(),
+      vnNow.getDate(),
+      23,
+      59,
+      59
+    );
+
+    const startTime = Math.floor(
+      (startOfDayVN.getTime() - 7 * 60 * 60 * 1000) / 1000
+    );
+
+    const endTime = Math.floor(
+      (endOfDayVN.getTime() - 7 * 60 * 60 * 1000) / 1000
+    );
+
+    const logGroup =
+      "/aws/lambda/ChapterStack-GetChapterContentLambda82DAEB08-tYogbBSKRr4J";
+
+    // ===== TOP USERS =====
+    const topUserQuery = `
+fields @message
+| filter @message like "view:"
+| parse @message "view:*.*|*" as slug, email, rest
+| stats count() as requestCount by email
+| sort requestCount desc
+| limit 10
+    `;
+
+    // ===== PLATFORM =====
+    const platformQuery = `
+fields @message
+| filter @message like "view:"
+| parse @message "view:*.*|*|*" as slug, email, chapter, platform
+| stats count() as requestCount by platform
+| sort requestCount desc
+    `;
+
+    const [topUsers, platformStats] = await Promise.all([
+      runLogQuery(
+        logGroup,
+        topUserQuery,
+        startTime,
+        endTime
+      ),
+      runLogQuery(
+        logGroup,
+        platformQuery,
+        startTime,
+        endTime
+      ),
+    ]);
+
+    return res.json({
+      timezone: "Asia/Ho_Chi_Minh",
+      from: startTime,
+      to: endTime,
+      topUsers,
+      platformStats,
+    });
+  } catch (err) {
+    console.error("GET /user-stat error:", err);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
     });
   }
 });

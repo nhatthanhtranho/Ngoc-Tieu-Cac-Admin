@@ -5,7 +5,7 @@ import cors from "cors";
 import { getRelatedBooks } from "./books.js";
 import { strToU8, gzipSync } from "fflate";
 import {
-  S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand,
+  PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand,
 } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
@@ -15,6 +15,7 @@ import {
   StartQueryCommand,
   GetQueryResultsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
+import { allowedOrigins, PUBLIC_BUCKET, s3, PRIVATE_BUCKET } from "./constants.js";
 
 
 dotenv.config();
@@ -418,7 +419,7 @@ app.get("/chapters/:slug/sync", async (req, res) => {
 
     await s3.send(
       new PutObjectCommand({
-        Bucket: BUCKET,
+        Bucket: PUBLIC_BUCKET,
         Key: `books/${slug}.json`,
         Body: JSON.stringify(bookWithRelated),
         ContentType: "application/json",
@@ -428,7 +429,7 @@ app.get("/chapters/:slug/sync", async (req, res) => {
     // Upload compressed chapters JSON
     await s3.send(
       new PutObjectCommand({
-        Bucket: BUCKET,
+        Bucket: PUBLIC_BUCKET,
         Key: `chapters/${slug}.json.gz`,
         Body: compressed,
         ContentType: "application/gzip",
@@ -620,19 +621,19 @@ app.delete("/chapters/:bookSlug", async (req, res) => {
 
     // ===== 2. DELETE S3 =====
     // a. delete chapters folder
-    await deleteByPrefix(BUCKET, `${bookSlug}/`);
+    await deleteByPrefix(PUBLIC_BUCKET, `${bookSlug}/`);
 
     // b. delete preview folder (chuong-x.txt)
-    await deleteByPrefix(BUCKET, `preview/${bookSlug}/`);
+    await deleteByPrefix(PUBLIC_BUCKET, `preview/${bookSlug}/`);
 
     // c. delete file lẻ trong bucket chính
-    await deleteKeys(BUCKET, [
+    await deleteKeys(PUBLIC_BUCKET, [
       `public/${bookSlug}`,
       `${bookSlug}`,
     ]);
 
     // d. delete ở bucket khác
-    await deleteKeys("ngoc-tieu-cac", [
+    await deleteKeys(PRIVATE_BUCKET, [
       `${bookSlug}`,
     ]);
 

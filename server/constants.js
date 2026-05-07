@@ -1,7 +1,8 @@
 import { S3Client } from "@aws-sdk/client-s3";
 
-const BUCKET = "assets.itruyenchu.com";
-const PRIVATE_BUCKET = "ngoc-tieu-cac";
+export const PUBLIC_BUCKET = "assets.itruyenchu.com";
+export const PRIVATE_BUCKET = "ngoc-tieu-cac";
+// eslint-disable-next-line no-undef
 const { S3_PUBLIC_KEY_ID, S3_PRIVATE_KEY_ID } = process.env;
 
 export const s3 = new S3Client({

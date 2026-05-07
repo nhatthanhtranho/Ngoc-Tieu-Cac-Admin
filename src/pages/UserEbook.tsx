@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { Book } from "../../apis/books";
 import BookList from "../components/Book/BookList";
-import { api, getEndpoint } from "../../apis";
+import {  getEndpoint } from "../../apis";
 import Spinner from "../components/Spinner";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { BACKEND_URL } from "../constant";
 
 type FilterType = "all" | "no-ebook";
 
@@ -17,12 +18,12 @@ function UserEbook() {
     try {
       setLoading(true);
 
-      const res = await api.get("/admin/user-ebook");
+      const res = await axios.get(`${BACKEND_URL}/admin/ebook`);
       console.log("User Ebook Response:", res.data);
 
       const slugs = res.data.ebooks;
 
-      const bookRes = await axios.post<Book[]>(getEndpoint("books/slugs"), {
+      const bookRes = await axios.post<Book[]>(`${BACKEND_URL}/books/slugs`, {
         slugs,
       });
 

@@ -76,7 +76,7 @@ export async function fetchAllBookSlugs(
       categories: string[];
       currentAudioChapter: string | null;
     }>
-  >(`http://localhost:3001/slugs${query}`);
+  >(`${BACKEND_URL}/slugs${query}`);
 
   setBookSlugs(res.data);
   return res.data;
@@ -141,7 +141,7 @@ export async function updateBook(
   changedData: Partial<Book>,
   book: Book
 ) {
-  const res = await api.patch(`/books/${bookSlug}`, { ...changedData });
+  const res = await axios.post(`${BACKEND_URL}/book/${bookSlug}/1`, { ...changedData });
   await uploadDataToS3(
     PUBLIC_BUCKET,
     `books/${bookSlug}.json`,

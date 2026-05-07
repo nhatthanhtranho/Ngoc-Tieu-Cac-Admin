@@ -15,6 +15,8 @@ import { useState, useEffect, useCallback } from "react";
 import TopupNotes from "./TopupNote";
 import { TopupItem } from "../../../apis/payment-requests";
 import { api } from "../../../apis";
+import { BACKEND_URL } from "../../constant";
+import axios from "axios";
 
 interface Props {
   item: TopupItem;
@@ -100,7 +102,7 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
   // ----------------------------
   const handleProcess = useCallback(async () => {
     try {
-      const res = await api.post("/payment-requests/change-status-to-approved", {
+      const res = await axios.post(`${BACKEND_URL}/payment-requests/change-status-to-approved`, {
         paymentRequestId: item.id,
       });
 

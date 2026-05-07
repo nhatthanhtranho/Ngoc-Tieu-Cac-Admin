@@ -29,6 +29,7 @@ export async function createChapters(bookSlug: string, chapters: Chapter[]) {
 
 export async function getChapterUploadLink(
   bookSlug: string,
+  fileName: string,
   isPublic = false
 ): Promise<{
   url: string;
@@ -36,8 +37,10 @@ export async function getChapterUploadLink(
   preview: string;
   previewFields: Record<string, string>;
 }> {
-  const res = await axios.get(
-    `${BACKEND_URL}/chapters/download-link/${bookSlug}?isPublic=${isPublic ? 1 : 0}`
+  const res = await axios.post(
+    `${BACKEND_URL}/chapters/upload-link/${bookSlug}?isPublic=${isPublic ? 1 : 0}`, {
+      fileName
+    }
   );
   return res.data;
 }

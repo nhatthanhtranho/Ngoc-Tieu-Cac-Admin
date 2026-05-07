@@ -8,10 +8,8 @@ import {
   S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand,
 } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
-
-import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
+import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
+import { ObjectId } from "mongodb";
 
 dotenv.config();
 
@@ -139,6 +137,40 @@ app.post("/slugs", async (req, res) => {
   }
 });
 
+app.post("/books/slugs", async (req, res) => {
+  try {
+    const { slugs } = req.body || {};
+
+    if (!Array.isArray(slugs) || slugs.length === 0) {
+      return res.json([]);
+    }
+
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    const books = await booksCol
+      .find({
+        slug: {
+          $in: slugs,
+        },
+      })
+      .toArray();
+
+    // 👉 Sort theo đúng thứ tự slug truyền lên
+    const ordered = slugs.map(
+      (slug) => books.find((b) => b.slug === slug) || null
+    );
+
+    return res.json(ordered);
+  } catch (err) {
+    console.error("POST /getBookBySlugs error:", err);
+
+    return res.status(500).json({
+      message: "Lỗi server",
+      error: err?.message,
+    });
+  }
+});
+
 app.get("/converters", async (req, res) => {
   try {
     const seedsCol = await getCollectionCloud(SEEDS);
@@ -166,7 +198,7 @@ app.get("/comments/:slug", async (req, res) => {
       .sort({ createdAt: -1 })
       .toArray();
 
-    return res.json({comments}); // ✅ QUAN TRỌNG
+    return res.json({ comments }); // ✅ QUAN TRỌNG
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -590,6 +622,122 @@ app.delete("/chapters/:bookSlug", async (req, res) => {
   }
 });
 
+app.post("/payment-requests/change-status-to-approved", async (req, res) => {
+  try {
+    const { paymentRequestId } = req.body;
+
+    if (!paymentRequestId) {
+      return res.status(400).json({ message: "Thiếu paymentRequestId." });
+    }
+
+    // 👉 Nếu bạn có hàm verifyToken trong Express thì dùng ở đây
+    // const approver = await verifyToken(req, true);
+    // if (!approver) return res.status(403).json({ message: "Bạn không có quyền." });
+
+    const paymentCol = await getCollectionCloud(PAYMENT_REQUESTS);
+    const usersCol = await getCollectionCloud("users");
+
+    const paymentId = new ObjectId(paymentRequestId);
+    const now = new Date();
+
+    // 1. Tìm yêu cầu thanh toán
+    const paymentRequest = await paymentCol.findOne({ _id: paymentId });
+    if (!paymentRequest) {
+      return res.status(404).json({ message: "Không tìm thấy yêu cầu thanh toán." });
+    }
+
+    if (paymentRequest.status !== "pending") {
+      return res.status(400).json({ message: "Yêu cầu này đã được xử lý." });
+    }
+
+    // 2. Kiểm tra User tồn tại (optional nhưng nên có theo logic cũ của bạn)
+    const userId = new ObjectId(paymentRequest.userId);
+    const user = await usersCol.findOne({ _id: userId });
+    if (!user) {
+      return res.status(404).json({ message: "User không tồn tại." });
+    }
+
+    // 3. Cập nhật trạng thái
+    // Lưu ý: Nếu muốn dùng Transaction thật sự, bạn cần setup replica set và dùng session của mongodb.
+    // Ở đây tôi giữ logic update đơn giản như code Lambda cũ của bạn.
+    const updateResult = await paymentCol.updateOne(
+      { _id: paymentId },
+      { $set: { status: "approved", approvedAt: now } }
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      return res.status(500).json({ message: "Không thể duyệt yêu cầu." });
+    }
+
+    return res.json({ message: "Duyệt yêu cầu thành công." });
+
+  } catch (err) {
+    console.error("❌ Error in /payment-requests/change-status-to-approved:", err);
+    return res.status(500).json({ 
+      message: "Internal server error", 
+      error: err.message 
+    });
+  }
+});
+
+app.post("/book/:bookSlug/1", async (req, res) => {
+  try {
+    const { bookSlug } = req.params;
+
+    if (!bookSlug) {
+      return res.status(400).json({
+        message: "Missing bookSlug",
+      });
+    }
+
+    if (!req.body) {
+      return res.status(400).json({
+        message: "Missing request body",
+      });
+    }
+
+    // 👉 nếu cần auth thì bật lại
+    // const user = await verifyToken(req, true);
+    // if (!user) {
+    //   return res.status(401).json({ message: "Unauthorized" });
+    // }
+
+    const data = req.body;
+    const now = new Date();
+
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    const updateData = {
+      ...data,
+      ...(data.updated === true
+        ? { updatedAt: now }
+        : { createdAt: now }),
+    };
+
+    // ❌ không cho client ghi đè flag này
+    delete updateData.updated;
+
+    const result = await booksCol.findOneAndUpdate(
+      { slug: bookSlug },
+      { $set: updateData },
+      { returnDocument: "after" }
+    );
+
+    if (!result.value) {
+      return res.status(404).json({
+        message: "Book not found",
+      });
+    }
+
+    return res.json(result.value);
+  } catch (err) {
+    console.error("PATCH /book/:bookSlug error:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
 
 app.get("/payment-requests-list", async (req, res) => {
   try {
@@ -727,64 +875,85 @@ app.post("/books", async (req, res) => {
   }
 });
 
-app.get("/chapters/download-link/:bookSlug", async (req, res) => {
+const privateBucket = "ngoc-tieu-cac";
+const publicBucket = "assets.itruyenchu.com";
+
+app.post("/chapters/upload-link/:bookSlug", async (req, res) => {
   try {
     const { bookSlug } = req.params;
-    const { filename, isPublic, isAudio } = req.query;
+    const { isPublic } = req.query;
+    const { fileName } = req.body;
 
-    if (!bookSlug || !filename) {
+    if (!bookSlug) {
       return res.status(400).json({
-        message: "Missing bookSlug or filename",
+        message: "Missing bookSlug",
       });
     }
+    const uploadPublic = isPublic === "1";
+    const bucket = uploadPublic ? publicBucket : privateBucket;
+    const acl = "private";
 
-    const downloadPublic = isPublic === "1";
-    const downloadAudio = isAudio === "1";
-
-    const bucket = downloadPublic ? BUCKET : PRIVATE_BUCKET;
-
-    // 🎯 build key giống upload
+    /**
+     * 🎯 Build keyPrefix (NO AUDIO)
+     */
     let keyPrefix = "";
 
-    if (downloadPublic) {
-      keyPrefix = downloadAudio
-        ? `audio-free/${bookSlug}/`
-        : `free/${bookSlug}/`;
+    if (uploadPublic) {
+      keyPrefix = `free/${bookSlug}/`;
     } else {
-      keyPrefix = downloadAudio
-        ? `audio/${bookSlug}/`
-        : `${bookSlug}/`;
+      keyPrefix = `${bookSlug}/`;
     }
 
-    const finalKey = `${keyPrefix}${filename}`;
+    let presignedPost;
+    let previewPost;
 
-    // ✅ public → trả thẳng URL
-    if (downloadPublic) {
-      return res.json({
-        url: `https://${bucket}.s3.amazonaws.com/${finalKey}`,
-        key: finalKey,
-        public: true,
+    /**
+     * PUBLIC
+     */
+    if (uploadPublic) {
+      presignedPost = await createPresignedPost(s3, {
+        Bucket: bucket,
+        Key: `${keyPrefix}${fileName}`,
+        Conditions: [["starts-with", "$key", keyPrefix]],
+        Expires: 3600,
+      });
+    } else {
+      /**
+       * PRIVATE
+       */
+      presignedPost = await createPresignedPost(s3, {
+        Bucket: bucket,
+        Key: `${keyPrefix}${"${filename}"}`,
+        Conditions: [["starts-with", "$key", keyPrefix], { acl }],
+        Fields: { acl },
+        Expires: 3600,
+      });
+
+      /**
+       * PREVIEW (public bucket)
+       */
+      previewPost = await createPresignedPost(s3, {
+        Bucket: publicBucket,
+        Key: `preview/${bookSlug}/${"${filename}"}`,
+        Conditions: [["starts-with", "$key", `preview/${bookSlug}/`]],
+        Expires: 3600,
       });
     }
 
-    // 🔐 private → signed URL
-    const command = new GetObjectCommand({
-      Bucket: bucket,
-      Key: finalKey,
-    });
-
-    const signedUrl = await getSignedUrl(s3, command, {
-      expiresIn: 3600,
-    });
-
     return res.json({
-      url: signedUrl,
-      key: finalKey,
+      visibility: uploadPublic ? "public" : "private",
+      url: presignedPost.url,
+      preview: previewPost?.url || null,
+      previewFields: previewPost?.fields || null,
+      fields: presignedPost.fields,
+      keyPrefix,
+      ...(uploadPublic && {
+        publicBaseUrl: `https://${bucket}.s3.amazonaws.com/${keyPrefix}`,
+      }),
       expiresIn: 3600,
-      visibility: "private",
     });
   } catch (err) {
-    console.error("GET /chapters/download-link error:", err);
+    console.error("POST /chapters/upload-link error:", err);
     return res.status(500).json({
       message: "Internal server error",
       error: err.message,
@@ -792,6 +961,27 @@ app.get("/chapters/download-link/:bookSlug", async (req, res) => {
   }
 });
 
+
+
+app.get("/admin/ebook", async (req, res) => {
+  try {
+    const usersCol = await getCollectionCloud("users");
+
+    // ✅ Lấy toàn bộ slug unique
+    const uniqueEbookSlugs = await usersCol.distinct("epubs");
+    return res.json({
+      total: uniqueEbookSlugs.length,
+      ebooks: uniqueEbookSlugs,
+    });
+  } catch (error) {
+    console.error("GET /ebooks error:", error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
 const startServer = async () => {
   await getDB(); // 👈 chỉ gọi 1 lần
   await getDBCloud()

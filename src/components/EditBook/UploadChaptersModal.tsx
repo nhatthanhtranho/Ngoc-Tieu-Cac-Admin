@@ -172,16 +172,22 @@ export default function UploadChaptersModal({
       /* 2️⃣ upload FREE */
       if (freeChapters.length) {
         await uploadWithConcurrency(freeChapters, async (ch) => {
-          const { url, fields } = await getChapterUploadLink(bookSlug, true);
+          const { url, fields } = await getChapterUploadLink(bookSlug, ch.fileName,true);
+
+          console.log('url', url)
+         
 
           const text = await ch.file.text();
           const file = new File([compressText(text)], ch.fileName, {
             type: "application/octet-stream",
           });
 
+          console.log("gields", fields)
+
           const fd = new FormData();
           Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
           fd.append("file", file);
+          console.log("hre2")
 
           const res = await fetch(url, { method: "POST", body: fd });
           if (!res.ok) throw new Error(`Upload free failed: ${ch.fileName}`);
@@ -198,7 +204,9 @@ export default function UploadChaptersModal({
             fields,
             preview,
             previewFields,
-          } = await getChapterUploadLink(bookSlug);
+          } = await getChapterUploadLink(bookSlug, ch.fileName, false);
+
+          console.log("url", url)
 
           const text = await ch.file.text();
 

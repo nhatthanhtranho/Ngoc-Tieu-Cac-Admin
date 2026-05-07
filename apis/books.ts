@@ -141,7 +141,7 @@ export async function updateBook(
   changedData: Partial<Book>,
   book: Book
 ) {
-  const res = await axios.post(`${BACKEND_URL}/book/${bookSlug}/1`, { ...changedData });
+  const res = await axios.post(`${BACKEND_URL}/updatebook/${bookSlug}`, { ...changedData });
   await uploadDataToS3(
     PUBLIC_BUCKET,
     `books/${bookSlug}.json`,

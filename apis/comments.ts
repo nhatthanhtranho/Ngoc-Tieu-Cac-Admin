@@ -16,7 +16,7 @@ export async function seedComment(
   isConverter = false,
   isRandomDate=false,
 ) {
-  const res = await api.post(`/admin/create-comment`, {
+  const res = await axios.post(`${BACKEND_URL}/admin/add-comment`, {
     bookSlug,
     username,
     content,

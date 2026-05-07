@@ -36,8 +36,7 @@ export async function purgeCloudflareByUrls(urls = []) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            // eslint-disable-next-line no-undef
-            Authorization: `Bearer ${process.env.CF_API_TOKEN}`,
+            "Authorization": `Bearer ${process.env.CF_API_TOKEN}`,
           },
           body: JSON.stringify({
             files: urls,
@@ -61,7 +60,6 @@ export async function purgeCloudflareByUrls(urls = []) {
 const {
   S3_PUBLIC_KEY_ID,
   S3_PRIVATE_KEY_ID,
-  // eslint-disable-next-line no-undef
 } = process.env;
 
 const BUCKET = "assets.itruyenchu.com";
@@ -680,64 +678,7 @@ app.post("/payment-requests/change-status-to-approved", async (req, res) => {
   }
 });
 
-app.post("/book/:bookSlug/1", async (req, res) => {
-  try {
-    const { bookSlug } = req.params;
 
-    if (!bookSlug) {
-      return res.status(400).json({
-        message: "Missing bookSlug",
-      });
-    }
-
-    if (!req.body) {
-      return res.status(400).json({
-        message: "Missing request body",
-      });
-    }
-
-    // 👉 nếu cần auth thì bật lại
-    // const user = await verifyToken(req, true);
-    // if (!user) {
-    //   return res.status(401).json({ message: "Unauthorized" });
-    // }
-
-    const data = req.body;
-    const now = new Date();
-
-    const booksCol = await getCollectionCloud(BOOKS);
-
-    const updateData = {
-      ...data,
-      ...(data.updated === true
-        ? { updatedAt: now }
-        : { createdAt: now }),
-    };
-
-    // ❌ không cho client ghi đè flag này
-    delete updateData.updated;
-
-    const result = await booksCol.findOneAndUpdate(
-      { slug: bookSlug },
-      { $set: updateData },
-      { returnDocument: "after" }
-    );
-
-    if (!result.value) {
-      return res.status(404).json({
-        message: "Book not found",
-      });
-    }
-
-    return res.json(result.value);
-  } catch (err) {
-    console.error("PATCH /book/:bookSlug error:", err);
-    return res.status(500).json({
-      message: "Internal server error",
-      error: err.message,
-    });
-  }
-});
 
 app.get("/payment-requests-list", async (req, res) => {
   try {
@@ -817,6 +758,65 @@ app.get("/payment-requests-list", async (req, res) => {
   } catch (err) {
     console.error("GET /payment-requests error:", err);
     return res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/updatebook/:bookSlug", async (req, res) => {
+  try {
+    const { bookSlug } = req.params;
+
+    if (!bookSlug) {
+      return res.status(400).json({
+        message: "Missing bookSlug",
+      });
+    }
+
+    if (!req.body) {
+      return res.status(400).json({
+        message: "Missing request body",
+      });
+    }
+
+    // 👉 nếu cần auth thì bật lại
+    // const user = await verifyToken(req, true);
+    // if (!user) {
+    //   return res.status(401).json({ message: "Unauthorized" });
+    // }
+
+    const data = req.body;
+    const now = new Date();
+
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    const updateData = {
+      ...data,
+      ...(data.updated === true
+        ? { updatedAt: now }
+        : { createdAt: now }),
+    };
+
+    // ❌ không cho client ghi đè flag này
+    delete updateData.updated;
+
+    const result = await booksCol.findOneAndUpdate(
+      { slug: bookSlug },
+      { $set: updateData },
+      { returnDocument: "after" }
+    );
+    
+    if (!result) {
+      return res.status(404).json({
+        message: "Book not found",
+      });
+    }
+
+    return res.json(result.value);
+  } catch (err) {
+    console.error("PATCH /book/:bookSlug error:", err);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
   }
 });
 
@@ -961,7 +961,128 @@ app.post("/chapters/upload-link/:bookSlug", async (req, res) => {
   }
 });
 
+app.post("/admin/add-comment", async (req, res) => {
+  try {
+    // 👉 verify admin nếu cần
+    // const admin = await verifyToken(req, true);
+    // if (!admin) {
+    //   return res.status(401).json({
+    //     message: "Unauthorized!",
+    //   });
+    // }
 
+    const {
+      bookSlug,
+      username,
+      avatarUrl,
+      content,
+      parentId,
+      random,
+      converter,
+      randomCreatedDate,
+    } = req.body;
+
+    /* ================= VALIDATE ================= */
+    if (!content) {
+      return res.status(400).json({
+        message: "Content bị thiếu!",
+      });
+    }
+
+    if (random !== true && (!bookSlug || !username)) {
+      return res.status(400).json({
+        message: "bookSlug, username bị thiếu!",
+      });
+    }
+
+    const commentsCol = await getCollectionCloud(COMMENTS);
+    const seedUsersCol = await getCollectionCloud(SEEDS);
+
+    let finalUsername = username;
+    let finalAvatar = avatarUrl || null;
+
+    /* ================= RANDOM USER ================= */
+    if (random === true) {
+      const [seedUser] = await seedUsersCol
+        .aggregate([{ $sample: { size: 1 } }])
+        .toArray();
+
+      if (!seedUser) {
+        return res.status(400).json({
+          message: "Chưa có seed user nào!",
+        });
+      }
+
+      finalUsername = seedUser.username;
+      finalAvatar = seedUser.avatarUrl || null;
+    } else {
+      // 👉 auto tạo seed user nếu chưa tồn tại
+      await seedUsersCol.findOneAndUpdate(
+        { username: finalUsername },
+        {
+          $setOnInsert: {
+            username: finalUsername,
+            avatarUrl: finalAvatar,
+          },
+        },
+        {
+          upsert: true,
+        }
+      );
+    }
+
+    /* ================= RANDOM CREATED DATE ================= */
+    let createdAt = new Date();
+
+    if (randomCreatedDate === true) {
+      const now = Date.now();
+      const fiveDaysAgo = now - 5 * 24 * 60 * 60 * 1000;
+
+      const randomTimestamp =
+        Math.floor(Math.random() * (now - fiveDaysAgo)) + fiveDaysAgo;
+
+      createdAt = new Date(randomTimestamp);
+    }
+
+    /* ================= INSERT COMMENT ================= */
+    const newComment = {
+      username: finalUsername,
+      avatarUrl: finalAvatar,
+      content,
+      createdAt,
+      parentId: parentId || null,
+      slug: bookSlug,
+      type: "s", // seed
+      converter: converter || null,
+    };
+
+    const result = await commentsCol.insertOne(newComment);
+
+    /* ================= PURGE CLOUDFLARE ================= */
+    try {
+      await purgeCloudflareByUrls([
+        `https://api.ngoctieucac.link/comments/${bookSlug}`,
+      ]);
+    } catch (e) {
+      console.warn("⚠️ purge cloudflare failed:", e.message);
+    }
+
+    return res.json({
+      message: "Add comment thành công",
+      data: {
+        ...newComment,
+        _id: result.insertedId,
+      },
+    });
+  } catch (err) {
+    console.error("POST /admin/add-comment error:", err);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
 
 app.get("/admin/ebook", async (req, res) => {
   try {

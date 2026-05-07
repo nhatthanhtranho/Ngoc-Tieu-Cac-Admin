@@ -1,28 +1,25 @@
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getBooksBySlugs } from "./books";
 import { brotliCompressSync, constants } from "zlib";
+import { PUBLIC_BUCKET, s3 } from "./constants";
 
 export async function uploadHomePageData(jsonString) {
-  const s3 = getS3Client();
-
   try {
-    const compressed = brotliCompressSync(
-      Buffer.from(jsonString),
-      {
-        params: {
-          [constants.BROTLI_PARAM_QUALITY]: 11,
-        },
-      }
-    );
+    const compressed = brotliCompressSync(Buffer.from(jsonString), {
+      params: {
+        [constants.BROTLI_PARAM_QUALITY]: 11,
+      },
+    });
 
     await s3.send(
       new PutObjectCommand({
-        Bucket: "assets.itruyenchu.com",
+        Bucket: PUBLIC_BUCKET,
         Key: "home-page.json",
         Body: compressed,
         ContentType: "application/json",
         ContentEncoding: "br",
         CacheControl: "public, immutable",
-      })
+      }),
     );
 
     return true;
@@ -150,4 +147,10 @@ export async function generateHomePage(trendingsCol, booksCol, commentsCol) {
     books: relatedBooks,
     latestComments: homeComments,
   });
+
+  await uploadHomePageData(homeJson);
+
+  return {
+    message: "Home page data generated and uploaded successfully!",
+  };
 }

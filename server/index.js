@@ -7,26 +7,13 @@ import { strToU8, gzipSync } from "fflate";
 import {
   PutObjectCommand, ListObjectsV2Command, DeleteObjectsCommand,
 } from "@aws-sdk/client-s3";
-import dotenv from "dotenv";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import { ObjectId } from "mongodb";
 import {
-  CloudWatchLogsClient,
   StartQueryCommand,
   GetQueryResultsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
-import { allowedOrigins, PUBLIC_BUCKET, s3, PRIVATE_BUCKET } from "./constants.js";
-
-
-dotenv.config();
-
-const cloudwatch = new CloudWatchLogsClient({
-  region: "ap-southeast-1",
-  credentials: {
-    accessKeyId: process.env.S3_PUBLIC_KEY_ID,
-    secretAccessKey: process.env.S3_PRIVATE_KEY_ID,
-  },
-});
+import { allowedOrigins, PUBLIC_BUCKET, s3, PRIVATE_BUCKET, cloudwatch } from "./constants.js";
 
 
 async function runLogQuery(logGroupName, queryString, startTime, endTime) {
@@ -65,47 +52,6 @@ async function runLogQuery(logGroupName, queryString, startTime, endTime) {
 
     return obj;
   });
-}
-
-
-export async function purgeCloudflareByUrls(urls = []) {
-  try {
-    if (!process.env.CF_API_TOKEN) {
-      console.warn("⚠️ Missing CF_API_TOKEN");
-      return;
-    }
-
-    if (!process.env.CF_ZONES) {
-      console.warn("⚠️ Missing CF_ZONES");
-      return;
-    }
-
-    const zones = process.env.CF_ZONES.split(",");
-
-    for (const zoneId of zones) {
-      const res = await fetch(
-        `https://api.cloudflare.com/client/v4/zones/${zoneId}/purge_cache`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${process.env.CF_API_TOKEN}`,
-          },
-          body: JSON.stringify({
-            files: urls,
-          }),
-        }
-      );
-
-      const data = await res.json();
-
-      if (!data.success) {
-        console.warn("⚠️ Cloudflare purge failed:", data);
-      }
-    }
-  } catch (err) {
-    console.error("❌ purgeCloudflareByUrls error:", err);
-  }
 }
 
 const app = express();
@@ -355,15 +301,6 @@ app.post("/admin/add-comment", async (req, res) => {
     };
 
     const result = await commentsCol.insertOne(newComment);
-
-    /* ================= PURGE CLOUDFLARE ================= */
-    try {
-      await purgeCloudflareByUrls([
-        `https://api.ngoctieucac.link/comments/${bookSlug}`,
-      ]);
-    } catch (e) {
-      console.warn("⚠️ Cloudflare purge failed:", e.message);
-    }
 
     return res.json({
       message: "Add comment thành công",
@@ -1087,15 +1024,6 @@ app.post("/admin/add-comment", async (req, res) => {
     };
 
     const result = await commentsCol.insertOne(newComment);
-
-    /* ================= PURGE CLOUDFLARE ================= */
-    try {
-      await purgeCloudflareByUrls([
-        `https://api.ngoctieucac.link/comments/${bookSlug}`,
-      ]);
-    } catch (e) {
-      console.warn("⚠️ purge cloudflare failed:", e.message);
-    }
 
     return res.json({
       message: "Add comment thành công",

@@ -28,6 +28,46 @@ const cloudwatch = new CloudWatchLogsClient({
   },
 });
 
+function getYesterdayAndTodayRangeVN() {
+  const now = new Date();
+
+  // GMT+7
+  const vnNow = new Date(
+    now.getTime() + 7 * 60 * 60 * 1000
+  );
+
+  // 🟦 00:00 hôm qua
+  const startYesterdayVN = new Date(vnNow);
+  startYesterdayVN.setDate(
+    startYesterdayVN.getDate() - 1
+  );
+  startYesterdayVN.setHours(0, 0, 0, 0);
+
+  // 🟩 00:00 hôm nay
+  const startTodayVN = new Date(vnNow);
+  startTodayVN.setHours(0, 0, 0, 0);
+
+  // ⏭️ 23:59:59 hôm nay
+  const endTodayVN = new Date(vnNow);
+  endTodayVN.setHours(23, 59, 59, 999);
+
+  return {
+    startYesterdayUTC: new Date(
+      startYesterdayVN.getTime() -
+        7 * 60 * 60 * 1000
+    ),
+
+    startTodayUTC: new Date(
+      startTodayVN.getTime() -
+        7 * 60 * 60 * 1000
+    ),
+
+    endTodayUTC: new Date(
+      endTodayVN.getTime() -
+        7 * 60 * 60 * 1000
+    ),
+  };
+}
 
 async function runLogQuery(logGroupName, queryString, startTime, endTime) {
   const start = await cloudwatch.send(
@@ -1226,6 +1266,99 @@ fields @message
     });
   }
 });
+
+app.get("/admin/top-book", async (req, res) => {
+  try {
+    const booksCol = await getCollectionCloud(BOOKS);
+    const usersCol = await getCollectionCloud("users");
+
+    const {
+      startYesterdayUTC,
+      startTodayUTC,
+      endTodayUTC,
+    } = getYesterdayAndTodayRangeVN();
+
+    const [
+      topViews,
+      newUsersYesterday,
+      newUsersToday,
+      totalMembershipUsers,
+      totalBooks,
+    ] = await Promise.all([
+      // 📚 TOP VIEW
+      booksCol
+        .find(
+          {},
+          {
+            projection: {
+              title: 1,
+              slug: 1,
+              weekViews: 1,
+              thumbnailUrl: 1,
+            },
+          }
+        )
+        .sort({
+          weekViews: -1,
+        })
+        .limit(20)
+        .toArray(),
+
+      // 🟦 user hôm qua
+      usersCol.countDocuments({
+        createdAt: {
+          $gte: startYesterdayUTC,
+          $lt: startTodayUTC,
+        },
+      }),
+
+      // 🟩 user hôm nay
+      usersCol.countDocuments({
+        createdAt: {
+          $gte: startTodayUTC,
+          $lte: endTodayUTC,
+        },
+      }),
+
+      // 💎 membership
+      usersCol.countDocuments({
+        premiumUntil: {
+          $ne: null,
+          $gt: new Date(),
+        },
+      }),
+
+      // 📚 total books
+      booksCol.estimatedDocumentCount(),
+    ]);
+
+    return res.json({
+      topViews,
+
+      countUsers: {
+        newYesterday: newUsersYesterday,
+        newToday: newUsersToday,
+        totalNew:
+          newUsersYesterday + newUsersToday,
+        totalMembershipUsers,
+      },
+
+      totalBooks,
+    });
+  } catch (error) {
+    console.error(
+      "GET /admin/top-book error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+});
+
+
 const startServer = async () => {
   await getDB(); // 👈 chỉ gọi 1 lần
   await getDBCloud()

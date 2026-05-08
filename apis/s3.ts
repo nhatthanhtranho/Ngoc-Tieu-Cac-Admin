@@ -1,5 +1,6 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { api } from ".";
+import { BACKEND_URL } from "../src/constant";
+import axios from "axios";
 
 // ============================
 // CONFIG
@@ -28,8 +29,8 @@ async function getValidS3Credentials() {
   }
 
   // 2. Hết hạn → gọi API lấy token mới
-  const res = await api.get("admin/token");
-  const newCreds = res.data;
+  const res = await axios.get(`${BACKEND_URL}/admin/token`);
+  const newCreds = res;
 
   // 3. Lưu vào localStorage
   localStorage.setItem(STORAGE_KEY, JSON.stringify(newCreds));
@@ -37,39 +38,6 @@ async function getValidS3Credentials() {
   return newCreds;
 }
 
-export async function uploadDataToS3(
-  bucket: string,
-  key: string,
-  data: string
-) {
-  const creds = await getValidS3Credentials();
-
-  // Tạo S3 client với temporary credentials
-  const s3 = new S3Client({
-    region: S3_REGION,
-    credentials: {
-      accessKeyId: creds.accessKeyId,
-      secretAccessKey: creds.secretAccessKey,
-      sessionToken: creds.sessionToken, // ⭐ Quan trọng khi dùng temp token
-    },
-  });
-
-  // Xây command upload
-  const command = new PutObjectCommand({
-    Bucket: bucket,
-    Key: key,
-    Body: data,
-  });
-
-  // Upload
-  await s3.send(command);
-
-  return {
-    bucket,
-    key,
-    url: `https://${bucket}.s3.${S3_REGION}.amazonaws.com/${key}`,
-  };
-}
 
 export async function uploadAvatarToS3(
   username: string,

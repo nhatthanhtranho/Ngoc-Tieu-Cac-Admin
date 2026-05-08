@@ -3,7 +3,6 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 
 import { getEndpoint, api } from ".";
-import { PUBLIC_BUCKET, uploadDataToS3 } from "./s3";
 import { decompressText, JsonBuffer } from "../src/utils/compress";
 import { BACKEND_URL } from "../src/constant";
 
@@ -142,11 +141,6 @@ export async function updateBook(
   book: Book
 ) {
   const res = await axios.post(`${BACKEND_URL}/updatebook/${bookSlug}`, { ...changedData });
-  await uploadDataToS3(
-    PUBLIC_BUCKET,
-    `books/${bookSlug}.json`,
-    JSON.stringify(book)
-  );
   return res.data;
 }
 

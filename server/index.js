@@ -13,7 +13,7 @@ import {
   StartQueryCommand,
   GetQueryResultsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
-import { allowedOrigins, PUBLIC_BUCKET, s3, PRIVATE_BUCKET, cloudwatch } from "./constants.js";
+import { allowedOrigins, PUBLIC_BUCKET, s3, PRIVATE_BUCKET, cloudwatch, S3_PUBLIC_KEY_ID, S3_PRIVATE_KEY_ID } from "./constants.js";
 
 function getYesterdayAndTodayRangeVN() {
   const now = new Date();
@@ -41,17 +41,17 @@ function getYesterdayAndTodayRangeVN() {
   return {
     startYesterdayUTC: new Date(
       startYesterdayVN.getTime() -
-        7 * 60 * 60 * 1000
+      7 * 60 * 60 * 1000
     ),
 
     startTodayUTC: new Date(
       startTodayVN.getTime() -
-        7 * 60 * 60 * 1000
+      7 * 60 * 60 * 1000
     ),
 
     endTodayUTC: new Date(
       endTodayVN.getTime() -
-        7 * 60 * 60 * 1000
+      7 * 60 * 60 * 1000
     ),
   };
 }
@@ -678,9 +678,9 @@ app.post("/payment-requests/change-status-to-approved", async (req, res) => {
 
   } catch (err) {
     console.error("❌ Error in /payment-requests/change-status-to-approved:", err);
-    return res.status(500).json({ 
-      message: "Internal server error", 
-      error: err.message 
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message
     });
   }
 });
@@ -810,7 +810,7 @@ app.post("/updatebook/:bookSlug", async (req, res) => {
       { $set: updateData },
       { returnDocument: "after" }
     );
-    
+
     if (!result) {
       return res.status(404).json({
         message: "Book not found",
@@ -1282,6 +1282,73 @@ app.get("/admin/top-book", async (req, res) => {
     return res.status(500).json({
       message: "Internal Server Error",
       error: error.message,
+    });
+  }
+});
+
+app.get("/admin/token", async (req, res) => {
+  return res.status(200).json({
+    accessKeyId: S3_PUBLIC_KEY_ID,
+    secretAccessKey: S3_PRIVATE_KEY_ID,
+  });
+})
+
+
+app.post("/admin/comments/:bookSlug/seed", async (req, res) => {
+  try {
+    /* ----------------------------- Auth admin ----------------------------- */
+    // const admin = await verifyToken(req, true);
+    // if (!admin) {
+    //   return res.status(401).json({
+    //     message: "Unauthorized!",
+    //   });
+    // }
+
+    /* --------------------------- Parse params --------------------------- */
+    const { bookSlug } = req.params;
+
+    const seed =
+      req.query.seed === "true";
+
+    if (!bookSlug) {
+      return res.status(400).json({
+        message: "Missing bookSlug",
+      });
+    }
+
+    /* --------------------------- DB connect --------------------------- */
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    /* ---------------------- Update seedComment flag ---------------------- */
+    const result = await booksCol.updateOne(
+      { slug: bookSlug },
+      {
+        $set: {
+          isSeed: seed,
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        message: "Book not found",
+      });
+    }
+
+    return res.json({
+      bookSlug,
+      seedEnabled: seed,
+      message: seed
+        ? "Seed comment enabled"
+        : "Seed comment disabled",
+    });
+  } catch (err) {
+    console.error("POST /admin/books/:bookSlug/seed error:", err);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
     });
   }
 });

@@ -40,8 +40,8 @@ export async function toggleSeedComment(
   bookSlug: string,
   seed: boolean
 ) {
-  const res = await api.get(
-    `/admin/comments/${bookSlug}?seed=${seed}`
+  const res = await axios.get(
+    `${BACKEND_URL}/admin/comments/${bookSlug}?seed=${seed}`
   );
   return res.data;
 }

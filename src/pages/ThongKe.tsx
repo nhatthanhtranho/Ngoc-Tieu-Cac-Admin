@@ -45,7 +45,7 @@ export default function ThongKe() {
     async function fetchData() {
       try {
         const [resBooks, resUsers] = await Promise.all([
-          api.get("/books/top-book"),
+          axios.get(`${BACKEND_URL}/admin/top-book`),
           axios.get(`${BACKEND_URL}/user-stat?range=24h`),
         ]);
         setCountUsers(resBooks.data.countUsers);

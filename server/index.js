@@ -123,7 +123,7 @@ app.get("/slugs", async (req, res) => {
 
     const slugs = await booksCol
       .find()
-      .project({ slug: 1, _id: 0, title: 1, currentChapter: 1 })
+      .project({ slug: 1, _id: 0, title: 1, currentChapter: 1, categories: 1 })
       .sort({ createdAt: -1 })
       .toArray();
 
@@ -1105,40 +1105,38 @@ app.get("/admin/ebook", async (req, res) => {
 app.get("/user-stat", async (req, res) => {
   try {
     /**
-     * VN timezone UTC+7
-     * 0h VN = 17h UTC hôm trước
+     * VN timezone = UTC+7
+     * Lấy đúng:
+     * hôm nay 00:00:00 -> 23:59:59 VN
      */
 
     const now = new Date();
 
-    const vnNow = new Date(
-      now.getTime() + 7 * 60 * 60 * 1000
-    );
+    // cộng 7h để ra giờ VN
+    const vnNow = new Date(now.getTime() + 7 * 60 * 60 * 1000);
 
-    const startOfDayVN = new Date(
-      vnNow.getFullYear(),
-      vnNow.getMonth(),
-      vnNow.getDate(),
-      0,
-      0,
-      0
-    );
-
-    const endOfDayVN = new Date(
-      vnNow.getFullYear(),
-      vnNow.getMonth(),
-      vnNow.getDate(),
-      23,
-      59,
-      59
-    );
-
+    // mốc 00:00:00 VN -> đổi về UTC
     const startTime = Math.floor(
-      (startOfDayVN.getTime() - 7 * 60 * 60 * 1000) / 1000
+      Date.UTC(
+        vnNow.getUTCFullYear(),
+        vnNow.getUTCMonth(),
+        vnNow.getUTCDate(),
+        -7, // trừ lại 7h
+        0,
+        0
+      ) / 1000
     );
 
+    // mốc 23:59:59 VN -> đổi về UTC
     const endTime = Math.floor(
-      (endOfDayVN.getTime() - 7 * 60 * 60 * 1000) / 1000
+      Date.UTC(
+        vnNow.getUTCFullYear(),
+        vnNow.getUTCMonth(),
+        vnNow.getUTCDate(),
+        16, // 23 - 7
+        59,
+        59
+      ) / 1000
     );
 
     const logGroup =
@@ -1345,6 +1343,110 @@ app.post("/admin/comments/:bookSlug/seed", async (req, res) => {
     });
   } catch (err) {
     console.error("POST /admin/books/:bookSlug/seed error:", err);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
+
+
+app.get("/trendings/:type", async (req, res) => {
+  try {
+    const { type } = req.params;
+
+    if (!type) {
+      return res.status(400).json({
+        message: "Missing path parameter: type",
+      });
+    }
+
+    const trendingsCol = await getCollectionCloud("trendings");
+
+    // 👉 lấy document trending theo type
+    const trending = await trendingsCol.findOne({ type });
+
+    if (!trending) {
+      return res.status(404).json({
+        message: "Trending not found",
+      });
+    }
+
+    return res.json(trending);
+  } catch (err) {
+    console.error("GET /trendings/:type error:", err);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
+
+app.delete("/remove-payment-requests", async (req, res) => {
+  try {
+    // 👉 nếu có auth admin thì verify ở đây
+    // const admin = await verifyToken(req, true);
+    // if (!admin) {
+    //   return res.status(401).json({
+    //     message: "Unauthorized",
+    //   });
+    // }
+
+    const paymentCol = await getCollectionCloud(PAYMENT_REQUESTS);
+
+    // 🗑️ delete toàn bộ records
+    const result = await paymentCol.deleteMany({});
+
+    return res.json({
+      message: "All payment requests removed successfully",
+      deletedCount: result.deletedCount,
+    });
+  } catch (err) {
+    console.error(
+      "DELETE /remove-payment-requests error:",
+      err
+    );
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
+
+
+app.post("/reset-week-views", async (req, res) => {
+  try {
+    // 👉 nếu có auth admin thì verify ở đây
+    // const admin = await verifyToken(req, true);
+    // if (!admin) {
+    //   return res.status(401).json({
+    //     message: "Unauthorized",
+    //   });
+    // }
+
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    // 🔄 reset toàn bộ weekViews = 0
+    const result = await booksCol.updateMany(
+      {},
+      {
+        $set: {
+          weekViews: 0,
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    return res.json({
+      message: "Reset weekViews thành công",
+      matchedCount: result.matchedCount,
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (err) {
+    console.error("POST /reset-weekviews error:", err);
 
     return res.status(500).json({
       message: "Internal server error",

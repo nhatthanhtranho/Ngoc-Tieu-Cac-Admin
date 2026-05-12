@@ -25,7 +25,6 @@ export default function DichGia() {
     const fetchData = async () => {
       try {
         const data = await getConverters();
-        console.log(data);
         setConverters(data);
       } catch (err) {
         console.error("Load converters error:", err);

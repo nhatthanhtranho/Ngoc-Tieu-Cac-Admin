@@ -36,7 +36,6 @@ function App() {
     try {
       const res = await axios.get(`${BACKEND_URL}/slugs`);
       let booksData = res.data;
-
       booksData = booksData.filter((book: any) => {
         const isCompleted = book.categories?.includes("hoan-thanh");
         if (filter.completed && filter.ongoing) return true;

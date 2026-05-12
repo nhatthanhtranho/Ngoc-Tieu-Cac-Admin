@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
-import { api } from ".";
 import { BACKEND_URL } from "../src/constant";
 
 export interface TopupItem {

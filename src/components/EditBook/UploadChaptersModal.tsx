@@ -173,17 +173,10 @@ export default function UploadChaptersModal({
       if (freeChapters.length) {
         await uploadWithConcurrency(freeChapters, async (ch) => {
           const { url, fields } = await getChapterUploadLink(bookSlug, ch.fileName,true);
-
-          console.log('url', url)
-         
-
           const text = await ch.file.text();
           const file = new File([compressText(text)], ch.fileName, {
             type: "application/octet-stream",
           });
-
-          console.log("gields", fields)
-
           const fd = new FormData();
           Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
           fd.append("file", file);

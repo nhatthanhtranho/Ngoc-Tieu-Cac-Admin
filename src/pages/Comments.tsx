@@ -37,7 +37,7 @@ export default function CommentList() {
                         onClick={() => {
                             if (item?.slug) {
                                 window.open(
-                                    `https://nhatthanhtranho.github.io/Ngoc-Tieu-Cac-Admin/#/book/${item.slug}`,
+                                    `/#/book/${item.slug}`,
                                     "_blank"
                                 );
                             }

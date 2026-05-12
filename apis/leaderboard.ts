@@ -1,10 +1,12 @@
+import axios from "axios";
 import { api } from ".";
+import { BACKEND_URL } from "../src/constant";
 
 export async function getLeaderboard(
   type: string,
   setLeaderboardBooks: (bookSlugs: string[]) => void
 ) {
-  const res = await api.get(`/trendings/${type}`);
+  const res = await axios.get(`${BACKEND_URL}/trendings/${type}`);
   setLeaderboardBooks(res.data.books);
   return res.data;
 }

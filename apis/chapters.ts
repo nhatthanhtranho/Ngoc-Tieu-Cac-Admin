@@ -1,5 +1,4 @@
 import axios from "axios";
-import { api } from ".";
 import { BACKEND_URL } from "../src/constant";
 
 export interface Chapter {
@@ -20,7 +19,7 @@ export async function fetchChapters(
   const res = await axios.get<Chapter[]>(
     `${BACKEND_URL}/chapters/${bookSlug}`
   );
-  setChapters(res.data);
+  setChapters(res.data.reverse());
 }
 
 export async function createChapters(bookSlug: string, chapters: Chapter[]) {

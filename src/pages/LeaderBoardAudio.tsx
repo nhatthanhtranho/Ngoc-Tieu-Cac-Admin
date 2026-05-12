@@ -196,8 +196,6 @@ export default function LeaderBoardAudio() {
   const [books, setBooks] = useState<Book[]>([]);
   const [activeTab, setActiveTab] = useState<string>(getTabFromHash());
   const [loadingOverlay, setLoadingOverlay] = useState(false);
-  
-  console.log('books', books)
 
   useEffect(() => {
     fetchAllBookSlugs((data: Book[]) => setBooks(data));

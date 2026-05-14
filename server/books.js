@@ -67,6 +67,7 @@ export async function getBooksBySlugs(booksCol, slugs) {
       currentChapter: 1,
       totalViews: 1,
       createdAt: 1,
+      monthlyMoonTicket: 1,
     })
     .toArray();
 }

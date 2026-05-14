@@ -14,47 +14,9 @@ import {
   GetQueryResultsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
 import { allowedOrigins, PUBLIC_BUCKET, s3, PRIVATE_BUCKET, cloudwatch, S3_PUBLIC_KEY_ID, S3_PRIVATE_KEY_ID } from "./constants.js";
+import { generateHomePage } from "./home.mjs";
 
-function getYesterdayAndTodayRangeVN() {
-  const now = new Date();
 
-  // GMT+7
-  const vnNow = new Date(
-    now.getTime() + 7 * 60 * 60 * 1000
-  );
-
-  // 🟦 00:00 hôm qua
-  const startYesterdayVN = new Date(vnNow);
-  startYesterdayVN.setDate(
-    startYesterdayVN.getDate() - 1
-  );
-  startYesterdayVN.setHours(0, 0, 0, 0);
-
-  // 🟩 00:00 hôm nay
-  const startTodayVN = new Date(vnNow);
-  startTodayVN.setHours(0, 0, 0, 0);
-
-  // ⏭️ 23:59:59 hôm nay
-  const endTodayVN = new Date(vnNow);
-  endTodayVN.setHours(23, 59, 59, 999);
-
-  return {
-    startYesterdayUTC: new Date(
-      startYesterdayVN.getTime() -
-      7 * 60 * 60 * 1000
-    ),
-
-    startTodayUTC: new Date(
-      startTodayVN.getTime() -
-      7 * 60 * 60 * 1000
-    ),
-
-    endTodayUTC: new Date(
-      endTodayVN.getTime() -
-      7 * 60 * 60 * 1000
-    ),
-  };
-}
 
 async function runLogQuery(logGroupName, queryString, startTime, endTime) {
   const start = await cloudwatch.send(
@@ -151,6 +113,21 @@ app.post("/slugs", async (req, res) => {
   }
 });
 
+app.get("/generate", async (req, res) => {
+  try {
+    const trendingCols = await getCollectionCloud("trendings");
+
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    await generateHomePage(trendingCols, booksCol)
+
+    return res.json({ message: "Done" }); // ✅ QUAN TRỌNG
+  } catch (err) {
+    console.error("GET /slugs error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/books/slugs", async (req, res) => {
   try {
     const { slugs } = req.body || {};
@@ -223,7 +200,7 @@ app.get("/payment-requests", async (req, res) => {
     const paymentCol = await getCollectionCloud(PAYMENT_REQUESTS);
     const [topupCount, premiumCount] = await Promise.all([
       paymentCol.countDocuments({ status: "pending", type: "topup" }),
-      paymentCol.countDocuments({ status: "pending", type: "membership" })
+      paymentCol.countDocuments({ status: { $in: ["pending", "auto_approved"] }, type: "membership" })
     ]);
     return res.json({
       topup: topupCount,
@@ -651,7 +628,7 @@ app.post("/payment-requests/change-status-to-approved", async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy yêu cầu thanh toán." });
     }
 
-    if (paymentRequest.status !== "pending") {
+    if (paymentRequest.status === "approved" ) {
       return res.status(400).json({ message: "Yêu cầu này đã được xử lý." });
     }
 
@@ -1198,11 +1175,51 @@ app.get("/admin/top-book", async (req, res) => {
     const booksCol = await getCollectionCloud(BOOKS);
     const usersCol = await getCollectionCloud("users");
 
-    const {
-      startYesterdayUTC,
-      startTodayUTC,
-      endTodayUTC,
-    } = getYesterdayAndTodayRangeVN();
+    /**
+     * 🇻🇳 UTC+7
+     * 00:00 VN = 17:00 UTC hôm trước
+     */
+
+    const now = new Date();
+
+    // thời gian VN
+    const vnNow = new Date(
+      now.getTime() + 7 * 60 * 60 * 1000
+    );
+
+    // đầu ngày hôm nay theo VN
+    const startTodayVN = new Date(
+      vnNow.getFullYear(),
+      vnNow.getMonth(),
+      vnNow.getDate(),
+      0,
+      0,
+      0,
+      0
+    );
+
+    // đầu ngày hôm qua theo VN
+    const startYesterdayVN = new Date(startTodayVN);
+    startYesterdayVN.setDate(
+      startYesterdayVN.getDate() - 1
+    );
+
+    // cuối ngày hôm nay theo VN
+    const endTodayVN = new Date(startTodayVN);
+    endTodayVN.setHours(23, 59, 59, 999);
+
+    // convert về UTC để query Mongo
+    const startTodayUTC = new Date(
+      startTodayVN.getTime() - 7 * 60 * 60 * 1000
+    );
+
+    const startYesterdayUTC = new Date(
+      startYesterdayVN.getTime() - 7 * 60 * 60 * 1000
+    );
+
+    const endTodayUTC = new Date(
+      endTodayVN.getTime() - 7 * 60 * 60 * 1000
+    );
 
     const [
       topViews,
@@ -1230,7 +1247,7 @@ app.get("/admin/top-book", async (req, res) => {
         .limit(20)
         .toArray(),
 
-      // 🟦 user hôm qua
+      // 🟦 User hôm qua (VN)
       usersCol.countDocuments({
         createdAt: {
           $gte: startYesterdayUTC,
@@ -1238,7 +1255,7 @@ app.get("/admin/top-book", async (req, res) => {
         },
       }),
 
-      // 🟩 user hôm nay
+      // 🟩 User hôm nay (VN)
       usersCol.countDocuments({
         createdAt: {
           $gte: startTodayUTC,
@@ -1246,7 +1263,7 @@ app.get("/admin/top-book", async (req, res) => {
         },
       }),
 
-      // 💎 membership
+      // 💎 Membership còn hạn
       usersCol.countDocuments({
         premiumUntil: {
           $ne: null,
@@ -1254,7 +1271,7 @@ app.get("/admin/top-book", async (req, res) => {
         },
       }),
 
-      // 📚 total books
+      // 📚 Tổng truyện
       booksCol.estimatedDocumentCount(),
     ]);
 
@@ -1270,6 +1287,8 @@ app.get("/admin/top-book", async (req, res) => {
       },
 
       totalBooks,
+
+      timezone: "UTC+7",
     });
   } catch (error) {
     console.error(
@@ -1283,6 +1302,7 @@ app.get("/admin/top-book", async (req, res) => {
     });
   }
 });
+
 
 app.get("/admin/token", async (req, res) => {
   return res.status(200).json({

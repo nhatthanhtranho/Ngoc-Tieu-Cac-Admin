@@ -1,7 +1,7 @@
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { getBooksBySlugs } from "./books";
 import { brotliCompressSync, constants } from "zlib";
-import { PUBLIC_BUCKET, s3 } from "./constants";
+import { PUBLIC_BUCKET, s3 } from "./constants.js";
+import { getBooksBySlugs } from "./books.js";
 
 export async function uploadHomePageData(jsonString) {
   try {
@@ -21,6 +21,7 @@ export async function uploadHomePageData(jsonString) {
         CacheControl: "public, immutable",
       }),
     );
+    console.log("Generate new!")
 
     return true;
   } catch (error) {
@@ -35,7 +36,7 @@ function truncateText(text, maxLength = 100) {
   return text.slice(0, maxLength).trim() + "...";
 }
 
-export async function generateHomePage(trendingsCol, booksCol, commentsCol) {
+export async function generateHomePage(trendingsCol, booksCol) {
   const recommendedBookSlugs = await booksCol
     .find()
     .sort({ monthlyMoonTicket: -1 })
@@ -84,68 +85,23 @@ export async function generateHomePage(trendingsCol, booksCol, commentsCol) {
   relatedBooks = relatedBooks.map((book) => {
     const isLatest = (tops["latest"] || []).includes(book.slug);
     const isBanner = (tops["banners"] || []).includes(book.slug);
+    const isRecommend = (tops["recommend"] || []).includes(book.slug);
     return {
       slug: book.slug,
       title: book.title,
       currentChapter: book.currentChapter,
       description:
-        isBanner || isLatest ? truncateText(book.description, 800) : undefined,
-      categories: isBanner || isLatest ? book.categories : undefined,
+        isBanner || isLatest || isRecommend ? truncateText(book.description, 800) : undefined,
+      categories: isBanner || isLatest || isRecommend? book.categories : undefined,
       isFull: book.categories?.includes("hoan-thanh") ?? false,
       totalViews: isBanner ? book.totalViews : undefined,
-    };
-  });
-
-  const comments = await commentsCol.aggregate([
-    { $sort: { createdAt: -1 } },
-    {
-      $group: {
-        _id: "$slug",
-        latestComment: { $first: "$$ROOT" },
-      },
-    },
-    { $replaceRoot: { newRoot: "$latestComment" } },
-    { $sort: { createdAt: -1 } },
-    { $limit: 30 },
-    {
-      $project: {
-        _id: 0,
-        slug: 1,
-        username: 1,
-        content: 1,
-        createdAt: 1,
-        type: 1,
-        converter: 1,
-      },
-    },
-  ]);
-
-  const commentBookSlugs = Array.from(new Set(comments.map((c) => c.slug)));
-
-  const commentBooks = await getBooksBySlugs(booksCol, commentBookSlugs);
-
-  const bookMap = new Map(commentBooks.map((b) => [b.slug, b]));
-
-  const homeComments = comments.map((c) => {
-    const book = bookMap.get(c.slug);
-    return {
-      slug: c.slug,
-      title: book?.title,
-      tacGia: book?.tacGia,
-      content: c.content,
-      username: c.username,
-      createdAt: c.createdAt,
-      currentChapter: book?.currentChapter,
-      type: c.type,
-      converter: c.converter,
-      avatarUrl: c.avatarUrl,
+      monthlyMoonTicket: isRecommend ? book.monthlyMoonTicket : undefined,
     };
   });
 
   const homeJson = JSON.stringify({
     tops,
     books: relatedBooks,
-    latestComments: homeComments,
   });
 
   await uploadHomePageData(homeJson);

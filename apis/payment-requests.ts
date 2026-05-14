@@ -5,7 +5,7 @@ import { BACKEND_URL } from "../src/constant";
 export interface TopupItem {
   id: string;
   email: string;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "auto_approved";
   amount: number;
   method: string;
   type: "topup" | "membership";

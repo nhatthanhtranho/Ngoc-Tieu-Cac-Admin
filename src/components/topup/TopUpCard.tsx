@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Wallet,
   Clock,
@@ -20,14 +21,20 @@ import axios from "axios";
 
 interface Props {
   item: TopupItem;
-  onStatusChange: (id: string, status: "approved" | "rejected") => void;
-  displayXuLy?: boolean
+  onStatusChange: (
+    id: string,
+    status: "approved" | "rejected" | "auto_approved"
+  ) => void;
+  displayXuLy?: boolean;
 }
 
 function formatDate(dateStr?: string) {
   if (!dateStr) return "-";
+
   const d = new Date(dateStr);
+
   if (isNaN(d.getTime())) return "-";
+
   return d.toLocaleString("vi-VN", {
     day: "2-digit",
     month: "2-digit",
@@ -37,10 +44,14 @@ function formatDate(dateStr?: string) {
   });
 }
 
-export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) {
+export default function TopupCard({
+  item,
+  onStatusChange,
+  displayXuLy,
+}: Props) {
   const [open, setOpen] = useState(false);
 
-  const [preview, setPreview] = useState<string | null>(null); // ⬅️ zoom ảnh
+  const [preview, setPreview] = useState<string | null>(null);
 
   const [notes, setNotes] = useState({
     userNote: item.userNote ?? "",
@@ -67,11 +78,21 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
         badge: "bg-amber-900/30 text-amber-300 border-amber-700/40",
         icon: "text-amber-300",
       },
+
+      auto_approved: {
+        label: "Tự động duyệt",
+        badge:
+          "bg-violet-900/30 text-violet-300 border-violet-700/40",
+        icon: "text-violet-300",
+      },
+
       approved: {
         label: "Thành công",
-        badge: "bg-emerald-900/30 text-emerald-300 border-emerald-700/40",
+        badge:
+          "bg-emerald-900/30 text-emerald-300 border-emerald-700/40",
         icon: "text-emerald-300",
       },
+
       rejected: {
         label: "Thất bại",
         badge: "bg-rose-900/30 text-rose-300 border-rose-700/40",
@@ -79,7 +100,10 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
       },
     }[item.status || "pending"] || defaultStatus;
 
-      const handleApprove = useCallback(async () => {
+  // ----------------------------
+  // 🔥 HANDLE APPROVE
+  // ----------------------------
+  const handleApprove = useCallback(async () => {
     try {
       const res = await api.post("/payment-requests/approve", {
         paymentRequestId: item.id,
@@ -87,7 +111,6 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
 
       console.log("Approve success:", res.data);
 
-      // ⬅️ báo lên để update UI
       onStatusChange(item.id, "approved");
     } catch (err: any) {
       console.error("Approve error:", err.response?.data || err.message);
@@ -95,17 +118,17 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
     }
   }, [item.id, onStatusChange]);
 
-
-
   // ----------------------------
-  // 🔥 HANDLE APPROVE
+  // 🔥 HANDLE PROCESS
   // ----------------------------
   const handleProcess = useCallback(async () => {
     try {
-      const res = await axios.post(`${BACKEND_URL}/payment-requests/change-status-to-approved`, {
-        paymentRequestId: item.id,
-      });
-
+      await axios.post(
+        `${BACKEND_URL}/payment-requests/change-status-to-approved`,
+        {
+          paymentRequestId: item.id,
+        }
+      );
 
       onStatusChange(item.id, "approved");
     } catch (err: any) {
@@ -123,18 +146,18 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
         paymentRequestId: item.id,
       });
 
-      console.log("Approve success:", res.data);
+      console.log("Reject success:", res.data);
 
-      onStatusChange(item.id, "approved");
+      onStatusChange(item.id, "rejected");
     } catch (err: any) {
-      console.error("Approve error:", err.response?.data || err.message);
+      console.error("Reject error:", err.response?.data || err.message);
       alert("Xử lý thất bại!");
     }
   }, [item.id, onStatusChange]);
 
   return (
     <div
-      className={`
+      className="
         rounded-xl p-4 sm:p-5
         bg-[#0c1513]/80 backdrop-blur-sm
         border border-emerald-800/40
@@ -142,7 +165,7 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
         transition duration-300
         hover:shadow-[0_0_20px_rgba(16,185,129,0.12)]
         hover:border-emerald-600/40
-      `}
+      "
     >
       <button
         onClick={() => setOpen(!open)}
@@ -150,8 +173,12 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
       >
         <div className="flex items-center gap-3 text-left">
           <Wallet className={`w-5 h-5 ${statusConfig.icon}`} />
+
           <div>
-            <div className="font-medium text-emerald-50">{item.email}</div>
+            <div className="font-medium text-emerald-50">
+              {item.email}
+            </div>
+
             <div className="text-xs text-emerald-300/70">
               {item.type} •{" "}
               {item.type === "membership"
@@ -167,6 +194,7 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
           >
             {statusConfig.label}
           </span>
+
           {open ? (
             <ChevronUp className="w-5 h-5 text-emerald-300/70" />
           ) : (
@@ -180,20 +208,29 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-emerald-200/90">
               <Clock className="w-4 h-4 text-emerald-400/70" />
-              <span className="font-medium">Thời gian tạo:</span>{" "}
+
+              <span className="font-medium">Thời gian tạo:</span>
+
               {formatDate(item.createdAt)}
             </div>
 
             <div className="flex items-center gap-2">
               <Mail className="w-4 h-4 text-emerald-400/70" />
-              <span className="font-medium">Email:</span> {item.email}
+
+              <span className="font-medium">Email:</span>
+
+              {item.email}
             </div>
 
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Quote className="w-4 h-4 text-emerald-400/70" />
-                <span className="font-medium">Nội dung chuyển khoản:</span>
+
+                <span className="font-medium">
+                  Nội dung chuyển khoản:
+                </span>
               </div>
+
               <blockquote className="border-l-4 border-emerald-700/40 bg-emerald-950/40 p-3 rounded-md italic text-emerald-100">
                 “{item.transferContent ?? ""}”
               </blockquote>
@@ -201,25 +238,35 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
 
             <div className="flex items-center gap-2">
               <CreditCard className="w-4 h-4 text-emerald-400/70" />
-              <span className="font-medium">Phương thức:</span>{" "}
+
+              <span className="font-medium">Phương thức:</span>
+
               {item.method ?? "-"}
             </div>
 
             <div className="flex items-center gap-2">
               <Coins className="w-4 h-4 text-emerald-400/70" />
-              <span className="font-medium">Hình thức nạp:</span> {item.type ?? "-"}
+
+              <span className="font-medium">
+                Hình thức nạp:
+              </span>
+
+              {item.type ?? "-"}
             </div>
 
-            {/* Payment Proof */}
             {(item as any).paymentProofURL && (
               <div className="flex flex-col gap-2">
-                <span className="font-medium">Hình xác nhận thanh toán:</span>
+                <span className="font-medium">
+                  Hình xác nhận thanh toán:
+                </span>
 
                 <img
                   src={(item as any).paymentProofURL}
                   alt="Payment Proof"
                   className="w-[200px] h-[300px] object-cover rounded-lg border border-emerald-700/30 cursor-pointer hover:opacity-80 transition"
-                  onClick={() => setPreview((item as any).paymentProofURL)}
+                  onClick={() =>
+                    setPreview((item as any).paymentProofURL)
+                  }
                 />
               </div>
             )}
@@ -229,22 +276,26 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
             userNote={notes.userNote}
             adminNote={notes.adminNote}
             onChange={(field, value) =>
-              setNotes((prev) => ({ ...prev, [field]: value }))
+              setNotes((prev) => ({
+                ...prev,
+                [field]: value,
+              }))
             }
           />
 
-          <div className="flex items-center gap-3 mt-4">
-            {item.status === "pending" && displayXuLy && (
-              <button
-                onClick={handleProcess}
-                className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
-              >
-                <Check className="w-4 h-4" />
-                Kiểm tra xong
-              </button>
-            )}
+          <div className="flex items-center gap-3 mt-4 flex-wrap">
+            {["auto_approved"].includes(item.status) &&
+              displayXuLy && (
+                <button
+                  onClick={handleProcess}
+                  className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+                >
+                  <Check className="w-4 h-4" />
+                  Kiểm tra xong
+                </button>
+              )}
 
-             {item.status === "pending" && (
+            {item.status === "pending" && (
               <button
                 onClick={handleApprove}
                 className="flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
@@ -254,7 +305,7 @@ export default function TopupCard({ item, onStatusChange, displayXuLy }: Props) 
               </button>
             )}
 
-            {item.status !== "approved" && (
+            {!["approved"].includes(item.status) && (
               <button
                 onClick={handleMarkFailed}
                 className="flex items-center gap-2 bg-rose-700 hover:bg-rose-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"

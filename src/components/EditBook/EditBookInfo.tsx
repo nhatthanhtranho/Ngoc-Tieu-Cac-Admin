@@ -24,21 +24,50 @@ import { getBannerURL } from "../../utils/getBannerURL";
 import { api } from "../../../apis";
 import { Converter, getConverters } from "../../../apis/converter";
 import { BannerNgang } from "./BannerNgang";
+import { BACKEND_URL } from "../../constant";
+import axios from "axios";
 
 export default function EditBookInfo() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug || "";
-
+  const [deletingS3, setDeletingS3] = useState(false);
   const [book, setBook] = useState<Book | null>(null);
   const [originalBook, setOriginalBook] = useState<Book | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
   const [converters, setConverters] = useState<Converter[]>([]);
-  const [storageType, setStorageType] = useState<"s3" | "r2">("r2");
+  const [storageType, setStorageType] = useState<"s3" | "r2">("s3");
 
   useEffect(() => {
     getConverters().then(setConverters);
   }, []);
+
+  const handleDeleteS3 = async () => {
+    if (!book?.slug) return;
+
+    const confirmed = window.confirm(
+      `Xóa toàn bộ file S3/R2 của truyện "${book.title}"?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingS3(true);
+
+      await axios.delete(`${BACKEND_URL}/delete-s3/${book.slug}`);
+
+      toast.success("Đã xóa toàn bộ file S3!");
+    } catch (err: any) {
+      console.error(err);
+
+      toast.error(
+        err?.response?.data?.message ||
+        "Xóa S3 thất bại"
+      );
+    } finally {
+      setDeletingS3(false);
+    }
+  };
 
   const [bannerSet, setBannerSet] = useState<{
     small?: string;
@@ -64,7 +93,7 @@ export default function EditBookInfo() {
 
 
   useEffect(() => {
-    setStorageType(book?.storage === "s3" ? "s3" : "r2");
+    setStorageType(book?.storage === "r2" ? "r2" : "s3");
   }, [book?.storage])
   const onChange = (key: keyof Book, value: any) => {
     setBook((prev) => (prev ? { ...prev, [key]: value } : prev));
@@ -531,6 +560,19 @@ export default function EditBookInfo() {
                   className="mt-4 w-32 py-2 bg-cyan-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
                 >
                   Tạo ebook
+                </button>
+
+                <button
+                  onClick={handleDeleteS3}
+                  disabled={deletingS3}
+                  className={`mt-4 px-4 py-2 text-white rounded-lg transition-all ${deletingS3
+                    ? "bg-red-300 cursor-not-allowed"
+                    : "bg-red-500 hover:bg-red-600"
+                    }`}
+                >
+                  {deletingS3
+                    ? "Đang xóa..."
+                    : `Xóa S3`}
                 </button>
               </div>
             </div>

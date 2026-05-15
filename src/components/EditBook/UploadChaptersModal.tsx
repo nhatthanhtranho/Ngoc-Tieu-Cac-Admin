@@ -2,10 +2,9 @@
 
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { createChapters, getChapterUploadLink } from "../../../apis/chapters";
+import { createChapters } from "../../../apis/chapters";
 import { compressText } from "../../utils/compress";
 import { useNavigate } from "react-router-dom";
-import { api } from "../../../apis";
 import { uploadToR2 } from "../../../apis/r2";
 
 function buildPreviewFileName(original: string) {
@@ -29,7 +28,7 @@ interface UploadChaptersModalProps {
 }
 
 const CHAPTER_BATCH_SIZE = 100;
-const CONCURRENCY = 5;
+const CONCURRENCY = 30;
 const MAX_WORDS = 700;
 const PREVIEW_LIMIT = 10;
 
@@ -249,135 +248,9 @@ export default function UploadChaptersModal({
       }
 
       onUploaded();
-
       navigate(0);
     } catch (e: any) {
       console.error(e);
-      setError(e.message || "Upload thất bại");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!parsedChapters.length) return alert("Chưa chọn file");
-
-    setUploading(true);
-    setProgress(0);
-    setError(null);
-    abortRef.current = new AbortController();
-
-    try {
-      /* 1️⃣ create chapters */
-      for (let i = 0; i < parsedChapters.length; i += CHAPTER_BATCH_SIZE) {
-        const batch = parsedChapters.slice(i, i + CHAPTER_BATCH_SIZE);
-        await createChapters(
-          bookSlug,
-          batch.map((c) => ({
-            chapterNumber: c.chapterNumber,
-            title: c.title,
-          }))
-        );
-      }
-
-      const freeChapters = parsedChapters.filter((c) => c.chapterNumber <= 50);
-      const vipChapters = parsedChapters.filter((c) => c.chapterNumber > 50);
-
-      const total = freeChapters.length + vipChapters.length * 2;
-      setTotalUploads(total);
-      setProgress(0);
-
-      /* 2️⃣ upload FREE */
-      if (freeChapters.length) {
-        await uploadWithConcurrency(freeChapters, async (ch) => {
-          const { url, fields } = await getChapterUploadLink(bookSlug, ch.fileName, true);
-          const text = await ch.file.text();
-          const file = new File([compressText(text)], ch.fileName, {
-            type: "application/octet-stream",
-          });
-          const fd = new FormData();
-          Object.entries(fields).forEach(([k, v]) => fd.append(k, v as string));
-          fd.append("file", file);
-          console.log("hre2")
-
-          const res = await fetch(url, { method: "POST", body: fd });
-          if (!res.ok) throw new Error(`Upload free failed: ${ch.fileName}`);
-
-          setProgress((p) => p + 1);
-        });
-      }
-
-      /* 3️⃣ upload VIP (preview + full) */
-      if (vipChapters.length) {
-        await uploadWithConcurrency(vipChapters, async (ch) => {
-          const {
-            url,
-            fields,
-            preview,
-            previewFields,
-          } = await getChapterUploadLink(bookSlug, ch.fileName, false);
-
-          console.log("url", url)
-
-          const text = await ch.file.text();
-
-          /* ===== PREVIEW ===== */
-          const previewText = buildVipPreviewContent(text);
-
-          const previewName = buildPreviewFileName(ch.fileName);
-          // ví dụ: chuong-12.txt -> chuong-12-preview.txt
-
-          const previewFile = new File(
-            [compressText(previewText)],
-            previewName,
-            { type: "application/octet-stream" }
-          );
-
-          const previewFd = new FormData();
-          Object.entries(previewFields).forEach(([k, v]) =>
-            previewFd.append(k, v as string)
-          );
-          previewFd.append("file", previewFile);
-
-          const previewRes = await fetch(preview, {
-            method: "POST",
-            body: previewFd,
-          });
-          if (!previewRes.ok) {
-            throw new Error(`Upload VIP preview failed: ${ch.fileName}`);
-          }
-
-          setProgress((p) => p + 1);
-
-          /* ===== FULL ===== */
-          const fullFile = new File(
-            [compressText(text)],
-            ch.fileName,
-            { type: "application/octet-stream" }
-          );
-
-          const fullFd = new FormData();
-          Object.entries(fields).forEach(([k, v]) =>
-            fullFd.append(k, v as string)
-          );
-          fullFd.append("file", fullFile);
-
-          const fullRes = await fetch(url, {
-            method: "POST",
-            body: fullFd,
-          });
-          if (!fullRes.ok) {
-            throw new Error(`Upload VIP full failed: ${ch.fileName}`);
-          }
-
-          setProgress((p) => p + 1);
-        });
-      }
-
-      onUploaded();
-      await api.patch(`/books/${bookSlug}`, { updated: true });
-      navigate(0);
-    } catch (e: any) {
       setError(e.message || "Upload thất bại");
     } finally {
       setUploading(false);
@@ -487,7 +360,7 @@ export default function UploadChaptersModal({
         <div className="p-4 border-t flex justify-end gap-3">
           <button onClick={onClose}>Hủy</button>
           <button
-            onClick={isR2 ? handleR2Upload : handleUpload}
+            onClick={handleR2Upload}
             disabled={uploading || !parsedChapters.length}
             className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
           >

@@ -79,13 +79,48 @@ const PAYMENT_REQUESTS = "payment_requests";
 const SEEDS = "seeds";
 const COMMENTS = "comments";
 
+
+app.get("/real-comments", async (req, res) => {
+  try {
+    // nếu cần auth giống Lambda thì bật lại
+    // const user = await verifyToken(req, true);
+    // if (!user) {
+    //   return res.status(401).json({ message: "Unauthorized" });
+    // }
+
+    const commentsCol = await getCollectionCloud(COMMENTS);
+
+    const comments = await commentsCol
+      .find({
+        type: "r", // review
+      })
+      .project({
+        content: 1,
+        username: 1,
+        createdAt: 1,
+        slug: 1,
+      })
+      .sort({ createdAt: -1 })
+      .limit(20)
+      .toArray();
+
+    return res.json(comments);
+  } catch (err) {
+    console.error("GET /real-comments error:", err);
+    return res.status(500).json({
+      error: err.message || "Internal server error",
+    });
+  }
+});
+
+
 app.get("/slugs", async (req, res) => {
   try {
     const booksCol = await getCollectionCloud(BOOKS);
 
     const slugs = await booksCol
       .find()
-      .project({ slug: 1, _id: 0, title: 1, currentChapter: 1, categories: 1 })
+      .project({ slug: 1, _id: 0, title: 1, currentChapter: 1, categories: 1, storage: 1 })
       .sort({ createdAt: -1 })
       .toArray();
 
@@ -1593,6 +1628,76 @@ app.post("/admin/books/:bookSlug/toggle-seed", async (req, res) => {
   } catch (err) {
     console.error(
       "POST /admin/books/:bookSlug/toggle-seed error:",
+      err
+    );
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
+
+app.delete("/delete-s3/:slug", async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    if (!slug) {
+      return res.status(400).json({
+        message: "Missing slug",
+      });
+    }
+
+    // 👉 nếu cần auth admin thì bật lại
+    // const admin = await verifyToken(req, true);
+    // if (!admin) {
+    //   return res.status(401).json({
+    //     message: "Unauthorized",
+    //   });
+    // }
+
+    /**
+     * PRIVATE_BUCKET
+     * delete folder:
+     * - slug/
+     */
+    await deleteByPrefix(
+      PRIVATE_BUCKET,
+      `${slug}/`
+    );
+
+    /**
+     * PUBLIC_BUCKET
+     * delete folders:
+     * - free/slug/
+     * - preview/slug/
+     */
+    await Promise.all([
+      deleteByPrefix(
+        PUBLIC_BUCKET,
+        `free/${slug}/`
+      ),
+
+      deleteByPrefix(
+        PUBLIC_BUCKET,
+        `preview/${slug}/`
+      ),
+    ]);
+
+    return res.json({
+      success: true,
+      message: "S3 cleaned successfully",
+      deleted: {
+        private: `${slug}/`,
+        public: [
+          `free/${slug}/`,
+          `preview/${slug}/`,
+        ],
+      },
+    });
+  } catch (err) {
+    console.error(
+      "DELETE /delete-s3/:slug error:",
       err
     );
 

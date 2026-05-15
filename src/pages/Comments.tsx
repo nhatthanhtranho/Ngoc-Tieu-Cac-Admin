@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { api } from "../../apis";
+import { BACKEND_URL } from "../constant";
+import axios from "axios";
 
 export default function CommentList() {
     const [comments, setComments] = useState<any[]>([]);
@@ -11,7 +12,7 @@ export default function CommentList() {
 
     const fetchComments = async () => {
         try {
-            const res = await api.get("/admin/real-comments");
+            const res = await axios.get(`${BACKEND_URL}/real-comments`);
             setComments(res?.data ?? []);
         } catch (err) {
             console.error("Lỗi:", err);

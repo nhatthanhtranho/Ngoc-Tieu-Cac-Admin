@@ -28,6 +28,7 @@ function App() {
   const [bookStatusFilter, setBookStatusFilter] = useState({
     completed: true,
     ongoing: true,
+    r2: true,
   });
 
   const pageSize = 100;
@@ -36,21 +37,34 @@ function App() {
     try {
       const res = await axios.get(`${BACKEND_URL}/slugs`);
       let booksData = res.data;
+  
       booksData = booksData.filter((book: any) => {
         const isCompleted = book.categories?.includes("hoan-thanh");
-        if (filter.completed && filter.ongoing) return true;
-        if (filter.completed) return isCompleted;
-        if (filter.ongoing) return !isCompleted;
-        return false;
+  
+        // lọc theo status
+        const matchStatus =
+          (filter.completed && filter.ongoing) ||
+          (!filter.completed && !filter.ongoing)
+            ? true
+            : filter.completed
+            ? isCompleted
+            : filter.ongoing
+            ? !isCompleted
+            : true;
+  
+        // lọc riêng theo storage r2
+        const matchR2 = filter.r2 ? book.storage === "r2" : true;
+  
+        return matchStatus && matchR2;
       });
-
+  
       setBookSlugs(booksData);
     } catch (err) {
       toast.error("Lỗi khi lấy danh sách slug");
     }
   };
 
-  const toggleStatusFilter = (type: "completed" | "ongoing") => {
+  const toggleStatusFilter = (type: "completed" | "ongoing" | "r2") => {
     setBookStatusFilter((prev) => {
       const newState = {
         ...prev,
@@ -251,6 +265,16 @@ function App() {
                 }`}
               >
                 Đang Ra
+              </button>
+              <button
+                onClick={() => toggleStatusFilter("r2")}
+                className={`flex-1 lg:w-32 py-2 px-4 rounded-lg font-medium transition-all ${
+                  bookStatusFilter.r2 
+                  ? "bg-white text-emerald-600 shadow-sm" 
+                  : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                R2 bucket
               </button>
             </div>
 

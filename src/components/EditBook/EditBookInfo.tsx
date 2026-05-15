@@ -545,6 +545,7 @@ export default function EditBookInfo() {
           <ChapterListView
             numberOfChapters={book.currentChapter}
             bookSlug={book.slug}
+            isR2={book.storage === "r2"}
           />
         </div>
 

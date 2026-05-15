@@ -6,33 +6,32 @@ import { BACKEND_URL } from "../src/constant";
 
 const STORAGE_KEY = "r2_credentials";
 const R2_ENDPOINT = "https://966888c99d59af76accec00f3980c517.r2.cloudflarestorage.com";
+const PUBLIC_BUCKET = "ngoc-tieu-cac-public";
+const PRIVATE_BUCKET = "ngoc-tieu-cac";
 
 let r2Client: S3Client | null = null;
 
 interface UploadR2Params {
-    endpoint: string;
-    bucket: string;
     key: string;
     body: Blob | Uint8Array | string;
     contentType?: string;
+    isPublic?: boolean;
 }
 
 async function getValidR2Credentials() {
-    // 1. Lấy từ localStorage
     const raw = localStorage.getItem(STORAGE_KEY);
 
     if (raw) {
-        const creds = JSON.parse(raw);
-        if (creds) {
-            return creds;
-        }
+        console.log(raw)
+        return JSON.parse(raw);
     }
 
-    const res = await axios.get(`${BACKEND_URL}/admin/token`);
-    const newCreds = res;
+    const res = await axios.get(`${BACKEND_URL}/admin/token?isR2=true`);
 
-    // 3. Lưu vào localStorage
+    const newCreds = res.data;
+
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newCreds));
+
     return newCreds;
 }
 
@@ -42,6 +41,7 @@ async function getR2Client(): Promise<S3Client> {
     r2Client = new S3Client({
         region: "auto",
         endpoint: R2_ENDPOINT,
+        forcePathStyle: true,
         credentials: {
             accessKeyId: creds.accessKeyId,
             secretAccessKey: creds.secretAccessKey,
@@ -53,15 +53,15 @@ async function getR2Client(): Promise<S3Client> {
 }
 
 export async function uploadToR2({
-    bucket,
     key,
     body,
     contentType = "application/octet-stream",
+    isPublic = false,
 }: UploadR2Params) {
     const client = await getR2Client();
 
     const command = new PutObjectCommand({
-        Bucket: bucket,
+        Bucket: isPublic ? PUBLIC_BUCKET : PRIVATE_BUCKET,
         Key: key,
         Body: body,
         ContentType: contentType,

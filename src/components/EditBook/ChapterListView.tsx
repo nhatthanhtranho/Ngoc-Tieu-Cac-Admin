@@ -11,6 +11,7 @@ import DeleteBookModal from "./DeleteBookModal";
 interface ChapterListViewProps {
   numberOfChapters: number;
   bookSlug: string;
+  isR2: boolean;
 }
 
 function renderDate(date: string) {
@@ -23,6 +24,7 @@ function renderDate(date: string) {
 export default function ChapterListView({
   numberOfChapters,
   bookSlug,
+  isR2,
 }: ChapterListViewProps) {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -120,6 +122,7 @@ export default function ChapterListView({
             bookSlug={bookSlug}
             onClose={() => setShowUploadModal(false)}
             onUploaded={handleUploaded}
+            isR2={isR2}
           />
         )}
         {showDeleteModal && (

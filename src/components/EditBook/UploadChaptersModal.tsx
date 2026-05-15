@@ -6,6 +6,7 @@ import { createChapters, getChapterUploadLink } from "../../../apis/chapters";
 import { compressText } from "../../utils/compress";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../../apis";
+import { uploadToR2 } from "../../../apis/r2";
 
 function buildPreviewFileName(original: string) {
   const dot = original.lastIndexOf(".");
@@ -22,6 +23,7 @@ export interface ParsedChapter {
 
 interface UploadChaptersModalProps {
   bookSlug: string;
+  isR2: boolean;
   onClose: () => void;
   onUploaded: () => void;
 }
@@ -64,6 +66,7 @@ export default function UploadChaptersModal({
   bookSlug,
   onClose,
   onUploaded,
+  isR2,
 }: UploadChaptersModalProps) {
   const navigate = useNavigate();
   const abortRef = useRef<AbortController | null>(null);
@@ -134,6 +137,128 @@ export default function UploadChaptersModal({
 
   /* ================= upload ================= */
 
+
+  const handleR2Upload = async () => {
+    if (!parsedChapters.length) {
+      alert("Chưa chọn file");
+      return;
+    }
+
+    setUploading(true);
+    setProgress(0);
+    setError(null);
+
+    abortRef.current = new AbortController();
+
+    try {
+      /* 1️⃣ create chapters */
+      for (let i = 0; i < parsedChapters.length; i += CHAPTER_BATCH_SIZE) {
+        const batch = parsedChapters.slice(i, i + CHAPTER_BATCH_SIZE);
+
+        await createChapters(
+          bookSlug,
+          batch.map((c) => ({
+            chapterNumber: c.chapterNumber,
+            title: c.title,
+          }))
+        );
+      }
+
+      const freeChapters = parsedChapters.filter(
+        (c) => c.chapterNumber <= 50
+      );
+
+      const vipChapters = parsedChapters.filter(
+        (c) => c.chapterNumber > 50
+      );
+
+      const total = freeChapters.length + vipChapters.length * 2;
+
+      setTotalUploads(total);
+      setProgress(0);
+
+      /* ================= FREE ================= */
+
+      if (freeChapters.length) {
+        await uploadWithConcurrency(freeChapters, async (ch) => {
+          if (abortRef.current?.signal.aborted) {
+            throw new Error("aborted");
+          }
+
+          const text = await ch.file.text();
+
+          const compressed = compressText(text);
+
+          const key = `free/${bookSlug}/${ch.fileName}`;
+
+          await uploadToR2({
+            key,
+            body: compressed,
+            contentType: "application/octet-stream",
+            isPublic: true,
+          });
+
+          setProgress((p) => p + 1);
+        });
+      }
+
+      /* ================= VIP ================= */
+
+      if (vipChapters.length) {
+        await uploadWithConcurrency(vipChapters, async (ch) => {
+          if (abortRef.current?.signal.aborted) {
+            throw new Error("aborted");
+          }
+
+          const text = await ch.file.text();
+
+          /* ===== PREVIEW ===== */
+
+          const previewText = buildVipPreviewContent(text);
+
+          const previewCompressed = compressText(previewText);
+
+          const previewName = buildPreviewFileName(ch.fileName);
+
+          const previewKey = `preview/${bookSlug}/${previewName}`;
+
+          await uploadToR2({
+            key: previewKey,
+            body: previewCompressed,
+            contentType: "application/octet-stream",
+            isPublic: true,
+          });
+
+          setProgress((p) => p + 1);
+
+          /* ===== FULL ===== */
+
+          const fullCompressed = compressText(text);
+
+          const fullKey = `${bookSlug}/${ch.fileName}`;
+
+          await uploadToR2({
+            key: fullKey,
+            body: fullCompressed,
+            contentType: "application/octet-stream",
+            isPublic: false,
+          });
+
+          setProgress((p) => p + 1);
+        });
+      }
+
+      onUploaded();
+
+      navigate(0);
+    } catch (e: any) {
+      console.error(e);
+      setError(e.message || "Upload thất bại");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleUpload = async () => {
     if (!parsedChapters.length) return alert("Chưa chọn file");
 
@@ -165,7 +290,7 @@ export default function UploadChaptersModal({
       /* 2️⃣ upload FREE */
       if (freeChapters.length) {
         await uploadWithConcurrency(freeChapters, async (ch) => {
-          const { url, fields } = await getChapterUploadLink(bookSlug, ch.fileName,true);
+          const { url, fields } = await getChapterUploadLink(bookSlug, ch.fileName, true);
           const text = await ch.file.text();
           const file = new File([compressText(text)], ch.fileName, {
             type: "application/octet-stream",
@@ -263,10 +388,8 @@ export default function UploadChaptersModal({
 
   const freeCount = parsedChapters.filter((c) => c.chapterNumber <= 50).length;
   const vipCount = parsedChapters.filter((c) => c.chapterNumber > 50).length;
-
   const previewChapters = parsedChapters.slice(0, PREVIEW_LIMIT);
   const hasMore = parsedChapters.length > PREVIEW_LIMIT;
-
   return (
     <motion.div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <motion.div className="bg-white rounded-2xl w-[800px] max-h-[80vh] flex flex-col">
@@ -364,7 +487,7 @@ export default function UploadChaptersModal({
         <div className="p-4 border-t flex justify-end gap-3">
           <button onClick={onClose}>Hủy</button>
           <button
-            onClick={handleUpload}
+            onClick={isR2 ? handleR2Upload : handleUpload}
             disabled={uploading || !parsedChapters.length}
             className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
           >

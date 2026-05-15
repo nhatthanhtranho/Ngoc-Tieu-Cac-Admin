@@ -13,7 +13,7 @@ import {
   StartQueryCommand,
   GetQueryResultsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
-import { allowedOrigins, PUBLIC_BUCKET, s3, PRIVATE_BUCKET, cloudwatch, S3_PUBLIC_KEY_ID, S3_PRIVATE_KEY_ID } from "./constants.js";
+import { allowedOrigins, PUBLIC_BUCKET, s3, PRIVATE_BUCKET, cloudwatch, S3_PUBLIC_KEY_ID, S3_PRIVATE_KEY_ID, R2_PUBLIC_KEY_ID, R2_PRIVATE_KEY_ID } from "./constants.js";
 import { generateHomePage } from "./home.mjs";
 
 
@@ -837,6 +837,7 @@ app.post("/books", async (req, res) => {
 
     const dataToInsert = {
       ...bookData,
+      storage: "r2",
       slugSearch,
       ...(bookData.updated === true
         ? { updatedAt: now }
@@ -902,8 +903,8 @@ app.post("/chapters/upload-link/:bookSlug", async (req, res) => {
         ? publicR2Bucket
         : publicBucket
       : isR2
-      ? privateR2Bucket
-      : privateBucket;
+        ? privateR2Bucket
+        : privateBucket;
 
     const previewBucket = isR2
       ? publicR2Bucket
@@ -1254,8 +1255,8 @@ fields @message
  */
 function getYesterdayAndTodayRangeVN() {
   // Lấy ngày hiện tại dưới dạng YYYY-MM-DD theo múi giờ VN (Asia/Ho_Chi_Minh)
-  const vnDateStr = new Date().toLocaleDateString('en-CA', { 
-    timeZone: 'Asia/Ho_Chi_Minh' 
+  const vnDateStr = new Date().toLocaleDateString('en-CA', {
+    timeZone: 'Asia/Ho_Chi_Minh'
   });
 
   // Tạo mốc 00:00:00 hôm nay tại VN và ép về UTC
@@ -1326,7 +1327,7 @@ app.get("/admin/top-book", async (req, res) => {
       usersCol.countDocuments({
         premiumUntil: {
           $ne: null,
-          $gt: new Date(), 
+          $gt: new Date(),
         },
       }),
 
@@ -1362,6 +1363,13 @@ app.get("/admin/top-book", async (req, res) => {
 });
 
 app.get("/admin/token", async (req, res) => {
+  const { isR2 } = req.query
+  if (isR2) {
+    return res.status(200).json({
+      accessKeyId: R2_PUBLIC_KEY_ID,
+      secretAccessKey: R2_PRIVATE_KEY_ID,
+    });
+  }
   return res.status(200).json({
     accessKeyId: S3_PUBLIC_KEY_ID,
     secretAccessKey: S3_PRIVATE_KEY_ID,

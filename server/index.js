@@ -115,11 +115,10 @@ app.post("/slugs", async (req, res) => {
 
 app.get("/generate", async (req, res) => {
   try {
-    const trendingCols = await getCollectionCloud("trendings");
 
     const booksCol = await getCollectionCloud(BOOKS);
 
-    await generateHomePage(trendingCols, booksCol)
+    await generateHomePage(booksCol)
 
     return res.json({ message: "Done" }); // ✅ QUAN TRỌNG
   } catch (err) {
@@ -628,7 +627,7 @@ app.post("/payment-requests/change-status-to-approved", async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy yêu cầu thanh toán." });
     }
 
-    if (paymentRequest.status === "approved" ) {
+    if (paymentRequest.status === "approved") {
       return res.status(400).json({ message: "Yêu cầu này đã được xử lý." });
     }
 
@@ -862,24 +861,60 @@ app.post("/books", async (req, res) => {
 const privateBucket = "ngoc-tieu-cac";
 const publicBucket = "assets.itruyenchu.com";
 
+const privateR2Bucket = "ngoc-tieu-cac";
+const publicR2Bucket = "assets.itruyenchu.com";
+
+
 app.post("/chapters/upload-link/:bookSlug", async (req, res) => {
   try {
     const { bookSlug } = req.params;
     const { isPublic } = req.query;
-    const { fileName } = req.body;
+
+    const {
+      fileName,
+      storageType = "r2", // ✅ default R2
+    } = req.body;
 
     if (!bookSlug) {
       return res.status(400).json({
         message: "Missing bookSlug",
       });
     }
+
+    if (!fileName) {
+      return res.status(400).json({
+        message: "Missing fileName",
+      });
+    }
+
     const uploadPublic = isPublic === "1";
-    const bucket = uploadPublic ? publicBucket : privateBucket;
+
+    /**
+     * ✅ chọn client + bucket
+     */
+
+    const isR2 = storageType === "r2";
+
+    const client = isR2 ? r2 : s3;
+
+    const bucket = uploadPublic
+      ? isR2
+        ? publicR2Bucket
+        : publicBucket
+      : isR2
+      ? privateR2Bucket
+      : privateBucket;
+
+    const previewBucket = isR2
+      ? publicR2Bucket
+      : publicBucket;
+
     const acl = "private";
 
     /**
-     * 🎯 Build keyPrefix (NO AUDIO)
+     * 🎯 Build keyPrefix
      */
+
     let keyPrefix = "";
 
     if (uploadPublic) {
@@ -892,10 +927,11 @@ app.post("/chapters/upload-link/:bookSlug", async (req, res) => {
     let previewPost;
 
     /**
-     * PUBLIC
+     * ================= PUBLIC =================
      */
+
     if (uploadPublic) {
-      presignedPost = await createPresignedPost(s3, {
+      presignedPost = await createPresignedPost(client, {
         Bucket: bucket,
         Key: `${keyPrefix}${fileName}`,
         Conditions: [["starts-with", "$key", keyPrefix]],
@@ -903,41 +939,79 @@ app.post("/chapters/upload-link/:bookSlug", async (req, res) => {
       });
     } else {
       /**
-       * PRIVATE
+       * ================= PRIVATE =================
        */
-      presignedPost = await createPresignedPost(s3, {
+
+      presignedPost = await createPresignedPost(client, {
         Bucket: bucket,
         Key: `${keyPrefix}${"${filename}"}`,
-        Conditions: [["starts-with", "$key", keyPrefix], { acl }],
-        Fields: { acl },
+        Conditions: [
+          ["starts-with", "$key", keyPrefix],
+          ...(isR2 ? [] : [{ acl }]),
+        ],
+        Fields: isR2 ? {} : { acl },
         Expires: 3600,
       });
 
       /**
-       * PREVIEW (public bucket)
+       * ================= PREVIEW =================
        */
-      previewPost = await createPresignedPost(s3, {
-        Bucket: publicBucket,
+
+      previewPost = await createPresignedPost(client, {
+        Bucket: previewBucket,
         Key: `preview/${bookSlug}/${"${filename}"}`,
-        Conditions: [["starts-with", "$key", `preview/${bookSlug}/`]],
+        Conditions: [
+          [
+            "starts-with",
+            "$key",
+            `preview/${bookSlug}/`,
+          ],
+        ],
         Expires: 3600,
       });
     }
 
+    /**
+     * ✅ public base url
+     */
+
+    let publicBaseUrl = null;
+
+    if (uploadPublic) {
+      if (isR2) {
+        publicBaseUrl = `${process.env.R2_PUBLIC_URL}/${keyPrefix}`;
+      } else {
+        publicBaseUrl = `https://${bucket}.s3.amazonaws.com/${keyPrefix}`;
+      }
+    }
+
     return res.json({
-      visibility: uploadPublic ? "public" : "private",
+      storageType,
+      visibility: uploadPublic
+        ? "public"
+        : "private",
+
       url: presignedPost.url,
+
       preview: previewPost?.url || null,
-      previewFields: previewPost?.fields || null,
+
+      previewFields:
+        previewPost?.fields || null,
+
       fields: presignedPost.fields,
+
       keyPrefix,
-      ...(uploadPublic && {
-        publicBaseUrl: `https://${bucket}.s3.amazonaws.com/${keyPrefix}`,
-      }),
+
+      publicBaseUrl,
+
       expiresIn: 3600,
     });
   } catch (err) {
-    console.error("POST /chapters/upload-link error:", err);
+    console.error(
+      "POST /chapters/upload-link error:",
+      err
+    );
+
     return res.status(500).json({
       message: "Internal server error",
       error: err.message,
@@ -1170,57 +1244,52 @@ fields @message
   }
 });
 
+
+/**
+ * Lấy range:
+ * - 00:00 hôm qua (VN)
+ * - 00:00 hôm nay (VN)
+ * - 23:59:59 hôm nay (VN)
+ * Convert sang UTC để query MongoDB
+ */
+function getYesterdayAndTodayRangeVN() {
+  // Lấy ngày hiện tại dưới dạng YYYY-MM-DD theo múi giờ VN (Asia/Ho_Chi_Minh)
+  const vnDateStr = new Date().toLocaleDateString('en-CA', { 
+    timeZone: 'Asia/Ho_Chi_Minh' 
+  });
+
+  // Tạo mốc 00:00:00 hôm nay tại VN và ép về UTC
+  // JavaScript hiểu "+07:00" nên sẽ tự động trừ đi 7 tiếng để ra giờ UTC chuẩn cho DB
+  const startTodayUTC = new Date(`${vnDateStr}T00:00:00+07:00`);
+
+  // Tính mốc 00:00:00 hôm qua bằng cách trừ đi 1 ngày từ mốc hôm nay
+  const startYesterdayUTC = new Date(startTodayUTC);
+  startYesterdayUTC.setDate(startYesterdayUTC.getDate() - 1);
+
+  // Tính mốc 23:59:59 hôm nay
+  const endTodayUTC = new Date(startTodayUTC);
+  endTodayUTC.setHours(23, 59, 59, 999);
+
+  return {
+    startYesterdayUTC,
+    startTodayUTC,
+    endTodayUTC,
+  };
+}
+
 app.get("/admin/top-book", async (req, res) => {
   try {
     const booksCol = await getCollectionCloud(BOOKS);
     const usersCol = await getCollectionCloud("users");
 
-    /**
-     * 🇻🇳 UTC+7
-     * 00:00 VN = 17:00 UTC hôm trước
-     */
+    // 1. Lấy range thời gian đã fix
+    const {
+      startYesterdayUTC,
+      startTodayUTC,
+      endTodayUTC,
+    } = getYesterdayAndTodayRangeVN();
 
-    const now = new Date();
-
-    // thời gian VN
-    const vnNow = new Date(
-      now.getTime() + 7 * 60 * 60 * 1000
-    );
-
-    // đầu ngày hôm nay theo VN
-    const startTodayVN = new Date(
-      vnNow.getFullYear(),
-      vnNow.getMonth(),
-      vnNow.getDate(),
-      0,
-      0,
-      0,
-      0
-    );
-
-    // đầu ngày hôm qua theo VN
-    const startYesterdayVN = new Date(startTodayVN);
-    startYesterdayVN.setDate(
-      startYesterdayVN.getDate() - 1
-    );
-
-    // cuối ngày hôm nay theo VN
-    const endTodayVN = new Date(startTodayVN);
-    endTodayVN.setHours(23, 59, 59, 999);
-
-    // convert về UTC để query Mongo
-    const startTodayUTC = new Date(
-      startTodayVN.getTime() - 7 * 60 * 60 * 1000
-    );
-
-    const startYesterdayUTC = new Date(
-      startYesterdayVN.getTime() - 7 * 60 * 60 * 1000
-    );
-
-    const endTodayUTC = new Date(
-      endTodayVN.getTime() - 7 * 60 * 60 * 1000
-    );
-
+    // 2. Thực hiện query song song
     const [
       topViews,
       newUsersYesterday,
@@ -1228,26 +1297,16 @@ app.get("/admin/top-book", async (req, res) => {
       totalMembershipUsers,
       totalBooks,
     ] = await Promise.all([
-      // 📚 TOP VIEW
+      // TOP VIEW
       booksCol
-        .find(
-          {},
-          {
-            projection: {
-              title: 1,
-              slug: 1,
-              weekViews: 1,
-              thumbnailUrl: 1,
-            },
-          }
-        )
-        .sort({
-          weekViews: -1,
+        .find({}, {
+          projection: { title: 1, slug: 1, weekViews: 1, thumbnailUrl: 1 },
         })
+        .sort({ weekViews: -1 })
         .limit(20)
         .toArray(),
 
-      // 🟦 User hôm qua (VN)
+      // USER HÔM QUA: >= 00:00:00 hôm qua và < 00:00:00 hôm nay
       usersCol.countDocuments({
         createdAt: {
           $gte: startYesterdayUTC,
@@ -1255,7 +1314,7 @@ app.get("/admin/top-book", async (req, res) => {
         },
       }),
 
-      // 🟩 User hôm nay (VN)
+      // USER HÔM NAY: >= 00:00:00 hôm nay và <= 23:59:59 hôm nay
       usersCol.countDocuments({
         createdAt: {
           $gte: startTodayUTC,
@@ -1263,46 +1322,44 @@ app.get("/admin/top-book", async (req, res) => {
         },
       }),
 
-      // 💎 Membership còn hạn
+      // MEMBERSHIP ACTIVE (Dựa trên thời điểm thực tế hiện tại)
       usersCol.countDocuments({
         premiumUntil: {
           $ne: null,
-          $gt: new Date(),
+          $gt: new Date(), 
         },
       }),
 
-      // 📚 Tổng truyện
+      // TOTAL BOOKS
       booksCol.estimatedDocumentCount(),
     ]);
 
+    // 3. Trả kết quả
     return res.json({
       topViews,
-
       countUsers: {
         newYesterday: newUsersYesterday,
         newToday: newUsersToday,
-        totalNew:
-          newUsersYesterday + newUsersToday,
+        totalNew: newUsersYesterday + newUsersToday,
         totalMembershipUsers,
       },
-
       totalBooks,
-
-      timezone: "UTC+7",
+      // Debug ranges để bạn check lại trên Compass nếu cần
+      debugRanges: {
+        vnDateStr: new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }),
+        startYesterdayUTC,
+        startTodayUTC,
+        endTodayUTC,
+      },
     });
   } catch (error) {
-    console.error(
-      "GET /admin/top-book error:",
-      error
-    );
-
+    console.error("GET /admin/top-book error:", error);
     return res.status(500).json({
       message: "Internal Server Error",
       error: error.message,
     });
   }
 });
-
 
 app.get("/admin/token", async (req, res) => {
   return res.status(200).json({
@@ -1475,6 +1532,150 @@ app.post("/reset-week-views", async (req, res) => {
   }
 });
 
+
+app.post("/admin/books/:bookSlug/toggle-seed", async (req, res) => {
+  try {
+    /* ----------------------------- Auth admin ----------------------------- */
+    // const admin = await verifyToken(req, true);
+    // if (!admin) {
+    //   return res.status(401).json({
+    //     message: "Unauthorized!",
+    //   });
+    // }
+
+    /* --------------------------- Parse params --------------------------- */
+    const { bookSlug } = req.params;
+
+    const seed =
+      req.query.seed === "true";
+
+    if (!bookSlug) {
+      return res.status(400).json({
+        message: "Missing bookSlug",
+      });
+    }
+
+    /* --------------------------- DB connect --------------------------- */
+    const booksCol = await getCollectionCloud(BOOKS);
+
+    /* ---------------------- Update seed flag ---------------------- */
+    const result = await booksCol.updateOne(
+      { slug: bookSlug },
+      {
+        $set: {
+          isSeed: seed,
+          updatedAt: new Date(),
+        },
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        message: "Book not found",
+      });
+    }
+
+    return res.json({
+      bookSlug,
+      seedEnabled: seed,
+      message: seed
+        ? "Seed enabled"
+        : "Seed disabled",
+    });
+  } catch (err) {
+    console.error(
+      "POST /admin/books/:bookSlug/toggle-seed error:",
+      err
+    );
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
+
+const CONFIGS = "config";
+
+/* =========================
+   GET AUTO APPROVE CONFIG
+========================= */
+app.get("/config/auto-approve-payment-request", async (req, res) => {
+  try {
+    const configCol = await getCollectionCloud(CONFIGS);
+
+    const config = await configCol.findOne(
+      { _id: "app_config" },
+      {
+        projection: {
+          _id: 0,
+          autoApprovePaymentRequest: 1,
+        },
+      }
+    );
+
+    return res.json({
+      autoApprovePaymentRequest:
+        config?.autoApprovePaymentRequest ?? false,
+    });
+  } catch (err) {
+    console.error(
+      "GET /config/auto-approve-payment-request error:",
+      err
+    );
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
+
+/* =========================
+   SET AUTO APPROVE CONFIG
+========================= */
+app.post("/config/auto-approve-payment-request", async (req, res) => {
+  try {
+    const { autoApprovePaymentRequest } = req.body;
+
+    if (typeof autoApprovePaymentRequest !== "boolean") {
+      return res.status(400).json({
+        message:
+          "autoApprovePaymentRequest must be boolean",
+      });
+    }
+
+    const configCol = await getCollectionCloud(CONFIGS);
+
+    await configCol.updateOne(
+      { _id: "app_config" },
+      {
+        $set: {
+          autoApprovePaymentRequest,
+          updatedAt: new Date(),
+        },
+      },
+      {
+        upsert: true,
+      }
+    );
+
+    return res.json({
+      message: "Update success",
+      autoApprovePaymentRequest,
+    });
+  } catch (err) {
+    console.error(
+      "POST /config/auto-approve-payment-request error:",
+      err
+    );
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
 
 const startServer = async () => {
   await getDB(); // 👈 chỉ gọi 1 lần

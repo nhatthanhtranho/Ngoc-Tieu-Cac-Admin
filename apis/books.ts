@@ -36,7 +36,7 @@ export async function createBook(newBook: Book): Promise<Book> {
 }
 
 export async function toggleHiddenBook(bookSlug: string, seed: boolean) {
-  const res = await api.get(`/admin/comments/${bookSlug}?seed=${seed}`);
+  const res = await axios.post(`${BACKEND_URL}/admin/books/toggle-seed?seed=${seed}`);
   return res.data;
 }
 

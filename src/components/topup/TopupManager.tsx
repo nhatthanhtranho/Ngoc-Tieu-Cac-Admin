@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { fetchTopups, TopupItem } from "../../../apis/payment-requests";
 import TopupFilter from "./TopupFilter";
@@ -16,10 +17,21 @@ export default function TopUpManager({
 }: TopUpManagerProps) {
   const [topups, setTopups] = useState<TopupItem[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [removingAll, setRemovingAll] =
     useState(false);
 
+  // ✅ toggle auto approve
+  const [
+    autoApprovePaymentRequest,
+    setAutoApprovePaymentRequest,
+  ] = useState(false);
+
+  const [toggleLoading, setToggleLoading] =
+    useState(false);
+
   const [search, setSearch] = useState("");
+
   const [statusFilter, setStatusFilter] =
     useState<
       "ALL" | "pending" | "approved" | "rejected"
@@ -41,6 +53,7 @@ export default function TopUpManager({
       | "pending"
       | "approved"
       | "rejected"
+      | "auto_approved"
   ) => {
     setTopups((prev) =>
       prev.map((t) =>
@@ -49,6 +62,59 @@ export default function TopUpManager({
           : t
       )
     );
+  };
+
+  // ✅ load config
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const res = await axios.get(
+          `${BACKEND_URL}/config/auto-approve-payment-request`
+        );
+
+        console.log(res.data)
+
+        setAutoApprovePaymentRequest(
+          res.data.autoApprovePaymentRequest
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadConfig();
+  }, []);
+
+  // ✅ toggle config
+  const handleToggleAutoApprove = async () => {
+    try {
+      setToggleLoading(true);
+
+      const nextValue =
+        !autoApprovePaymentRequest;
+
+      await axios.post(
+        `${BACKEND_URL}/config/auto-approve-payment-request`,
+        {
+          autoApprovePaymentRequest:
+            nextValue,
+        }
+      );
+
+      setAutoApprovePaymentRequest(nextValue);
+
+      toast.success(
+        nextValue
+          ? "Đã bật auto approve"
+          : "Đã tắt auto approve"
+      );
+    } catch (err) {
+      console.error(err);
+
+      toast.error("Toggle thất bại");
+    } finally {
+      setToggleLoading(false);
+    }
   };
 
   // 🗑️ Xóa tất cả payment requests
@@ -62,17 +128,13 @@ export default function TopUpManager({
     try {
       setRemovingAll(true);
 
-      const res = await axios.delete(
-        `${BACKEND_URL}/remove-payment-requests`,
-        {
-          method: "DELETE",
-        }
+      await axios.delete(
+        `${BACKEND_URL}/remove-payment-requests`
       );
 
-      toast.success("Đã xóa tất cả payment requests!");
-      
-
-      
+      toast.success(
+        "Đã xóa tất cả payment requests!"
+      );
 
       setTopups([]);
     } catch (err: any) {
@@ -129,16 +191,54 @@ export default function TopUpManager({
       <div className="mx-auto px-4">
         {/* 🧭 Title */}
         <div className="flex items-center justify-between mb-4">
-          <h1
-            className="
-              text-3xl font-cinzel font-bold
-              text-gray-800
-              drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]
-              tracking-wide
-            "
-          >
-            Quản lý Giao Dịch
-          </h1>
+          <div className="flex items-center gap-4">
+            <h1
+              className="
+                text-3xl font-cinzel font-bold
+                text-gray-800
+                drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]
+                tracking-wide
+              "
+            >
+              Quản lý Giao Dịch
+            </h1>
+
+            {/* ✅ Toggle */}
+            <button
+              onClick={
+                handleToggleAutoApprove
+              }
+              disabled={toggleLoading}
+              className={`
+                relative inline-flex h-7 w-14
+                items-center rounded-full
+                transition-all duration-300
+                ${
+                  autoApprovePaymentRequest
+                    ? "bg-emerald-500"
+                    : "bg-slate-400"
+                }
+                disabled:opacity-50
+              `}
+            >
+              <span
+                className={`
+                  inline-block h-5 w-5
+                  transform rounded-full bg-white
+                  transition-transform duration-300
+                  ${
+                    autoApprovePaymentRequest
+                      ? "translate-x-8"
+                      : "translate-x-1"
+                  }
+                `}
+              />
+            </button>
+
+            <span className="text-sm font-medium text-slate-700">
+              Auto approve membership
+            </span>
+          </div>
 
           {/* 🗑️ Nút xóa tất cả */}
           <button

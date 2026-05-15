@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios";
-import { BACKEND_URL } from "../src/constant";
+import { api } from ".";
 
 export interface TopupItem {
   id: string;
@@ -48,7 +47,8 @@ export async function fetchTopups(params?: {
   cleanParams.skip = skip;
 
   const query = "?" + new URLSearchParams(cleanParams).toString();
-  const res = await axios.get(`${BACKEND_URL}/payment-requests-list${query}`);
+  // const res = await axios.get(`${BACKEND_URL}/payment-requests-list${query}`);
+  const res = await api.get(`/payment-requests${query}`)
   const data = await res.data;
 
   const requests: TopupItem[] = data.data.map((item: any) => ({

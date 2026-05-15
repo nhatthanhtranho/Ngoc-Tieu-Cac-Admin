@@ -28,6 +28,7 @@ export interface Book {
   hasEbook: boolean;
   currentEbookChapter: number;
   converter?: string;
+  storage?: string
 }
 
 export async function createBook(newBook: Book): Promise<Book> {

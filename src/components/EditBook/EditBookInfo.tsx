@@ -3,7 +3,11 @@ import Select from "react-select";
 import { useParams } from "react-router-dom";
 import { BookA, CloudUpload, Eye } from "lucide-react";
 import { toast } from "react-toastify";
-import { getChangedFields, base64ToBlob, randomViewValue } from './bookfunc'
+import {
+  getChangedFields,
+  base64ToBlob,
+  randomViewValue,
+} from "./bookfunc";
 import ChapterListView from "./ChapterListView";
 import CommentList from "../Comment/CommentList";
 import CropImage from "../CropImage";
@@ -30,12 +34,11 @@ export default function EditBookInfo() {
   const [preview, setPreview] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
   const [converters, setConverters] = useState<Converter[]>([]);
+  const [storageType, setStorageType] = useState<"s3" | "r2">("r2");
 
   useEffect(() => {
     getConverters().then(setConverters);
   }, []);
-
-
 
   const [bannerSet, setBannerSet] = useState<{
     small?: string;
@@ -52,47 +55,63 @@ export default function EditBookInfo() {
 
   useEffect(() => {
     setLoading(true);
+
     fetchBookBySlug(slug, (b) => {
       setBook(b);
       setOriginalBook(b);
     }).finally(() => setLoading(false));
   }, [slug]);
 
+
+  useEffect(() => {
+    setStorageType(book?.storage === "s3" ? "s3" : "r2");
+  }, [book?.storage])
   const onChange = (key: keyof Book, value: any) => {
     setBook((prev) => (prev ? { ...prev, [key]: value } : prev));
   };
 
-
   const randomView = () => {
     onChange("totalViews", randomViewValue());
   };
+
   const handleSyncBook = async () => {
     setLoading(true);
+
     await syncBookData(slug).finally(() => setLoading(false));
+
     toast.success(`Hoàn tất sync ${book?.title}!`);
   };
 
   const onSave = async () => {
     if (!book || !originalBook) return;
+
     const changedData = getChangedFields(book, originalBook);
+
     if (Object.keys(changedData).length === 0) {
       toast.warning("Không có thay đổi nào để lưu!");
       return;
     }
+
     try {
       await updateBook(book.slug, changedData, book);
+
       toast.success("Lưu thay đổi thành công!");
+
       setOriginalBook(book);
     } catch (err) {
       console.error("❌ Lỗi khi lưu:", err);
+
       toast.error(
         `Đã xảy ra lỗi khi lưu thay đổi: ${err instanceof Error ? err.message : err
-        }`,
+        }`
       );
     }
   };
 
-  const handleCropComplete = (result: { small: string; default: string }) => {
+  const handleCropComplete = (result: {
+    small: string;
+    default: string;
+  }) => {
     setBannerSet(result);
     setPreview(result.default);
     setShowCrop(false);
@@ -103,6 +122,7 @@ export default function EditBookInfo() {
 
     try {
       const data = await getUploadBookBannerUrl(book.slug);
+
       const { defaultUrl, smallUrl } = data;
 
       await Promise.all([
@@ -111,6 +131,7 @@ export default function EditBookInfo() {
           body: base64ToBlob(bannerSet.default),
           headers: { "Content-Type": "image/webp" },
         }),
+
         fetch(smallUrl, {
           method: "PUT",
           body: base64ToBlob(bannerSet.small),
@@ -119,11 +140,14 @@ export default function EditBookInfo() {
       ]);
 
       alert("✅ Upload banner thành công!");
+
       onChange("bannerURL", defaultUrl.split("?")[0]);
+
       setPreview(null);
       setBannerSet({});
     } catch (err) {
       console.error("Upload failed", err);
+
       alert("❌ Upload banner thất bại.");
     }
   };
@@ -142,6 +166,7 @@ export default function EditBookInfo() {
           <h2 className="text-2xl font-bold text-gray-900">
             Chỉnh sửa thông tin truyện
           </h2>
+
           <button
             onClick={handleSyncBook}
             disabled={loading}
@@ -165,6 +190,7 @@ export default function EditBookInfo() {
                   stroke="currentColor"
                   strokeWidth="4"
                 ></circle>
+
                 <path
                   className="opacity-75"
                   fill="currentColor"
@@ -177,7 +203,6 @@ export default function EditBookInfo() {
           </button>
         </div>
 
-        {/* Modal crop ảnh */}
         {showCrop && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
             <div className="p-6 max-w-md w-full">
@@ -185,6 +210,7 @@ export default function EditBookInfo() {
                 aspectRatio={2 / 3}
                 onCropComplete={handleCropComplete}
               />
+
               <div className="text-center mt-3">
                 <button
                   onClick={() => setShowCrop(false)}
@@ -197,17 +223,21 @@ export default function EditBookInfo() {
           </div>
         )}
 
-        {/* Ảnh bìa vuông */}
-
         <div className="flex flex-col lg:flex-row px-8 py-10 gap-4 bg-white rounded-2xl shadow">
           <div className="w-auto">
             <div className="flex flex-col flex-wrap gap-6">
               {[
-                { size: "default", label: "Default (450x675)", w: 450, h: 675 },
+                {
+                  size: "default",
+                  label: "Default (450x675)",
+                  w: 450,
+                  h: 675,
+                },
               ].map(({ size, label, w, h }) => {
                 const url = preview
                   ? preview
                   : getBannerURL(book.slug, "normal");
+
                 return (
                   <div key={size} className="flex flex-col">
                     <div
@@ -219,6 +249,7 @@ export default function EditBookInfo() {
                         alt={`Banner ${size}`}
                         className="object-cover object-center transition-transform duration-500 group-hover:scale-105"
                       />
+
                       <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1">
                         {label}
                       </div>
@@ -227,6 +258,9 @@ export default function EditBookInfo() {
                 );
               })}
             </div>
+
+
+
             <div className="flex gap-3 mt-3">
               <button
                 type="button"
@@ -237,15 +271,17 @@ export default function EditBookInfo() {
               >
                 Chọn ảnh
               </button>
+
               {bannerSet.default && bannerSet.small && (
                 <button
                   type="button"
                   onClick={uploadBanner}
                   className="px-5 py-2 rounded-lg bg-green-500 text-white font-medium hover:bg-green-600 transition-all"
                 >
-                  ☁️ Upload lên S3
+                  ☁️ Upload lên {storageType.toUpperCase()}
                 </button>
               )}
+
               <button
                 type="button"
                 onClick={() => {
@@ -260,7 +296,6 @@ export default function EditBookInfo() {
             </div>
           </div>
 
-          {/* Thông tin truyện */}
           <div className="w-full">
             {book.hasEbook && (
               <div className="flex flex-row gap-2 items-center">
@@ -276,9 +311,48 @@ export default function EditBookInfo() {
               </div>
             )}
 
+            <div className="flex items-center gap-4 mt-4">
+              <span className="text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                Storage
+              </span>
+
+              <div className="inline-flex p-1 bg-gray-100 rounded-xl border border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStorageType("r2")
+                    onChange("storage", "r2")
+                  }}
+                  className={`px-6 py-1.5 text-sm font-bold rounded-lg transition-all duration-200 ${storageType === "r2"
+                    ? "bg-white text-blue-600 shadow-sm ring-1 ring-black/5"
+                    : "text-gray-500 hover:text-gray-700"
+                    }`}
+                >
+                  R2
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStorageType("s3")
+                    onChange("storage", "s3")
+                  }}
+                  className={`px-6 py-1.5 text-sm font-bold rounded-lg transition-all duration-200 ${storageType === "s3"
+                    ? "bg-white text-amber-600 shadow-sm ring-1 ring-black/5"
+                    : "text-gray-500 hover:text-gray-700"
+                    }`}
+                >
+                  S3
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4 mb-4 mt-5">
               <div>
-                <label className="block text-sm font-medium">Tên truyện</label>
+                <label className="block text-sm font-medium">
+                  Tên truyện
+                </label>
+
                 <input
                   type="text"
                   value={book.title}
@@ -289,6 +363,7 @@ export default function EditBookInfo() {
 
               <div>
                 <label className="block text-sm font-medium">Tác giả</label>
+
                 <input
                   type="text"
                   value={book.tacGia}
@@ -299,6 +374,7 @@ export default function EditBookInfo() {
 
               <div>
                 <label className="block text-sm font-medium">Dịch giả</label>
+
                 <input
                   type="text"
                   value={book.dichGia}
@@ -311,15 +387,18 @@ export default function EditBookInfo() {
                 <label className="block text-sm font-medium">
                   Số chương hiện có
                 </label>
+
                 <input
                   type="number"
                   value={book.currentChapter ?? 0}
                   disabled
                   className="mt-1 w-full border border-gray-300 bg-gray-50 text-gray-600 rounded-lg p-2 cursor-not-allowed"
                 />
+
                 <label className="block text-sm font-medium mt-2">
                   Ebook đến chương
                 </label>
+
                 <input
                   type="number"
                   value={book.currentEbookChapter ?? 0}
@@ -331,6 +410,7 @@ export default function EditBookInfo() {
 
             <div className="mb-4">
               <label className="block text-sm font-medium">Mô tả</label>
+
               <textarea
                 rows={15}
                 value={book.description}
@@ -340,7 +420,10 @@ export default function EditBookInfo() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Thể loại</label>
+              <label className="block text-sm font-medium mb-1">
+                Thể loại
+              </label>
+
               <Select
                 isMulti
                 placeholder="Chọn thể loại..."
@@ -351,7 +434,7 @@ export default function EditBookInfo() {
                 onChange={(selected) =>
                   onChange(
                     "categories",
-                    selected.map((opt) => opt.value),
+                    selected.map((opt) => opt.value)
                   )
                 }
                 options={categories}
@@ -366,6 +449,7 @@ export default function EditBookInfo() {
                 <label className="block text-sm font-medium mb-1">
                   Converter
                 </label>
+
                 <Select
                   placeholder="Chọn converter..."
                   value={
@@ -387,17 +471,26 @@ export default function EditBookInfo() {
                   className="mt-1"
                 />
               </div>
+
               <div className="flex flex-row items-center gap-4 justify-center">
                 <div className="relative">
-                  <label className="block text-sm font-medium mb-1">View</label>
+                  <label className="block text-sm font-medium mb-1">
+                    View
+                  </label>
+
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none">
                       <Eye size={18} />
                     </span>
+
                     <input
                       onChange={(e) => {
                         const value = Number(e.target.value);
-                        onChange("totalViews", isNaN(value) ? 0 : value);
+
+                        onChange(
+                          "totalViews",
+                          isNaN(value) ? 0 : value
+                        );
                       }}
                       value={book.totalViews}
                       type="number"
@@ -405,6 +498,7 @@ export default function EditBookInfo() {
                     />
                   </div>
                 </div>
+
                 <button
                   type="button"
                   onClick={randomView}
@@ -413,7 +507,6 @@ export default function EditBookInfo() {
                   Random
                 </button>
               </div>
-
             </div>
 
             <div className="flex justify-between items-center">
@@ -427,11 +520,12 @@ export default function EditBookInfo() {
 
                 <button
                   onClick={async () => {
-                    const res = await api.get(
-                      `/admin/ebook/${book.slug}?currentChapter=${book.currentChapter}`,
+                    await api.get(
+                      `/admin/ebook/${book.slug}?currentChapter=${book.currentChapter}`
                     );
+
                     toast(
-                      `Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`,
+                      `Gửi yêu cầu convert ebook cho sách: ${book.slug} thành công`
                     );
                   }}
                   className="mt-4 w-32 py-2 bg-cyan-500 hover:bg-emerald-600 cursor-pointer text-white rounded-lg"
@@ -443,6 +537,7 @@ export default function EditBookInfo() {
           </div>
         </div>
       </div>
+
       <BannerNgang book={book} />
 
       <div className="mt-6 grid lg:grid-cols-2 gap-6 mx-auto container pb-10">
@@ -452,8 +547,13 @@ export default function EditBookInfo() {
             bookSlug={book.slug}
           />
         </div>
+
         <div className="bg-white rounded-2xl shadow">
-          <CommentList converter={book.converter || ""} bookSlug={book.slug} isSeed={book.isSeed} />
+          <CommentList
+            converter={book.converter || ""}
+            bookSlug={book.slug}
+            isSeed={book.isSeed}
+          />
         </div>
       </div>
     </>

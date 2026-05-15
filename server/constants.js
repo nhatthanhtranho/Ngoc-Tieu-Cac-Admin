@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const R2_ENDPOINT = "https://966888c99d59af76accec00f3980c517.r2.cloudflarestorage.com";
 export const PUBLIC_BUCKET = "assets.itruyenchu.com";
 export const PRIVATE_BUCKET = "ngoc-tieu-cac";
 // eslint-disable-next-line no-undef
@@ -15,15 +14,6 @@ export const s3 = new S3Client({
   credentials: {
     accessKeyId: S3_PUBLIC_KEY_ID,
     secretAccessKey: S3_PRIVATE_KEY_ID,
-  },
-});
-
-export const r2 = new S3Client({
-  region: "auto",
-  endpoint: R2_ENDPOINT,
-  credentials: {
-    accessKeyId: R2_PUBLIC_KEY_ID,
-    secretAccessKey: R2_PRIVATE_KEY_ID,
   },
 });
 

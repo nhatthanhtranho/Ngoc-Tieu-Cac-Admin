@@ -56,14 +56,7 @@ function takeFirstWordsKeepLines(text: string, maxWords = MAX_WORDS) {
   return result.join("\n");
 }
 
-const buildVipPreviewContent = (text: string) => `
-${takeFirstWordsKeepLines(text, MAX_WORDS)}
-
-────────────────────
-🔒 Nội dung đầy đủ chỉ dành cho thành viên VIP
-Vui lòng nâng cấp tài khoản để đọc trọn vẹn chương này.
-────────────────────
-`.trim();
+const buildVipPreviewContent = (text: string) => `${takeFirstWordsKeepLines(text, MAX_WORDS)}`.trim();
 
 /* ================= component ================= */
 

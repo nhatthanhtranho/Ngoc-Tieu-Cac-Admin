@@ -1,14 +1,21 @@
-import { strToU8, compressSync, strFromU8, decompressSync } from "fflate";
+import { strToU8, compress, strFromU8, decompressSync } from "fflate";
 
 export interface JsonBuffer {
   type: "Buffer";
   data: number[];
 }
 
-export const compressText = (text: string): Uint8Array => {
+export const compressText = (text: string): Promise<any> => {
   const input = strToU8(text);
-  return compressSync(input, { level: 9 });
+
+  return new Promise((resolve, reject) => {
+    compress(input, { level: 9 }, (err, data) => {
+      if (err) return reject(err);
+      resolve(data);
+    });
+  });
 };
+
 
 export const decompressText = (compressed: JsonBuffer): string => {
   const input = new Uint8Array(compressed.data); // chuyển JSON Buffer → Uint8Array

@@ -127,7 +127,8 @@ export async function checkBookSlugValid(bookSlug: string): Promise<boolean> {
 }
 
 export async function getUploadBookBannerUrl(bookSlug: string) {
-  const response = await api.get(`/books/banner/upload/${bookSlug}`);
+  const response = await axios.post(`${BACKEND_URL}/books/${bookSlug}/banner-upload-link`);
+  // HERW
   return response.data;
 }
 

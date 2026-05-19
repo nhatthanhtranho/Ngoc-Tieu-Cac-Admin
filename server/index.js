@@ -13,10 +13,9 @@ import {
   StartQueryCommand,
   GetQueryResultsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
-import { allowedOrigins, PUBLIC_BUCKET, s3, PRIVATE_BUCKET, cloudwatch, S3_PUBLIC_KEY_ID, S3_PRIVATE_KEY_ID, R2_PUBLIC_KEY_ID, R2_PRIVATE_KEY_ID } from "./constants.js";
+import { allowedOrigins, s3, PRIVATE_BUCKET, cloudwatch, S3_PUBLIC_KEY_ID, S3_PRIVATE_KEY_ID, r2, PUBLIC_BUCKET } from "./constants.js";
 import { generateHomePage } from "./home.mjs";
-
-
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 async function runLogQuery(logGroupName, queryString, startTime, endTime) {
   const start = await cloudwatch.send(
@@ -405,7 +404,7 @@ app.get("/chapters/:slug/sync", async (req, res) => {
     const chapterJSON = JSON.stringify(chapters);
     const compressed = gzipSync(strToU8(chapterJSON));
 
-    await s3.send(
+    await r2.send(
       new PutObjectCommand({
         Bucket: PUBLIC_BUCKET,
         Key: `books/${slug}.json`,
@@ -415,7 +414,7 @@ app.get("/chapters/:slug/sync", async (req, res) => {
     );
 
     // Upload compressed chapters JSON
-    await s3.send(
+    await r2.send(
       new PutObjectCommand({
         Bucket: PUBLIC_BUCKET,
         Key: `chapters/${slug}.json.gz`,
@@ -898,7 +897,7 @@ const privateBucket = "ngoc-tieu-cac";
 const publicBucket = "assets.itruyenchu.com";
 
 const privateR2Bucket = "ngoc-tieu-cac";
-const publicR2Bucket = "assets.itruyenchu.com";
+const publicR2Bucket = "ngoc-tieu-cac-public";
 
 
 app.post("/chapters/upload-link/:bookSlug", async (req, res) => {
@@ -1397,14 +1396,21 @@ app.get("/admin/top-book", async (req, res) => {
   }
 });
 
+app.post("/r2/sign", async (req, res) => {
+  const { key, contentType, isPublic } = req.body;
+
+  const command = new PutObjectCommand({
+    Bucket: isPublic ? "ngoc-tieu-cac-public" : "ngoc-tieu-cac",
+    Key: key,
+    ContentType: contentType,
+  });
+
+  const url = await getSignedUrl(r2, command, { expiresIn: 60 });
+
+  res.json({ url });
+});
+
 app.get("/admin/token", async (req, res) => {
-  const { isR2 } = req.query
-  if (isR2) {
-    return res.status(200).json({
-      accessKeyId: R2_PUBLIC_KEY_ID,
-      secretAccessKey: R2_PRIVATE_KEY_ID,
-    });
-  }
   return res.status(200).json({
     accessKeyId: S3_PUBLIC_KEY_ID,
     secretAccessKey: S3_PRIVATE_KEY_ID,
@@ -1638,6 +1644,8 @@ app.post("/admin/books/:bookSlug/toggle-seed", async (req, res) => {
   }
 });
 
+
+
 app.delete("/delete-s3/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
@@ -1698,6 +1706,69 @@ app.delete("/delete-s3/:slug", async (req, res) => {
   } catch (err) {
     console.error(
       "DELETE /delete-s3/:slug error:",
+      err
+    );
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
+
+app.post("/books/:slug/banner-upload-link", async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    if (!slug) {
+      return res.status(400).json({
+        message: "Missing slug",
+      });
+    }
+
+    const defaultKey = `book-cover/${slug}/banner.webp`;
+    const smallKey = `book-cover/${slug}/banner-small.webp`;
+
+    // ✅ signed url upload banner lớn
+    const defaultCommand = new PutObjectCommand({
+      Bucket: publicR2Bucket,
+      Key: defaultKey,
+      ContentType: "image/webp",
+    });
+
+    // ✅ signed url upload banner nhỏ
+    const smallCommand = new PutObjectCommand({
+      Bucket: publicR2Bucket,
+      Key: smallKey,
+      ContentType: "image/webp",
+    });
+
+    const [defaultUrl, smallUrl] = await Promise.all([
+      getSignedUrl(r2, defaultCommand, {
+        expiresIn: 60,
+      }),
+
+      getSignedUrl(r2, smallCommand, {
+        expiresIn: 60,
+      }),
+    ]);
+
+    return res.json({
+      storage: "r2",
+
+      defaultUrl,
+      smallUrl,
+
+      defaultKey,
+      smallKey,
+
+      // optional
+      bannerUrl: `${process.env.R2_PUBLIC_URL}/${defaultKey}`,
+      bannerSmallUrl: `${process.env.R2_PUBLIC_URL}/${smallKey}`,
+    });
+  } catch (err) {
+    console.error(
+      "POST /books/:slug/banner-upload-link error:",
       err
     );
 

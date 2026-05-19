@@ -4,8 +4,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const PUBLIC_BUCKET = "assets.itruyenchu.com";
+const R2_ENDPOINT = "https://966888c99d59af76accec00f3980c517.r2.cloudflarestorage.com";
 export const PRIVATE_BUCKET = "ngoc-tieu-cac";
+export const PUBLIC_BUCKET = "ngoc-tieu-cac-public";
+
 // eslint-disable-next-line no-undef
 export const { S3_PUBLIC_KEY_ID, S3_PRIVATE_KEY_ID, R2_PUBLIC_KEY_ID, R2_PRIVATE_KEY_ID } = process.env;
 
@@ -14,6 +16,16 @@ export const s3 = new S3Client({
   credentials: {
     accessKeyId: S3_PUBLIC_KEY_ID,
     secretAccessKey: S3_PRIVATE_KEY_ID,
+  },
+});
+
+export const r2 = new S3Client({
+  region: "auto",
+  endpoint: R2_ENDPOINT,
+  forcePathStyle: true,
+  credentials: {
+      accessKeyId: R2_PUBLIC_KEY_ID,
+      secretAccessKey: R2_PRIVATE_KEY_ID,
   },
 });
 
@@ -50,5 +62,5 @@ export const BANNER_SLUGS = [
   "quy-bi-chi-chu-phan-2",
   "tu-minh-tu-thanh-nguoi-duoi-quy",
   "ta-khong-phai-hi-than",
-  "hu-hoa-cau-sinh"
+  // "hu-hoa-cau-sinh"
 ]

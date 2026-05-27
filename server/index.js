@@ -16,6 +16,7 @@ import {
 import { allowedOrigins, s3, PRIVATE_BUCKET, cloudwatch, S3_PUBLIC_KEY_ID, S3_PRIVATE_KEY_ID, r2, PUBLIC_BUCKET } from "./constants.js";
 import { generateHomePage } from "./home.mjs";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { refreshCache } from "./cache.js";
 
 async function runLogQuery(logGroupName, queryString, startTime, endTime) {
   const start = await cloudwatch.send(
@@ -77,6 +78,23 @@ const BOOKS = "books";
 const PAYMENT_REQUESTS = "payment_requests";
 const SEEDS = "seeds";
 const COMMENTS = "comments";
+
+
+app.get("/reset-cache", async (req, res) => {
+  try {
+    const slug = req.query.slug;
+
+    const result = await refreshCache(slug);
+
+    return res.json({
+      message: "Cache refresh triggered",
+      result,
+    });
+  } catch (err) {
+    console.error("GET /cache error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 
 app.get("/real-comments", async (req, res) => {

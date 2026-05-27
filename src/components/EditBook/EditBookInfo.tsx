@@ -36,7 +36,6 @@ export default function EditBookInfo() {
   const [preview, setPreview] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
   const [converters, setConverters] = useState<Converter[]>([]);
-  const [storageType, setStorageType] = useState<"s3" | "r2">("s3");
 
   useEffect(() => {
     getConverters().then(setConverters);
@@ -92,9 +91,6 @@ export default function EditBookInfo() {
   }, [slug]);
 
 
-  useEffect(() => {
-    setStorageType(book?.storage === "r2" ? "r2" : "s3");
-  }, [book?.storage])
   const onChange = (key: keyof Book, value: any) => {
     setBook((prev) => (prev ? { ...prev, [key]: value } : prev));
   };
@@ -167,6 +163,8 @@ export default function EditBookInfo() {
           headers: { "Content-Type": "image/webp" },
         }),
       ]);
+
+      await axios.get(`${BACKEND_URL}/reset-cache?slug=${book.slug}`);
 
       alert("✅ Upload banner thành công!");
 
@@ -307,7 +305,7 @@ export default function EditBookInfo() {
                   onClick={uploadBanner}
                   className="px-5 py-2 rounded-lg bg-green-500 text-white font-medium hover:bg-green-600 transition-all"
                 >
-                  ☁️ Upload lên {storageType.toUpperCase()}
+                  ☁️ Upload lên R2
                 </button>
               )}
 
@@ -344,36 +342,6 @@ export default function EditBookInfo() {
               <span className="text-sm font-semibold text-gray-600 uppercase tracking-wider">
                 Storage
               </span>
-
-              <div className="inline-flex p-1 bg-gray-100 rounded-xl border border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStorageType("r2")
-                    onChange("storage", "r2")
-                  }}
-                  className={`px-6 py-1.5 text-sm font-bold rounded-lg transition-all duration-200 ${storageType === "r2"
-                    ? "bg-white text-blue-600 shadow-sm ring-1 ring-black/5"
-                    : "text-gray-500 hover:text-gray-700"
-                    }`}
-                >
-                  R2
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStorageType("s3")
-                    onChange("storage", "s3")
-                  }}
-                  className={`px-6 py-1.5 text-sm font-bold rounded-lg transition-all duration-200 ${storageType === "s3"
-                    ? "bg-white text-amber-600 shadow-sm ring-1 ring-black/5"
-                    : "text-gray-500 hover:text-gray-700"
-                    }`}
-                >
-                  S3
-                </button>
-              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4 mt-5">

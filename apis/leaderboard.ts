@@ -19,5 +19,5 @@ export async function setLeaderboard(type: string, bookSlugs: string[]) {
 }
 
 export async function generateHomePageData() {
-  return axios.get(`${BACKEND_URL}/generate`);
+  return axios.get(`${BACKEND_URL}/books/generate`);
 }

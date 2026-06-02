@@ -6,7 +6,7 @@ import {
 } from "../../apis/books";
 import BookList from "../components/Book/BookList";
 import CreateStoryFormModal from "../components/CreateStoryModal";
-import { StarIcon, UploadCloud, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import {  UploadCloud, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { api } from "../../apis";
 import Spinner from "../components/Spinner";
 import pLimit from "p-limit";
@@ -35,7 +35,7 @@ function App() {
 
   const fetchAllBookSlugs = async (filter = bookStatusFilter) => {
     try {
-      const res = await axios.get(`${BACKEND_URL}/slugs`);
+      const res = await axios.get(`${BACKEND_URL}/books/slugs`);
       let booksData = res.data;
   
       booksData = booksData.filter((book: any) => {
@@ -119,17 +119,6 @@ function App() {
       toast.success("Sync Category hoàn tất");
     } catch {
       toast.error("Lỗi Sync Category");
-    }
-    setLoading(false);
-  };
-
-  const generateRelativeBook = async () => {
-    setLoading(true);
-    try {
-      await api.get("/admin/gemnerateRelativeBook");
-      toast.success("Đã cập nhật sách liên quan");
-    } catch {
-      toast.error("Lỗi khi tạo sách liên quan");
     }
     setLoading(false);
   };
@@ -230,13 +219,6 @@ function App() {
               className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all active:scale-95 font-medium flex items-center gap-2"
             >
               <UploadCloud size={18} /> Sync Toàn Bộ
-            </button>
-
-            <button
-              onClick={generateRelativeBook}
-              className="px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl shadow-sm transition-all active:scale-95 font-medium flex items-center gap-2"
-            >
-              <StarIcon size={18} /> Sách Theo Tác Giả
             </button>
           </div>
         </div>

@@ -1,17 +1,20 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import BookCard2 from "./BookCard";
 import { Book } from "../../../apis/books";
 import { getSmallBannerURL } from "../../utils/getBannerURL";
 import Skeleton from "react-loading-skeleton";
+import { BACKEND_URL } from "../../constant";
 
 export default function BookList({
   initialBooks,
   loading,
+  isTiemTruyenChu = false
 }: {
   initialBooks: Book[];
   loading: boolean;
+  isTiemTruyenChu?: boolean;
 }) {
 
   const [books, setBooks] = useState<Book[]>(initialBooks);
@@ -74,10 +77,16 @@ export default function BookList({
             >
               <BookCard2
                 slug={book?.slug}
-                currentChapter={book?.currentChapter || 0}
+                currentChapter={isTiemTruyenChu ? book.total_chapters as any : book?.currentChapter || 0}
                 title={`${book?.title}`}
-                handleClick={() => window.open(`/Ngoc-Tieu-Cac-Admin/#/book/${book?.slug}`, "_blank", "noopener,noreferrer")}
-                thumbnailUrl={getSmallBannerURL(book?.slug) || ""}
+                handleClick={() => window.open(`/Ngoc-Tieu-Cac-Admin/#${isTiemTruyenChu ? "/ttc" : "/book"}/${book?.slug}`, "_blank", "noopener,noreferrer")}
+                thumbnailUrl={
+                  isTiemTruyenChu
+                    ? `${BACKEND_URL}/ttc/image?url=${encodeURIComponent(
+                      `https://tiemtruyenchu.cloud/stories/${book.id}/poster.jpg`
+                    )}`
+                    : getSmallBannerURL(book?.slug) || ""
+                }
                 isBookmarked={bookmarks.includes(book?.slug)}
                 onToggleBookmark={() => toggleBookmark(book?.slug)}
                 hasEbook={book?.hasEbook}

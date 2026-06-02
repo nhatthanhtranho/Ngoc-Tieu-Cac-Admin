@@ -12,7 +12,7 @@ export default function CommentList() {
 
     const fetchComments = async () => {
         try {
-            const res = await axios.get(`${BACKEND_URL}/real-comments`);
+            const res = await axios.get(`${BACKEND_URL}/comments/real`);
             setComments(res?.data ?? []);
         } catch (err) {
             console.error("Lỗi:", err);

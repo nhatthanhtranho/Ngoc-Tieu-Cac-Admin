@@ -151,7 +151,7 @@ export default function TopupCard({
       onStatusChange(item.id, "rejected");
     } catch (err: any) {
       console.error("Reject error:", err.response?.data || err.message);
-      alert("Xử lý thất bại!");
+      alert(err.response?.data?.message || "Đánh dấu thất bại thất bại!");
     }
   }, [item.id, onStatusChange]);
 

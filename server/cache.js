@@ -7,13 +7,14 @@ const { CLOUDFLARE_ZONE_ID, CLOUDFLARE_API_TOKEN } = process.env;
 
 export async function refreshCache(slug) {
     try {
+        console.log("refresh cache for slug:", slug);
         const response = await axios.post(
             `https://api.cloudflare.com/client/v4/zones/${CLOUDFLARE_ZONE_ID}/purge_cache`,
             {
                 files: [`https://assets.itruyenchu.org/book-cover/${slug}/banner.webp`,
-                `https://assets.itruyenchu.org/book-cover/${slug}/small-banner.webp`,
+                `https://assets.itruyenchu.org/book-cover/${slug}/banner-small.webp`,
                 `https://assets.ngoctieucac.link/book-cover/${slug}/banner.webp`,
-                `https://assets.ngoctieucac.link/book-cover/${slug}/small-banner.webp`],
+                `https://assets.ngoctieucac.link/book-cover/${slug}/banner-small.webp`],
             },
             {
                 headers: {

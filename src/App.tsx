@@ -20,6 +20,7 @@ import {
   LibraryBig,
   ChevronLeft,
   ChevronRight,
+  BookText,
 } from "lucide-react";
 
 import Badge from "./components/Badge";
@@ -31,6 +32,8 @@ import NapTien from "./pages/NapTien";
 import UserEbook from "./pages/UserEbook";
 import axios from "axios";
 import { BACKEND_URL } from "./constant";
+import TTC from "./pages/TTC";
+import TTCBookDetail from "./pages/TTCBookDetail";
 
 // Dynamic imports
 const Home = lazy(() => import("./pages/Home"));
@@ -95,9 +98,8 @@ export default function App() {
         {/* Sidebar */}
         {!hideSidebar && (
           <aside
-            className={`relative bg-zinc-900 text-white flex flex-col justify-between transition-all duration-300 border-r border-zinc-800 ${
-              collapsed ? "w-20" : "w-64"
-            }`}
+            className={`relative bg-zinc-900 text-white flex flex-col justify-between transition-all duration-300 border-r border-zinc-800 ${collapsed ? "w-20" : "w-64"
+              }`}
           >
             {/* Toggle button */}
             <button
@@ -115,9 +117,8 @@ export default function App() {
               {/* Logo */}
               <div className="p-6 border-b border-zinc-800">
                 <h1
-                  className={`font-bold tracking-wide whitespace-nowrap overflow-hidden transition-all duration-300 ${
-                    collapsed ? "text-center text-sm" : "text-xl"
-                  }`}
+                  className={`font-bold tracking-wide whitespace-nowrap overflow-hidden transition-all duration-300 ${collapsed ? "text-center text-sm" : "text-xl"
+                    }`}
                 >
                   {collapsed ? "NTG" : "Ngọc Tiêu Các"}
                 </h1>
@@ -130,6 +131,13 @@ export default function App() {
                   to="/"
                   icon={<HomeIcon size={20} />}
                   label="Trang chủ"
+                />
+
+                <NavItem
+                  collapsed={collapsed}
+                  to="/ttc"
+                  icon={<BookText size={20} />}
+                  label="TTC"
                 />
 
                 <NavItem
@@ -151,13 +159,6 @@ export default function App() {
                   to="/leaderboard"
                   icon={<Crown size={20} />}
                   label="Bảng Xếp Hạng"
-                />
-
-                <NavItem
-                  collapsed={collapsed}
-                  to="/leaderboard-audio"
-                  icon={<Music2 size={20} />}
-                  label="BXH Audio"
                 />
 
                 <NavItem
@@ -209,9 +210,8 @@ export default function App() {
             {/* User */}
             {user && (
               <div
-                className={`border-t border-zinc-800 p-4 flex items-center ${
-                  collapsed ? "justify-center" : "justify-between"
-                }`}
+                className={`border-t border-zinc-800 p-4 flex items-center ${collapsed ? "justify-center" : "justify-between"
+                  }`}
               >
                 <div className="flex items-center space-x-3 overflow-hidden">
                   <img
@@ -251,6 +251,8 @@ export default function App() {
             <Suspense fallback={<div className="p-4">Đang tải...</div>}>
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/ttc" element={<TTC />} />
+                <Route path="/ttc/:id" element={<TTCBookDetail />} />
                 <Route path="/leaderboard" element={<LeaderBoard />} />
                 <Route
                   path="/leaderboard-audio"
@@ -304,15 +306,13 @@ function NavItem({
     <Link
       to={to}
       title={collapsed ? label : ""}
-      className={`relative flex items-center rounded-lg transition-all group ${
-        collapsed
+      className={`relative flex items-center rounded-lg transition-all group ${collapsed
           ? "justify-center px-2 py-3"
           : "gap-3 px-3 py-2"
-      } ${
-        isActive
+        } ${isActive
           ? "bg-blue-600 text-white shadow-md"
           : "text-gray-300 hover:bg-zinc-800 hover:text-white"
-      }`}
+        }`}
     >
       {icon}
 

@@ -7,6 +7,8 @@ import { decompressText, JsonBuffer } from "../src/utils/compress";
 import { BACKEND_URL } from "../src/constant";
 
 export interface Book {
+  total_chapters?: string
+  id?: string;
   currentAudioChapter?: number;
   isHidden?: boolean;
   isSeed?: boolean;
@@ -29,6 +31,8 @@ export interface Book {
   currentEbookChapter: number;
   converter?: string;
   storage?: string
+  syncedChapters?: number;
+  category: string;
 }
 
 export async function createBook(newBook: Book): Promise<Book> {
@@ -86,7 +90,7 @@ export async function fetchBookBySlugs(
   slugs: string[],
   setBooks: (categories: Book[]) => void
 ) {
-  const res = await axios.post<Book[]>(`${BACKEND_URL}/slugs`, {
+  const res = await axios.post<Book[]>(`${BACKEND_URL}/books/slugs`, {
     slugs,
   });
   setBooks(res.data);
